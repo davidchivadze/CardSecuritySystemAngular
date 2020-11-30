@@ -10,6 +10,8 @@ import { EmployeeComponent } from './Components/Main/employee/employee.component
 import {Api, Api as APIService,} from './Services/SwaggerClient'
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { AddEmployeeComponent } from './Components/Main/employee/add-employee/add-employee.component';
+import { EmployeeListComponent } from './Components/Main/employee/employee-list/employee-list.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +19,9 @@ import { HttpClientModule } from '@angular/common/http';
     DataSynchronizationComponent,
     UserManagmentComponent,
     DevicesComponent,
-    EmployeeComponent
+    EmployeeComponent,
+    AddEmployeeComponent,
+    EmployeeListComponent
   ],
   imports: [
     BrowserModule,
