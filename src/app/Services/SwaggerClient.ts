@@ -19,7 +19,12 @@ export interface IEmployeeService {
     /**
      * @return OK
      */
-    getEmployeeList(): Observable<IResponseOfListOfEmployeeViewModel>;
+    addEmployee(request: AddEmployeeRequestModel): Observable<IResponseOfAddEmployeeResposeModel>;
+    /**
+     * @param model_employeeID (optional) 
+     * @return OK
+     */
+    getEmployeeHolidayList(model_employeeID: number | null | undefined): Observable<IResponseOfGetEmployeeHolidayListResponse>;
 }
 
 @Injectable({
@@ -38,8 +43,239 @@ export class EmployeeService implements IEmployeeService {
     /**
      * @return OK
      */
-    getEmployeeList(): Observable<IResponseOfListOfEmployeeViewModel> {
-        let url_ = this.baseUrl + "/api/Employee/GetEmployeeList";
+    addEmployee(request: AddEmployeeRequestModel): Observable<IResponseOfAddEmployeeResposeModel> {
+        let url_ = this.baseUrl + "/api/Employee/AddEmployee";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddEmployee(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddEmployee(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfAddEmployeeResposeModel>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfAddEmployeeResposeModel>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processAddEmployee(response: HttpResponseBase): Observable<IResponseOfAddEmployeeResposeModel> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfAddEmployeeResposeModel.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfAddEmployeeResposeModel>(<any>null);
+    }
+
+    /**
+     * @param model_employeeID (optional) 
+     * @return OK
+     */
+    getEmployeeHolidayList(model_employeeID: number | null | undefined): Observable<IResponseOfGetEmployeeHolidayListResponse> {
+        let url_ = this.baseUrl + "/api/Employee/GetEmployeeHolidayList?";
+        if (model_employeeID !== undefined && model_employeeID !== null)
+            url_ += "model.employeeID=" + encodeURIComponent("" + model_employeeID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetEmployeeHolidayList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetEmployeeHolidayList(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfGetEmployeeHolidayListResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfGetEmployeeHolidayListResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetEmployeeHolidayList(response: HttpResponseBase): Observable<IResponseOfGetEmployeeHolidayListResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfGetEmployeeHolidayListResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfGetEmployeeHolidayListResponse>(<any>null);
+    }
+}
+
+export interface IParametersService {
+    /**
+     * @return OK
+     */
+    getGenderList(): Observable<IResponseOfGetGenderListResponse>;
+    /**
+     * @return OK
+     */
+    getDepartmentsList(): Observable<IResponseOfGetDepartmentsListResponse>;
+    /**
+     * @return OK
+     */
+    addDepartment(model: AddDepartmentRequest): Observable<IResponseOfAddDepartmentResponse>;
+    /**
+     * @return OK
+     */
+    editDepartment(model: EditDepartmentRequest): Observable<IResponseOfEditDeparmentResponse>;
+    /**
+     * @return OK
+     */
+    getBranchList(): Observable<IResponseOfGetBranchListResponse>;
+    /**
+     * @return OK
+     */
+    addBranch(model: AddBranchRequest): Observable<IResponseOfAddBranchResponse>;
+    /**
+     * @return OK
+     */
+    editBranch(model: EditBranchRequest): Observable<IResponseOfEditBranchResponse>;
+    /**
+     * @return OK
+     */
+    getEmployeePositionsList(): Observable<IResponseOfGetEmployeePositionsResponse>;
+    /**
+     * @return OK
+     */
+    addEmployeePositionType(model: AddEmployeePositionRequest): Observable<IResponseOfAddEmployeePositionResponse>;
+    /**
+     * @return OK
+     */
+    editEmployeePosition(model: EditEmployeePositionRequest): Observable<IResponseOfEditEmployeePositionResponse>;
+    /**
+     * @return OK
+     */
+    getSalaryTypesList(): Observable<IResponseOfGetSalaryTypeListResponse>;
+    /**
+     * @return OK
+     */
+    addSalaryType(model: AddSalaryTypeRequest): Observable<IResponseOfAddSalaryTypeResponse>;
+    /**
+     * @return OK
+     */
+    editSalaryType(model: EditSalaryTypeRequest): Observable<IResponseOfEditSalaryTypeResponse>;
+    /**
+     * @return OK
+     */
+    getFineTypesLIst(): Observable<IResponseOfGetFineTypeListResponse>;
+    /**
+     * @return OK
+     */
+    addFineType(model: AddFineTypeRequest): Observable<IResponseOfAddFineTypeResponse>;
+    /**
+     * @return OK
+     */
+    editFineType(model: EditFineTypeRequest): Observable<IResponseOfEditFineTypeResponse>;
+    /**
+     * @return OK
+     */
+    getForgivenessTypesLIst(): Observable<IResponseOfGetForgivenessTypeListResponse>;
+    /**
+     * @return OK
+     */
+    getCountryList(): Observable<IResponseOfGetCountryListResponse>;
+    /**
+     * @return OK
+     */
+    getCitiesListByCountryID(countryID: number): Observable<IResponseOfGetCitiesListByCountryIDResponse>;
+    /**
+     * @return OK
+     */
+    getDeviceTypeList(): Observable<IResponseOfGetDeviceTypeListResponse>;
+    /**
+     * @return OK
+     */
+    getDeviceLocationInBranchList(): Observable<IResponseOfGetDeviceLocationInBranchListResponse>;
+    /**
+     * @return OK
+     */
+    addDeviceLocationInBranch(model: AddDeviceLocationInBranchRequest): Observable<IResponseOfAddDeviceLocationInBranchResponse>;
+    /**
+     * @return OK
+     */
+    editDeviceLocationInBranch(model: EditDeviceLocationInBranchRequest): Observable<IResponseOfEditDeviceLocationInBranchResponse>;
+    /**
+     * @return OK
+     */
+    addForgivenessType(model: AddForgivenessTypeRequest): Observable<IResponseOfAddForgivenessTypeResponse>;
+    /**
+     * @return OK
+     */
+    editForgivenessType(model: EditForgivenessTypeRequest): Observable<IResponseOfEditForgivenessTypeResponse>;
+    /**
+     * @return OK
+     */
+    getHolidayTypeList(): Observable<IResponseOfGetHolidayTypesListResponse>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class ParametersService implements IParametersService {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://localhost:44376";
+    }
+
+    /**
+     * @return OK
+     */
+    getGenderList(): Observable<IResponseOfGetGenderListResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/GetGenderList";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -51,20 +287,20 @@ export class EmployeeService implements IEmployeeService {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetEmployeeList(response_);
+            return this.processGetGenderList(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetEmployeeList(<any>response_);
+                    return this.processGetGenderList(<any>response_);
                 } catch (e) {
-                    return <Observable<IResponseOfListOfEmployeeViewModel>><any>_observableThrow(e);
+                    return <Observable<IResponseOfGetGenderListResponse>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<IResponseOfListOfEmployeeViewModel>><any>_observableThrow(response_);
+                return <Observable<IResponseOfGetGenderListResponse>><any>_observableThrow(response_);
         }));
     }
 
-    protected processGetEmployeeList(response: HttpResponseBase): Observable<IResponseOfListOfEmployeeViewModel> {
+    protected processGetGenderList(response: HttpResponseBase): Observable<IResponseOfGetGenderListResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -75,7 +311,7 @@ export class EmployeeService implements IEmployeeService {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = IResponseOfListOfEmployeeViewModel.fromJS(resultData200);
+            result200 = IResponseOfGetGenderListResponse.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -83,7 +319,1638 @@ export class EmployeeService implements IEmployeeService {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<IResponseOfListOfEmployeeViewModel>(<any>null);
+        return _observableOf<IResponseOfGetGenderListResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    getDepartmentsList(): Observable<IResponseOfGetDepartmentsListResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/GetDepartmentsList";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetDepartmentsList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDepartmentsList(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfGetDepartmentsListResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfGetDepartmentsListResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetDepartmentsList(response: HttpResponseBase): Observable<IResponseOfGetDepartmentsListResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfGetDepartmentsListResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfGetDepartmentsListResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    addDepartment(model: AddDepartmentRequest): Observable<IResponseOfAddDepartmentResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/AddDepartment";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddDepartment(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddDepartment(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfAddDepartmentResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfAddDepartmentResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processAddDepartment(response: HttpResponseBase): Observable<IResponseOfAddDepartmentResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfAddDepartmentResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfAddDepartmentResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    editDepartment(model: EditDepartmentRequest): Observable<IResponseOfEditDeparmentResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/EditDepartment";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEditDepartment(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEditDepartment(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfEditDeparmentResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfEditDeparmentResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processEditDepartment(response: HttpResponseBase): Observable<IResponseOfEditDeparmentResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfEditDeparmentResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfEditDeparmentResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    getBranchList(): Observable<IResponseOfGetBranchListResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/GetBranchList";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetBranchList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetBranchList(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfGetBranchListResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfGetBranchListResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetBranchList(response: HttpResponseBase): Observable<IResponseOfGetBranchListResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfGetBranchListResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfGetBranchListResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    addBranch(model: AddBranchRequest): Observable<IResponseOfAddBranchResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/AddBranch";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddBranch(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddBranch(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfAddBranchResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfAddBranchResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processAddBranch(response: HttpResponseBase): Observable<IResponseOfAddBranchResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfAddBranchResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfAddBranchResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    editBranch(model: EditBranchRequest): Observable<IResponseOfEditBranchResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/EditBranch";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEditBranch(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEditBranch(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfEditBranchResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfEditBranchResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processEditBranch(response: HttpResponseBase): Observable<IResponseOfEditBranchResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfEditBranchResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfEditBranchResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    getEmployeePositionsList(): Observable<IResponseOfGetEmployeePositionsResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/GetEmployeePositionsList";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetEmployeePositionsList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetEmployeePositionsList(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfGetEmployeePositionsResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfGetEmployeePositionsResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetEmployeePositionsList(response: HttpResponseBase): Observable<IResponseOfGetEmployeePositionsResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfGetEmployeePositionsResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfGetEmployeePositionsResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    addEmployeePositionType(model: AddEmployeePositionRequest): Observable<IResponseOfAddEmployeePositionResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/AddEmployeePositionType";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddEmployeePositionType(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddEmployeePositionType(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfAddEmployeePositionResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfAddEmployeePositionResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processAddEmployeePositionType(response: HttpResponseBase): Observable<IResponseOfAddEmployeePositionResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfAddEmployeePositionResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfAddEmployeePositionResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    editEmployeePosition(model: EditEmployeePositionRequest): Observable<IResponseOfEditEmployeePositionResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/EditEmployeePosition";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEditEmployeePosition(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEditEmployeePosition(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfEditEmployeePositionResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfEditEmployeePositionResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processEditEmployeePosition(response: HttpResponseBase): Observable<IResponseOfEditEmployeePositionResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfEditEmployeePositionResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfEditEmployeePositionResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    getSalaryTypesList(): Observable<IResponseOfGetSalaryTypeListResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/GetSalaryTypesList";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetSalaryTypesList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetSalaryTypesList(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfGetSalaryTypeListResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfGetSalaryTypeListResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetSalaryTypesList(response: HttpResponseBase): Observable<IResponseOfGetSalaryTypeListResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfGetSalaryTypeListResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfGetSalaryTypeListResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    addSalaryType(model: AddSalaryTypeRequest): Observable<IResponseOfAddSalaryTypeResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/AddSalaryType";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddSalaryType(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddSalaryType(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfAddSalaryTypeResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfAddSalaryTypeResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processAddSalaryType(response: HttpResponseBase): Observable<IResponseOfAddSalaryTypeResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfAddSalaryTypeResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfAddSalaryTypeResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    editSalaryType(model: EditSalaryTypeRequest): Observable<IResponseOfEditSalaryTypeResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/EditSalaryType";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEditSalaryType(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEditSalaryType(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfEditSalaryTypeResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfEditSalaryTypeResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processEditSalaryType(response: HttpResponseBase): Observable<IResponseOfEditSalaryTypeResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfEditSalaryTypeResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfEditSalaryTypeResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    getFineTypesLIst(): Observable<IResponseOfGetFineTypeListResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/GetFineTypesLIst";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetFineTypesLIst(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetFineTypesLIst(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfGetFineTypeListResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfGetFineTypeListResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetFineTypesLIst(response: HttpResponseBase): Observable<IResponseOfGetFineTypeListResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfGetFineTypeListResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfGetFineTypeListResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    addFineType(model: AddFineTypeRequest): Observable<IResponseOfAddFineTypeResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/AddFineType";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddFineType(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddFineType(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfAddFineTypeResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfAddFineTypeResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processAddFineType(response: HttpResponseBase): Observable<IResponseOfAddFineTypeResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfAddFineTypeResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfAddFineTypeResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    editFineType(model: EditFineTypeRequest): Observable<IResponseOfEditFineTypeResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/EditFineType";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEditFineType(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEditFineType(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfEditFineTypeResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfEditFineTypeResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processEditFineType(response: HttpResponseBase): Observable<IResponseOfEditFineTypeResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfEditFineTypeResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfEditFineTypeResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    getForgivenessTypesLIst(): Observable<IResponseOfGetForgivenessTypeListResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/GetForgivenessTypesLIst";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetForgivenessTypesLIst(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetForgivenessTypesLIst(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfGetForgivenessTypeListResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfGetForgivenessTypeListResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetForgivenessTypesLIst(response: HttpResponseBase): Observable<IResponseOfGetForgivenessTypeListResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfGetForgivenessTypeListResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfGetForgivenessTypeListResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    getCountryList(): Observable<IResponseOfGetCountryListResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/GetCountryList";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCountryList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCountryList(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfGetCountryListResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfGetCountryListResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetCountryList(response: HttpResponseBase): Observable<IResponseOfGetCountryListResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfGetCountryListResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfGetCountryListResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    getCitiesListByCountryID(countryID: number): Observable<IResponseOfGetCitiesListByCountryIDResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/GetCitiesListByCountryID?";
+        if (countryID === undefined || countryID === null)
+            throw new Error("The parameter 'countryID' must be defined and cannot be null.");
+        else
+            url_ += "countryID=" + encodeURIComponent("" + countryID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCitiesListByCountryID(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCitiesListByCountryID(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfGetCitiesListByCountryIDResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfGetCitiesListByCountryIDResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetCitiesListByCountryID(response: HttpResponseBase): Observable<IResponseOfGetCitiesListByCountryIDResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfGetCitiesListByCountryIDResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfGetCitiesListByCountryIDResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    getDeviceTypeList(): Observable<IResponseOfGetDeviceTypeListResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/GetDeviceTypeList";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetDeviceTypeList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDeviceTypeList(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfGetDeviceTypeListResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfGetDeviceTypeListResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetDeviceTypeList(response: HttpResponseBase): Observable<IResponseOfGetDeviceTypeListResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfGetDeviceTypeListResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfGetDeviceTypeListResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    getDeviceLocationInBranchList(): Observable<IResponseOfGetDeviceLocationInBranchListResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/GetDeviceLocationInBranchList";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetDeviceLocationInBranchList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDeviceLocationInBranchList(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfGetDeviceLocationInBranchListResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfGetDeviceLocationInBranchListResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetDeviceLocationInBranchList(response: HttpResponseBase): Observable<IResponseOfGetDeviceLocationInBranchListResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfGetDeviceLocationInBranchListResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfGetDeviceLocationInBranchListResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    addDeviceLocationInBranch(model: AddDeviceLocationInBranchRequest): Observable<IResponseOfAddDeviceLocationInBranchResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/AddDeviceLocationInBranch";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddDeviceLocationInBranch(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddDeviceLocationInBranch(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfAddDeviceLocationInBranchResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfAddDeviceLocationInBranchResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processAddDeviceLocationInBranch(response: HttpResponseBase): Observable<IResponseOfAddDeviceLocationInBranchResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfAddDeviceLocationInBranchResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfAddDeviceLocationInBranchResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    editDeviceLocationInBranch(model: EditDeviceLocationInBranchRequest): Observable<IResponseOfEditDeviceLocationInBranchResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/EditDeviceLocationInBranch";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEditDeviceLocationInBranch(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEditDeviceLocationInBranch(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfEditDeviceLocationInBranchResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfEditDeviceLocationInBranchResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processEditDeviceLocationInBranch(response: HttpResponseBase): Observable<IResponseOfEditDeviceLocationInBranchResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfEditDeviceLocationInBranchResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfEditDeviceLocationInBranchResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    addForgivenessType(model: AddForgivenessTypeRequest): Observable<IResponseOfAddForgivenessTypeResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/AddForgivenessType";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddForgivenessType(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddForgivenessType(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfAddForgivenessTypeResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfAddForgivenessTypeResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processAddForgivenessType(response: HttpResponseBase): Observable<IResponseOfAddForgivenessTypeResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfAddForgivenessTypeResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfAddForgivenessTypeResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    editForgivenessType(model: EditForgivenessTypeRequest): Observable<IResponseOfEditForgivenessTypeResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/EditForgivenessType";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEditForgivenessType(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEditForgivenessType(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfEditForgivenessTypeResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfEditForgivenessTypeResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processEditForgivenessType(response: HttpResponseBase): Observable<IResponseOfEditForgivenessTypeResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfEditForgivenessTypeResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfEditForgivenessTypeResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    getHolidayTypeList(): Observable<IResponseOfGetHolidayTypesListResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/GetHolidayTypeList";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetHolidayTypeList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetHolidayTypeList(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfGetHolidayTypesListResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfGetHolidayTypesListResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetHolidayTypeList(response: HttpResponseBase): Observable<IResponseOfGetHolidayTypesListResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfGetHolidayTypesListResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfGetHolidayTypesListResponse>(<any>null);
+    }
+}
+
+export interface IRemoteDeviceService {
+    /**
+     * @return OK
+     */
+    getMachineDateTime(): Observable<IResponseOfDateTime>;
+    /**
+     * @return OK
+     */
+    addDevice(model: AddDeviceRequest): Observable<IResponseOfBoolean>;
+    /**
+     * @return OK
+     */
+    getDeviceList(): Observable<IResponseOfGetDeviceListResponse>;
+    /**
+     * @return OK
+     */
+    syncUserLog(): Observable<IResponseOfBoolean>;
+    /**
+     * @return OK
+     */
+    updateUserListFromDevice(): Observable<IResponseOfBoolean>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class RemoteDeviceService implements IRemoteDeviceService {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://localhost:44376";
+    }
+
+    /**
+     * @return OK
+     */
+    getMachineDateTime(): Observable<IResponseOfDateTime> {
+        let url_ = this.baseUrl + "/api/RemoteDevice/GetMachineDateTime";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetMachineDateTime(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetMachineDateTime(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfDateTime>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfDateTime>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetMachineDateTime(response: HttpResponseBase): Observable<IResponseOfDateTime> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfDateTime.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfDateTime>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    addDevice(model: AddDeviceRequest): Observable<IResponseOfBoolean> {
+        let url_ = this.baseUrl + "/api/RemoteDevice/AddDevice";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddDevice(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddDevice(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfBoolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfBoolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processAddDevice(response: HttpResponseBase): Observable<IResponseOfBoolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfBoolean.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfBoolean>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    getDeviceList(): Observable<IResponseOfGetDeviceListResponse> {
+        let url_ = this.baseUrl + "/api/RemoteDevice/GetDeviceList";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetDeviceList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDeviceList(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfGetDeviceListResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfGetDeviceListResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetDeviceList(response: HttpResponseBase): Observable<IResponseOfGetDeviceListResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfGetDeviceListResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfGetDeviceListResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    syncUserLog(): Observable<IResponseOfBoolean> {
+        let url_ = this.baseUrl + "/api/RemoteDevice/SyncUserLog";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSyncUserLog(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSyncUserLog(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfBoolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfBoolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processSyncUserLog(response: HttpResponseBase): Observable<IResponseOfBoolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfBoolean.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfBoolean>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    updateUserListFromDevice(): Observable<IResponseOfBoolean> {
+        let url_ = this.baseUrl + "/api/RemoteDevice/UpdateUserListFromDevice";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateUserListFromDevice(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateUserListFromDevice(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfBoolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfBoolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processUpdateUserListFromDevice(response: HttpResponseBase): Observable<IResponseOfBoolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfBoolean.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfBoolean>(<any>null);
     }
 }
 
@@ -163,12 +2030,424 @@ export class ValuesService implements IValuesService {
     }
 }
 
-export class IResponseOfListOfEmployeeViewModel implements IIResponseOfListOfEmployeeViewModel {
+export class AddEmployeeRequestModel implements IAddEmployeeRequestModel {
+    firsName?: string | undefined;
+    firsName_ka?: string | undefined;
+    firsName_ru?: string | undefined;
+    lastName?: string | undefined;
+    lastName_ka?: string | undefined;
+    lastName_ru?: string | undefined;
+    country?: string | undefined;
+    dateOfBirth?: Date | undefined;
+    address?: string | undefined;
+    address_ka?: string | undefined;
+    address_ru?: string | undefined;
+    email?: string | undefined;
+    isActive?: boolean | undefined;
+    employeePositionID?: number | undefined;
+    salaryID?: number | undefined;
+    branchID?: number | undefined;
+    departmentID?: number | undefined;
+    genderID?: number | undefined;
+    mobileNumbers?: string[] | undefined;
+    forgiveness?: Forgiveness | undefined;
+    fine?: Fine | undefined;
+    salary?: SalaryData | undefined;
+    schedule?: ScheduleData | undefined;
+    employeeHolidays?: EmployeeHolidays[] | undefined;
+
+    constructor(data?: IAddEmployeeRequestModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.firsName = _data["FirsName"];
+            this.firsName_ka = _data["FirsName_ka"];
+            this.firsName_ru = _data["FirsName_ru"];
+            this.lastName = _data["LastName"];
+            this.lastName_ka = _data["LastName_ka"];
+            this.lastName_ru = _data["LastName_ru"];
+            this.country = _data["Country"];
+            this.dateOfBirth = _data["DateOfBirth"] ? new Date(_data["DateOfBirth"].toString()) : <any>undefined;
+            this.address = _data["Address"];
+            this.address_ka = _data["Address_ka"];
+            this.address_ru = _data["Address_ru"];
+            this.email = _data["Email"];
+            this.isActive = _data["IsActive"];
+            this.employeePositionID = _data["EmployeePositionID"];
+            this.salaryID = _data["SalaryID"];
+            this.branchID = _data["BranchID"];
+            this.departmentID = _data["DepartmentID"];
+            this.genderID = _data["GenderID"];
+            if (Array.isArray(_data["MobileNumbers"])) {
+                this.mobileNumbers = [] as any;
+                for (let item of _data["MobileNumbers"])
+                    this.mobileNumbers!.push(item);
+            }
+            this.forgiveness = _data["Forgiveness"] ? Forgiveness.fromJS(_data["Forgiveness"]) : <any>undefined;
+            this.fine = _data["Fine"] ? Fine.fromJS(_data["Fine"]) : <any>undefined;
+            this.salary = _data["Salary"] ? SalaryData.fromJS(_data["Salary"]) : <any>undefined;
+            this.schedule = _data["Schedule"] ? ScheduleData.fromJS(_data["Schedule"]) : <any>undefined;
+            if (Array.isArray(_data["EmployeeHolidays"])) {
+                this.employeeHolidays = [] as any;
+                for (let item of _data["EmployeeHolidays"])
+                    this.employeeHolidays!.push(EmployeeHolidays.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): AddEmployeeRequestModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddEmployeeRequestModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["FirsName"] = this.firsName;
+        data["FirsName_ka"] = this.firsName_ka;
+        data["FirsName_ru"] = this.firsName_ru;
+        data["LastName"] = this.lastName;
+        data["LastName_ka"] = this.lastName_ka;
+        data["LastName_ru"] = this.lastName_ru;
+        data["Country"] = this.country;
+        data["DateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
+        data["Address"] = this.address;
+        data["Address_ka"] = this.address_ka;
+        data["Address_ru"] = this.address_ru;
+        data["Email"] = this.email;
+        data["IsActive"] = this.isActive;
+        data["EmployeePositionID"] = this.employeePositionID;
+        data["SalaryID"] = this.salaryID;
+        data["BranchID"] = this.branchID;
+        data["DepartmentID"] = this.departmentID;
+        data["GenderID"] = this.genderID;
+        if (Array.isArray(this.mobileNumbers)) {
+            data["MobileNumbers"] = [];
+            for (let item of this.mobileNumbers)
+                data["MobileNumbers"].push(item);
+        }
+        data["Forgiveness"] = this.forgiveness ? this.forgiveness.toJSON() : <any>undefined;
+        data["Fine"] = this.fine ? this.fine.toJSON() : <any>undefined;
+        data["Salary"] = this.salary ? this.salary.toJSON() : <any>undefined;
+        data["Schedule"] = this.schedule ? this.schedule.toJSON() : <any>undefined;
+        if (Array.isArray(this.employeeHolidays)) {
+            data["EmployeeHolidays"] = [];
+            for (let item of this.employeeHolidays)
+                data["EmployeeHolidays"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IAddEmployeeRequestModel {
+    firsName?: string | undefined;
+    firsName_ka?: string | undefined;
+    firsName_ru?: string | undefined;
+    lastName?: string | undefined;
+    lastName_ka?: string | undefined;
+    lastName_ru?: string | undefined;
+    country?: string | undefined;
+    dateOfBirth?: Date | undefined;
+    address?: string | undefined;
+    address_ka?: string | undefined;
+    address_ru?: string | undefined;
+    email?: string | undefined;
+    isActive?: boolean | undefined;
+    employeePositionID?: number | undefined;
+    salaryID?: number | undefined;
+    branchID?: number | undefined;
+    departmentID?: number | undefined;
+    genderID?: number | undefined;
+    mobileNumbers?: string[] | undefined;
+    forgiveness?: Forgiveness | undefined;
+    fine?: Fine | undefined;
+    salary?: SalaryData | undefined;
+    schedule?: ScheduleData | undefined;
+    employeeHolidays?: EmployeeHolidays[] | undefined;
+}
+
+export class Forgiveness implements IForgiveness {
+    forgivenessTypeID?: number | undefined;
+    amount?: number | undefined;
+
+    constructor(data?: IForgiveness) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.forgivenessTypeID = _data["ForgivenessTypeID"];
+            this.amount = _data["Amount"];
+        }
+    }
+
+    static fromJS(data: any): Forgiveness {
+        data = typeof data === 'object' ? data : {};
+        let result = new Forgiveness();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ForgivenessTypeID"] = this.forgivenessTypeID;
+        data["Amount"] = this.amount;
+        return data; 
+    }
+}
+
+export interface IForgiveness {
+    forgivenessTypeID?: number | undefined;
+    amount?: number | undefined;
+}
+
+export class Fine implements IFine {
+    fineTypeID?: number | undefined;
+    amount?: number | undefined;
+    currencyID?: number | undefined;
+
+    constructor(data?: IFine) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fineTypeID = _data["FineTypeID"];
+            this.amount = _data["Amount"];
+            this.currencyID = _data["CurrencyID"];
+        }
+    }
+
+    static fromJS(data: any): Fine {
+        data = typeof data === 'object' ? data : {};
+        let result = new Fine();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["FineTypeID"] = this.fineTypeID;
+        data["Amount"] = this.amount;
+        data["CurrencyID"] = this.currencyID;
+        return data; 
+    }
+}
+
+export interface IFine {
+    fineTypeID?: number | undefined;
+    amount?: number | undefined;
+    currencyID?: number | undefined;
+}
+
+export class SalaryData implements ISalaryData {
+    amount?: number | undefined;
+    currencyID?: number | undefined;
+    isHourly?: boolean | undefined;
+    salaryTypeID?: number | undefined;
+
+    constructor(data?: ISalaryData) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.amount = _data["Amount"];
+            this.currencyID = _data["CurrencyID"];
+            this.isHourly = _data["IsHourly"];
+            this.salaryTypeID = _data["SalaryTypeID"];
+        }
+    }
+
+    static fromJS(data: any): SalaryData {
+        data = typeof data === 'object' ? data : {};
+        let result = new SalaryData();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Amount"] = this.amount;
+        data["CurrencyID"] = this.currencyID;
+        data["IsHourly"] = this.isHourly;
+        data["SalaryTypeID"] = this.salaryTypeID;
+        return data; 
+    }
+}
+
+export interface ISalaryData {
+    amount?: number | undefined;
+    currencyID?: number | undefined;
+    isHourly?: boolean | undefined;
+    salaryTypeID?: number | undefined;
+}
+
+export class ScheduleData implements IScheduleData {
+    scheduleTypeID?: number | undefined;
+    startTime?: string | undefined;
+    endTime?: string | undefined;
+    weekHouresAmount?: number | undefined;
+    daylyHouresAmount?: number | undefined;
+    onWorkingDaysOnly?: boolean | undefined;
+    onWorkingHouresOnly?: boolean | undefined;
+    notStandartSchedule?: boolean | undefined;
+    scheduleFileData?: string | undefined;
+    fileFormat?: string | undefined;
+
+    constructor(data?: IScheduleData) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.scheduleTypeID = _data["ScheduleTypeID"];
+            this.startTime = _data["StartTime"];
+            this.endTime = _data["EndTime"];
+            this.weekHouresAmount = _data["WeekHouresAmount"];
+            this.daylyHouresAmount = _data["DaylyHouresAmount"];
+            this.onWorkingDaysOnly = _data["OnWorkingDaysOnly"];
+            this.onWorkingHouresOnly = _data["OnWorkingHouresOnly"];
+            this.notStandartSchedule = _data["NotStandartSchedule"];
+            this.scheduleFileData = _data["ScheduleFileData"];
+            this.fileFormat = _data["FileFormat"];
+        }
+    }
+
+    static fromJS(data: any): ScheduleData {
+        data = typeof data === 'object' ? data : {};
+        let result = new ScheduleData();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ScheduleTypeID"] = this.scheduleTypeID;
+        data["StartTime"] = this.startTime;
+        data["EndTime"] = this.endTime;
+        data["WeekHouresAmount"] = this.weekHouresAmount;
+        data["DaylyHouresAmount"] = this.daylyHouresAmount;
+        data["OnWorkingDaysOnly"] = this.onWorkingDaysOnly;
+        data["OnWorkingHouresOnly"] = this.onWorkingHouresOnly;
+        data["NotStandartSchedule"] = this.notStandartSchedule;
+        data["ScheduleFileData"] = this.scheduleFileData;
+        data["FileFormat"] = this.fileFormat;
+        return data; 
+    }
+}
+
+export interface IScheduleData {
+    scheduleTypeID?: number | undefined;
+    startTime?: string | undefined;
+    endTime?: string | undefined;
+    weekHouresAmount?: number | undefined;
+    daylyHouresAmount?: number | undefined;
+    onWorkingDaysOnly?: boolean | undefined;
+    onWorkingHouresOnly?: boolean | undefined;
+    notStandartSchedule?: boolean | undefined;
+    scheduleFileData?: string | undefined;
+    fileFormat?: string | undefined;
+}
+
+export class EmployeeHolidays implements IEmployeeHolidays {
+    holidayTypeID?: number | undefined;
+    allWritten?: number | undefined;
+    left?: number | undefined;
+    used?: number | undefined;
+    numInYear?: number | undefined;
+    leftInYear?: number | undefined;
+    deactivateDate?: Date | undefined;
+    isActive?: boolean | undefined;
+
+    constructor(data?: IEmployeeHolidays) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.holidayTypeID = _data["HolidayTypeID"];
+            this.allWritten = _data["AllWritten"];
+            this.left = _data["Left"];
+            this.used = _data["Used"];
+            this.numInYear = _data["NumInYear"];
+            this.leftInYear = _data["LeftInYear"];
+            this.deactivateDate = _data["DeactivateDate"] ? new Date(_data["DeactivateDate"].toString()) : <any>undefined;
+            this.isActive = _data["IsActive"];
+        }
+    }
+
+    static fromJS(data: any): EmployeeHolidays {
+        data = typeof data === 'object' ? data : {};
+        let result = new EmployeeHolidays();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["HolidayTypeID"] = this.holidayTypeID;
+        data["AllWritten"] = this.allWritten;
+        data["Left"] = this.left;
+        data["Used"] = this.used;
+        data["NumInYear"] = this.numInYear;
+        data["LeftInYear"] = this.leftInYear;
+        data["DeactivateDate"] = this.deactivateDate ? this.deactivateDate.toISOString() : <any>undefined;
+        data["IsActive"] = this.isActive;
+        return data; 
+    }
+}
+
+export interface IEmployeeHolidays {
+    holidayTypeID?: number | undefined;
+    allWritten?: number | undefined;
+    left?: number | undefined;
+    used?: number | undefined;
+    numInYear?: number | undefined;
+    leftInYear?: number | undefined;
+    deactivateDate?: Date | undefined;
+    isActive?: boolean | undefined;
+}
+
+export class IResponseOfAddEmployeeResposeModel implements IIResponseOfAddEmployeeResposeModel {
     ok!: boolean;
     errors?: string[] | undefined;
-    data?: EmployeeViewModel[] | undefined;
+    data?: AddEmployeeResposeModel | undefined;
 
-    constructor(data?: IIResponseOfListOfEmployeeViewModel) {
+    constructor(data?: IIResponseOfAddEmployeeResposeModel) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -185,17 +2464,13 @@ export class IResponseOfListOfEmployeeViewModel implements IIResponseOfListOfEmp
                 for (let item of _data["Errors"])
                     this.errors!.push(item);
             }
-            if (Array.isArray(_data["Data"])) {
-                this.data = [] as any;
-                for (let item of _data["Data"])
-                    this.data!.push(EmployeeViewModel.fromJS(item));
-            }
+            this.data = _data["Data"] ? AddEmployeeResposeModel.fromJS(_data["Data"]) : <any>undefined;
         }
     }
 
-    static fromJS(data: any): IResponseOfListOfEmployeeViewModel {
+    static fromJS(data: any): IResponseOfAddEmployeeResposeModel {
         data = typeof data === 'object' ? data : {};
-        let result = new IResponseOfListOfEmployeeViewModel();
+        let result = new IResponseOfAddEmployeeResposeModel();
         result.init(data);
         return result;
     }
@@ -208,27 +2483,192 @@ export class IResponseOfListOfEmployeeViewModel implements IIResponseOfListOfEmp
             for (let item of this.errors)
                 data["Errors"].push(item);
         }
-        if (Array.isArray(this.data)) {
-            data["Data"] = [];
-            for (let item of this.data)
-                data["Data"].push(item.toJSON());
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfAddEmployeeResposeModel {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: AddEmployeeResposeModel | undefined;
+}
+
+export class AddEmployeeResposeModel implements IAddEmployeeResposeModel {
+
+    constructor(data?: IAddEmployeeResposeModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): AddEmployeeResposeModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddEmployeeResposeModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+}
+
+export interface IAddEmployeeResposeModel {
+}
+
+export class GetEmployeeHolidayListRequest implements IGetEmployeeHolidayListRequest {
+    employeeID?: number | undefined;
+
+    constructor(data?: IGetEmployeeHolidayListRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.employeeID = _data["EmployeeID"];
+        }
+    }
+
+    static fromJS(data: any): GetEmployeeHolidayListRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetEmployeeHolidayListRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["EmployeeID"] = this.employeeID;
+        return data; 
+    }
+}
+
+export interface IGetEmployeeHolidayListRequest {
+    employeeID?: number | undefined;
+}
+
+export class IResponseOfGetEmployeeHolidayListResponse implements IIResponseOfGetEmployeeHolidayListResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: GetEmployeeHolidayListResponse | undefined;
+
+    constructor(data?: IIResponseOfGetEmployeeHolidayListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? GetEmployeeHolidayListResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfGetEmployeeHolidayListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfGetEmployeeHolidayListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfGetEmployeeHolidayListResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: GetEmployeeHolidayListResponse | undefined;
+}
+
+export class GetEmployeeHolidayListResponse implements IGetEmployeeHolidayListResponse {
+    getEmployeeHolidayList?: GetEmployeeHolidayListItem[] | undefined;
+
+    constructor(data?: IGetEmployeeHolidayListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["GetEmployeeHolidayList"])) {
+                this.getEmployeeHolidayList = [] as any;
+                for (let item of _data["GetEmployeeHolidayList"])
+                    this.getEmployeeHolidayList!.push(GetEmployeeHolidayListItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetEmployeeHolidayListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetEmployeeHolidayListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.getEmployeeHolidayList)) {
+            data["GetEmployeeHolidayList"] = [];
+            for (let item of this.getEmployeeHolidayList)
+                data["GetEmployeeHolidayList"].push(item.toJSON());
         }
         return data; 
     }
 }
 
-export interface IIResponseOfListOfEmployeeViewModel {
-    ok: boolean;
-    errors?: string[] | undefined;
-    data?: EmployeeViewModel[] | undefined;
+export interface IGetEmployeeHolidayListResponse {
+    getEmployeeHolidayList?: GetEmployeeHolidayListItem[] | undefined;
 }
 
-export class EmployeeViewModel implements IEmployeeViewModel {
+export class GetEmployeeHolidayListItem implements IGetEmployeeHolidayListItem {
     iD?: number | undefined;
-    firstName?: string | undefined;
-    lastName?: string | undefined;
+    holidayTypeID?: number | undefined;
+    allWritten?: number | undefined;
+    left?: number | undefined;
+    used?: number | undefined;
+    numInYear?: number | undefined;
+    leftInYear?: number | undefined;
+    deactivateDate?: Date | undefined;
+    isActive?: boolean | undefined;
+    employeeID?: number | undefined;
 
-    constructor(data?: IEmployeeViewModel) {
+    constructor(data?: IGetEmployeeHolidayListItem) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -240,14 +2680,21 @@ export class EmployeeViewModel implements IEmployeeViewModel {
     init(_data?: any) {
         if (_data) {
             this.iD = _data["ID"];
-            this.firstName = _data["FirstName"];
-            this.lastName = _data["LastName"];
+            this.holidayTypeID = _data["HolidayTypeID"];
+            this.allWritten = _data["AllWritten"];
+            this.left = _data["Left"];
+            this.used = _data["Used"];
+            this.numInYear = _data["NumInYear"];
+            this.leftInYear = _data["LeftInYear"];
+            this.deactivateDate = _data["DeactivateDate"] ? new Date(_data["DeactivateDate"].toString()) : <any>undefined;
+            this.isActive = _data["IsActive"];
+            this.employeeID = _data["EmployeeID"];
         }
     }
 
-    static fromJS(data: any): EmployeeViewModel {
+    static fromJS(data: any): GetEmployeeHolidayListItem {
         data = typeof data === 'object' ? data : {};
-        let result = new EmployeeViewModel();
+        let result = new GetEmployeeHolidayListItem();
         result.init(data);
         return result;
     }
@@ -255,16 +2702,3714 @@ export class EmployeeViewModel implements IEmployeeViewModel {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["ID"] = this.iD;
-        data["FirstName"] = this.firstName;
-        data["LastName"] = this.lastName;
+        data["HolidayTypeID"] = this.holidayTypeID;
+        data["AllWritten"] = this.allWritten;
+        data["Left"] = this.left;
+        data["Used"] = this.used;
+        data["NumInYear"] = this.numInYear;
+        data["LeftInYear"] = this.leftInYear;
+        data["DeactivateDate"] = this.deactivateDate ? this.deactivateDate.toISOString() : <any>undefined;
+        data["IsActive"] = this.isActive;
+        data["EmployeeID"] = this.employeeID;
         return data; 
     }
 }
 
-export interface IEmployeeViewModel {
+export interface IGetEmployeeHolidayListItem {
     iD?: number | undefined;
-    firstName?: string | undefined;
-    lastName?: string | undefined;
+    holidayTypeID?: number | undefined;
+    allWritten?: number | undefined;
+    left?: number | undefined;
+    used?: number | undefined;
+    numInYear?: number | undefined;
+    leftInYear?: number | undefined;
+    deactivateDate?: Date | undefined;
+    isActive?: boolean | undefined;
+    employeeID?: number | undefined;
+}
+
+export class IResponseOfGetGenderListResponse implements IIResponseOfGetGenderListResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: GetGenderListResponse | undefined;
+
+    constructor(data?: IIResponseOfGetGenderListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? GetGenderListResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfGetGenderListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfGetGenderListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfGetGenderListResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: GetGenderListResponse | undefined;
+}
+
+export class GetGenderListResponse implements IGetGenderListResponse {
+    genderList?: GetGenderListItem[] | undefined;
+
+    constructor(data?: IGetGenderListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["GenderList"])) {
+                this.genderList = [] as any;
+                for (let item of _data["GenderList"])
+                    this.genderList!.push(GetGenderListItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetGenderListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetGenderListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.genderList)) {
+            data["GenderList"] = [];
+            for (let item of this.genderList)
+                data["GenderList"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IGetGenderListResponse {
+    genderList?: GetGenderListItem[] | undefined;
+}
+
+export class GetGenderListItem implements IGetGenderListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+
+    constructor(data?: IGetGenderListItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.description = _data["Description"];
+        }
+    }
+
+    static fromJS(data: any): GetGenderListItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetGenderListItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["Description"] = this.description;
+        return data; 
+    }
+}
+
+export interface IGetGenderListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+}
+
+export class IResponseOfGetDepartmentsListResponse implements IIResponseOfGetDepartmentsListResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: GetDepartmentsListResponse | undefined;
+
+    constructor(data?: IIResponseOfGetDepartmentsListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? GetDepartmentsListResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfGetDepartmentsListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfGetDepartmentsListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfGetDepartmentsListResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: GetDepartmentsListResponse | undefined;
+}
+
+export class GetDepartmentsListResponse implements IGetDepartmentsListResponse {
+    departmentsList?: GetDepartmentsListItem[] | undefined;
+
+    constructor(data?: IGetDepartmentsListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["DepartmentsList"])) {
+                this.departmentsList = [] as any;
+                for (let item of _data["DepartmentsList"])
+                    this.departmentsList!.push(GetDepartmentsListItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetDepartmentsListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetDepartmentsListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.departmentsList)) {
+            data["DepartmentsList"] = [];
+            for (let item of this.departmentsList)
+                data["DepartmentsList"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IGetDepartmentsListResponse {
+    departmentsList?: GetDepartmentsListItem[] | undefined;
+}
+
+export class GetDepartmentsListItem implements IGetDepartmentsListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+    parentDescription?: string | undefined;
+    parentID?: number | undefined;
+
+    constructor(data?: IGetDepartmentsListItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.description = _data["Description"];
+            this.parentDescription = _data["ParentDescription"];
+            this.parentID = _data["ParentID"];
+        }
+    }
+
+    static fromJS(data: any): GetDepartmentsListItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetDepartmentsListItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["Description"] = this.description;
+        data["ParentDescription"] = this.parentDescription;
+        data["ParentID"] = this.parentID;
+        return data; 
+    }
+}
+
+export interface IGetDepartmentsListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+    parentDescription?: string | undefined;
+    parentID?: number | undefined;
+}
+
+export class AddDepartmentRequest implements IAddDepartmentRequest {
+    parentDepartmentID?: number | undefined;
+    description?: string | undefined;
+
+    constructor(data?: IAddDepartmentRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.parentDepartmentID = _data["ParentDepartmentID"];
+            this.description = _data["Description"];
+        }
+    }
+
+    static fromJS(data: any): AddDepartmentRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddDepartmentRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ParentDepartmentID"] = this.parentDepartmentID;
+        data["Description"] = this.description;
+        return data; 
+    }
+}
+
+export interface IAddDepartmentRequest {
+    parentDepartmentID?: number | undefined;
+    description?: string | undefined;
+}
+
+export class IResponseOfAddDepartmentResponse implements IIResponseOfAddDepartmentResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: AddDepartmentResponse | undefined;
+
+    constructor(data?: IIResponseOfAddDepartmentResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? AddDepartmentResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfAddDepartmentResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfAddDepartmentResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfAddDepartmentResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: AddDepartmentResponse | undefined;
+}
+
+export class AddDepartmentResponse implements IAddDepartmentResponse {
+
+    constructor(data?: IAddDepartmentResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): AddDepartmentResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddDepartmentResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+}
+
+export interface IAddDepartmentResponse {
+}
+
+export class EditDepartmentRequest implements IEditDepartmentRequest {
+    iD?: number | undefined;
+    description?: string | undefined;
+
+    constructor(data?: IEditDepartmentRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.description = _data["Description"];
+        }
+    }
+
+    static fromJS(data: any): EditDepartmentRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new EditDepartmentRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["Description"] = this.description;
+        return data; 
+    }
+}
+
+export interface IEditDepartmentRequest {
+    iD?: number | undefined;
+    description?: string | undefined;
+}
+
+export class IResponseOfEditDeparmentResponse implements IIResponseOfEditDeparmentResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: EditDeparmentResponse | undefined;
+
+    constructor(data?: IIResponseOfEditDeparmentResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? EditDeparmentResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfEditDeparmentResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfEditDeparmentResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfEditDeparmentResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: EditDeparmentResponse | undefined;
+}
+
+export class EditDeparmentResponse implements IEditDeparmentResponse {
+
+    constructor(data?: IEditDeparmentResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): EditDeparmentResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new EditDeparmentResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+}
+
+export interface IEditDeparmentResponse {
+}
+
+export class IResponseOfGetBranchListResponse implements IIResponseOfGetBranchListResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: GetBranchListResponse | undefined;
+
+    constructor(data?: IIResponseOfGetBranchListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? GetBranchListResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfGetBranchListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfGetBranchListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfGetBranchListResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: GetBranchListResponse | undefined;
+}
+
+export class GetBranchListResponse implements IGetBranchListResponse {
+    branchList?: GetBranchListItem[] | undefined;
+
+    constructor(data?: IGetBranchListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["BranchList"])) {
+                this.branchList = [] as any;
+                for (let item of _data["BranchList"])
+                    this.branchList!.push(GetBranchListItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetBranchListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetBranchListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.branchList)) {
+            data["BranchList"] = [];
+            for (let item of this.branchList)
+                data["BranchList"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IGetBranchListResponse {
+    branchList?: GetBranchListItem[] | undefined;
+}
+
+export class GetBranchListItem implements IGetBranchListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+    country?: string | undefined;
+    city?: string | undefined;
+    address?: string | undefined;
+
+    constructor(data?: IGetBranchListItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.description = _data["Description"];
+            this.country = _data["Country"];
+            this.city = _data["City"];
+            this.address = _data["Address"];
+        }
+    }
+
+    static fromJS(data: any): GetBranchListItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetBranchListItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["Description"] = this.description;
+        data["Country"] = this.country;
+        data["City"] = this.city;
+        data["Address"] = this.address;
+        return data; 
+    }
+}
+
+export interface IGetBranchListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+    country?: string | undefined;
+    city?: string | undefined;
+    address?: string | undefined;
+}
+
+export class AddBranchRequest implements IAddBranchRequest {
+    branchName?: string | undefined;
+    cityID?: number | undefined;
+    countryID?: number | undefined;
+    address?: string | undefined;
+
+    constructor(data?: IAddBranchRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.branchName = _data["BranchName"];
+            this.cityID = _data["CityID"];
+            this.countryID = _data["CountryID"];
+            this.address = _data["Address"];
+        }
+    }
+
+    static fromJS(data: any): AddBranchRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddBranchRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["BranchName"] = this.branchName;
+        data["CityID"] = this.cityID;
+        data["CountryID"] = this.countryID;
+        data["Address"] = this.address;
+        return data; 
+    }
+}
+
+export interface IAddBranchRequest {
+    branchName?: string | undefined;
+    cityID?: number | undefined;
+    countryID?: number | undefined;
+    address?: string | undefined;
+}
+
+export class IResponseOfAddBranchResponse implements IIResponseOfAddBranchResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: AddBranchResponse | undefined;
+
+    constructor(data?: IIResponseOfAddBranchResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? AddBranchResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfAddBranchResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfAddBranchResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfAddBranchResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: AddBranchResponse | undefined;
+}
+
+export class AddBranchResponse implements IAddBranchResponse {
+
+    constructor(data?: IAddBranchResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): AddBranchResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddBranchResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+}
+
+export interface IAddBranchResponse {
+}
+
+export class EditBranchRequest implements IEditBranchRequest {
+    iD?: number | undefined;
+    branchName?: string | undefined;
+    cityID?: number | undefined;
+    countryID?: number | undefined;
+    address?: string | undefined;
+
+    constructor(data?: IEditBranchRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.branchName = _data["BranchName"];
+            this.cityID = _data["CityID"];
+            this.countryID = _data["CountryID"];
+            this.address = _data["Address"];
+        }
+    }
+
+    static fromJS(data: any): EditBranchRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new EditBranchRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["BranchName"] = this.branchName;
+        data["CityID"] = this.cityID;
+        data["CountryID"] = this.countryID;
+        data["Address"] = this.address;
+        return data; 
+    }
+}
+
+export interface IEditBranchRequest {
+    iD?: number | undefined;
+    branchName?: string | undefined;
+    cityID?: number | undefined;
+    countryID?: number | undefined;
+    address?: string | undefined;
+}
+
+export class IResponseOfEditBranchResponse implements IIResponseOfEditBranchResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: EditBranchResponse | undefined;
+
+    constructor(data?: IIResponseOfEditBranchResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? EditBranchResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfEditBranchResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfEditBranchResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfEditBranchResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: EditBranchResponse | undefined;
+}
+
+export class EditBranchResponse implements IEditBranchResponse {
+
+    constructor(data?: IEditBranchResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): EditBranchResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new EditBranchResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+}
+
+export interface IEditBranchResponse {
+}
+
+export class IResponseOfGetEmployeePositionsResponse implements IIResponseOfGetEmployeePositionsResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: GetEmployeePositionsResponse | undefined;
+
+    constructor(data?: IIResponseOfGetEmployeePositionsResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? GetEmployeePositionsResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfGetEmployeePositionsResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfGetEmployeePositionsResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfGetEmployeePositionsResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: GetEmployeePositionsResponse | undefined;
+}
+
+export class GetEmployeePositionsResponse implements IGetEmployeePositionsResponse {
+    getEmployeePositionsList?: GetEmployeePositionsListItem[] | undefined;
+
+    constructor(data?: IGetEmployeePositionsResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["getEmployeePositionsList"])) {
+                this.getEmployeePositionsList = [] as any;
+                for (let item of _data["getEmployeePositionsList"])
+                    this.getEmployeePositionsList!.push(GetEmployeePositionsListItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetEmployeePositionsResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetEmployeePositionsResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.getEmployeePositionsList)) {
+            data["getEmployeePositionsList"] = [];
+            for (let item of this.getEmployeePositionsList)
+                data["getEmployeePositionsList"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IGetEmployeePositionsResponse {
+    getEmployeePositionsList?: GetEmployeePositionsListItem[] | undefined;
+}
+
+export class GetEmployeePositionsListItem implements IGetEmployeePositionsListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+
+    constructor(data?: IGetEmployeePositionsListItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.description = _data["Description"];
+        }
+    }
+
+    static fromJS(data: any): GetEmployeePositionsListItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetEmployeePositionsListItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["Description"] = this.description;
+        return data; 
+    }
+}
+
+export interface IGetEmployeePositionsListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+}
+
+export class AddEmployeePositionRequest implements IAddEmployeePositionRequest {
+    description?: string | undefined;
+
+    constructor(data?: IAddEmployeePositionRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.description = _data["Description"];
+        }
+    }
+
+    static fromJS(data: any): AddEmployeePositionRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddEmployeePositionRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Description"] = this.description;
+        return data; 
+    }
+}
+
+export interface IAddEmployeePositionRequest {
+    description?: string | undefined;
+}
+
+export class IResponseOfAddEmployeePositionResponse implements IIResponseOfAddEmployeePositionResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: AddEmployeePositionResponse | undefined;
+
+    constructor(data?: IIResponseOfAddEmployeePositionResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? AddEmployeePositionResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfAddEmployeePositionResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfAddEmployeePositionResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfAddEmployeePositionResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: AddEmployeePositionResponse | undefined;
+}
+
+export class AddEmployeePositionResponse implements IAddEmployeePositionResponse {
+
+    constructor(data?: IAddEmployeePositionResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): AddEmployeePositionResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddEmployeePositionResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+}
+
+export interface IAddEmployeePositionResponse {
+}
+
+export class EditEmployeePositionRequest implements IEditEmployeePositionRequest {
+    iD?: number | undefined;
+    description?: string | undefined;
+
+    constructor(data?: IEditEmployeePositionRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.description = _data["Description"];
+        }
+    }
+
+    static fromJS(data: any): EditEmployeePositionRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new EditEmployeePositionRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["Description"] = this.description;
+        return data; 
+    }
+}
+
+export interface IEditEmployeePositionRequest {
+    iD?: number | undefined;
+    description?: string | undefined;
+}
+
+export class IResponseOfEditEmployeePositionResponse implements IIResponseOfEditEmployeePositionResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: EditEmployeePositionResponse | undefined;
+
+    constructor(data?: IIResponseOfEditEmployeePositionResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? EditEmployeePositionResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfEditEmployeePositionResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfEditEmployeePositionResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfEditEmployeePositionResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: EditEmployeePositionResponse | undefined;
+}
+
+export class EditEmployeePositionResponse implements IEditEmployeePositionResponse {
+
+    constructor(data?: IEditEmployeePositionResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): EditEmployeePositionResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new EditEmployeePositionResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+}
+
+export interface IEditEmployeePositionResponse {
+}
+
+export class IResponseOfGetSalaryTypeListResponse implements IIResponseOfGetSalaryTypeListResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: GetSalaryTypeListResponse | undefined;
+
+    constructor(data?: IIResponseOfGetSalaryTypeListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? GetSalaryTypeListResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfGetSalaryTypeListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfGetSalaryTypeListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfGetSalaryTypeListResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: GetSalaryTypeListResponse | undefined;
+}
+
+export class GetSalaryTypeListResponse implements IGetSalaryTypeListResponse {
+    salaryTypes?: GetSalaryTypeListItem[] | undefined;
+
+    constructor(data?: IGetSalaryTypeListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["SalaryTypes"])) {
+                this.salaryTypes = [] as any;
+                for (let item of _data["SalaryTypes"])
+                    this.salaryTypes!.push(GetSalaryTypeListItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetSalaryTypeListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetSalaryTypeListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.salaryTypes)) {
+            data["SalaryTypes"] = [];
+            for (let item of this.salaryTypes)
+                data["SalaryTypes"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IGetSalaryTypeListResponse {
+    salaryTypes?: GetSalaryTypeListItem[] | undefined;
+}
+
+export class GetSalaryTypeListItem implements IGetSalaryTypeListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+
+    constructor(data?: IGetSalaryTypeListItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.description = _data["Description"];
+        }
+    }
+
+    static fromJS(data: any): GetSalaryTypeListItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetSalaryTypeListItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["Description"] = this.description;
+        return data; 
+    }
+}
+
+export interface IGetSalaryTypeListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+}
+
+export class AddSalaryTypeRequest implements IAddSalaryTypeRequest {
+    description?: string | undefined;
+
+    constructor(data?: IAddSalaryTypeRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.description = _data["Description"];
+        }
+    }
+
+    static fromJS(data: any): AddSalaryTypeRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddSalaryTypeRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Description"] = this.description;
+        return data; 
+    }
+}
+
+export interface IAddSalaryTypeRequest {
+    description?: string | undefined;
+}
+
+export class IResponseOfAddSalaryTypeResponse implements IIResponseOfAddSalaryTypeResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: AddSalaryTypeResponse | undefined;
+
+    constructor(data?: IIResponseOfAddSalaryTypeResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? AddSalaryTypeResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfAddSalaryTypeResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfAddSalaryTypeResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfAddSalaryTypeResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: AddSalaryTypeResponse | undefined;
+}
+
+export class AddSalaryTypeResponse implements IAddSalaryTypeResponse {
+
+    constructor(data?: IAddSalaryTypeResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): AddSalaryTypeResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddSalaryTypeResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+}
+
+export interface IAddSalaryTypeResponse {
+}
+
+export class EditSalaryTypeRequest implements IEditSalaryTypeRequest {
+    iD?: number | undefined;
+    description?: string | undefined;
+
+    constructor(data?: IEditSalaryTypeRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.description = _data["Description"];
+        }
+    }
+
+    static fromJS(data: any): EditSalaryTypeRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new EditSalaryTypeRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["Description"] = this.description;
+        return data; 
+    }
+}
+
+export interface IEditSalaryTypeRequest {
+    iD?: number | undefined;
+    description?: string | undefined;
+}
+
+export class IResponseOfEditSalaryTypeResponse implements IIResponseOfEditSalaryTypeResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: EditSalaryTypeResponse | undefined;
+
+    constructor(data?: IIResponseOfEditSalaryTypeResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? EditSalaryTypeResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfEditSalaryTypeResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfEditSalaryTypeResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfEditSalaryTypeResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: EditSalaryTypeResponse | undefined;
+}
+
+export class EditSalaryTypeResponse implements IEditSalaryTypeResponse {
+
+    constructor(data?: IEditSalaryTypeResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): EditSalaryTypeResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new EditSalaryTypeResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+}
+
+export interface IEditSalaryTypeResponse {
+}
+
+export class IResponseOfGetFineTypeListResponse implements IIResponseOfGetFineTypeListResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: GetFineTypeListResponse | undefined;
+
+    constructor(data?: IIResponseOfGetFineTypeListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? GetFineTypeListResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfGetFineTypeListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfGetFineTypeListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfGetFineTypeListResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: GetFineTypeListResponse | undefined;
+}
+
+export class GetFineTypeListResponse implements IGetFineTypeListResponse {
+    fineTypes?: GetFineTypeListItem[] | undefined;
+
+    constructor(data?: IGetFineTypeListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["FineTypes"])) {
+                this.fineTypes = [] as any;
+                for (let item of _data["FineTypes"])
+                    this.fineTypes!.push(GetFineTypeListItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetFineTypeListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetFineTypeListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.fineTypes)) {
+            data["FineTypes"] = [];
+            for (let item of this.fineTypes)
+                data["FineTypes"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IGetFineTypeListResponse {
+    fineTypes?: GetFineTypeListItem[] | undefined;
+}
+
+export class GetFineTypeListItem implements IGetFineTypeListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+
+    constructor(data?: IGetFineTypeListItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.description = _data["Description"];
+        }
+    }
+
+    static fromJS(data: any): GetFineTypeListItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetFineTypeListItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["Description"] = this.description;
+        return data; 
+    }
+}
+
+export interface IGetFineTypeListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+}
+
+export class AddFineTypeRequest implements IAddFineTypeRequest {
+    description?: string | undefined;
+
+    constructor(data?: IAddFineTypeRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.description = _data["Description"];
+        }
+    }
+
+    static fromJS(data: any): AddFineTypeRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddFineTypeRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Description"] = this.description;
+        return data; 
+    }
+}
+
+export interface IAddFineTypeRequest {
+    description?: string | undefined;
+}
+
+export class IResponseOfAddFineTypeResponse implements IIResponseOfAddFineTypeResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: AddFineTypeResponse | undefined;
+
+    constructor(data?: IIResponseOfAddFineTypeResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? AddFineTypeResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfAddFineTypeResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfAddFineTypeResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfAddFineTypeResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: AddFineTypeResponse | undefined;
+}
+
+export class AddFineTypeResponse implements IAddFineTypeResponse {
+
+    constructor(data?: IAddFineTypeResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): AddFineTypeResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddFineTypeResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+}
+
+export interface IAddFineTypeResponse {
+}
+
+export class EditFineTypeRequest implements IEditFineTypeRequest {
+    iD?: number | undefined;
+    description?: string | undefined;
+
+    constructor(data?: IEditFineTypeRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.description = _data["Description"];
+        }
+    }
+
+    static fromJS(data: any): EditFineTypeRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new EditFineTypeRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["Description"] = this.description;
+        return data; 
+    }
+}
+
+export interface IEditFineTypeRequest {
+    iD?: number | undefined;
+    description?: string | undefined;
+}
+
+export class IResponseOfEditFineTypeResponse implements IIResponseOfEditFineTypeResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: EditFineTypeResponse | undefined;
+
+    constructor(data?: IIResponseOfEditFineTypeResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? EditFineTypeResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfEditFineTypeResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfEditFineTypeResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfEditFineTypeResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: EditFineTypeResponse | undefined;
+}
+
+export class EditFineTypeResponse implements IEditFineTypeResponse {
+
+    constructor(data?: IEditFineTypeResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): EditFineTypeResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new EditFineTypeResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+}
+
+export interface IEditFineTypeResponse {
+}
+
+export class IResponseOfGetForgivenessTypeListResponse implements IIResponseOfGetForgivenessTypeListResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: GetForgivenessTypeListResponse | undefined;
+
+    constructor(data?: IIResponseOfGetForgivenessTypeListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? GetForgivenessTypeListResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfGetForgivenessTypeListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfGetForgivenessTypeListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfGetForgivenessTypeListResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: GetForgivenessTypeListResponse | undefined;
+}
+
+export class GetForgivenessTypeListResponse implements IGetForgivenessTypeListResponse {
+    forgivenessTypes?: GetForgivenessTypeListItem[] | undefined;
+
+    constructor(data?: IGetForgivenessTypeListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["ForgivenessTypes"])) {
+                this.forgivenessTypes = [] as any;
+                for (let item of _data["ForgivenessTypes"])
+                    this.forgivenessTypes!.push(GetForgivenessTypeListItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetForgivenessTypeListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetForgivenessTypeListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.forgivenessTypes)) {
+            data["ForgivenessTypes"] = [];
+            for (let item of this.forgivenessTypes)
+                data["ForgivenessTypes"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IGetForgivenessTypeListResponse {
+    forgivenessTypes?: GetForgivenessTypeListItem[] | undefined;
+}
+
+export class GetForgivenessTypeListItem implements IGetForgivenessTypeListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+
+    constructor(data?: IGetForgivenessTypeListItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.description = _data["Description"];
+        }
+    }
+
+    static fromJS(data: any): GetForgivenessTypeListItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetForgivenessTypeListItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["Description"] = this.description;
+        return data; 
+    }
+}
+
+export interface IGetForgivenessTypeListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+}
+
+export class IResponseOfGetCountryListResponse implements IIResponseOfGetCountryListResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: GetCountryListResponse | undefined;
+
+    constructor(data?: IIResponseOfGetCountryListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? GetCountryListResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfGetCountryListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfGetCountryListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfGetCountryListResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: GetCountryListResponse | undefined;
+}
+
+export class GetCountryListResponse implements IGetCountryListResponse {
+    countryList?: GetCountryListItem[] | undefined;
+
+    constructor(data?: IGetCountryListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["CountryList"])) {
+                this.countryList = [] as any;
+                for (let item of _data["CountryList"])
+                    this.countryList!.push(GetCountryListItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetCountryListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetCountryListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.countryList)) {
+            data["CountryList"] = [];
+            for (let item of this.countryList)
+                data["CountryList"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IGetCountryListResponse {
+    countryList?: GetCountryListItem[] | undefined;
+}
+
+export class GetCountryListItem implements IGetCountryListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+
+    constructor(data?: IGetCountryListItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.description = _data["Description"];
+        }
+    }
+
+    static fromJS(data: any): GetCountryListItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetCountryListItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["Description"] = this.description;
+        return data; 
+    }
+}
+
+export interface IGetCountryListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+}
+
+export class IResponseOfGetCitiesListByCountryIDResponse implements IIResponseOfGetCitiesListByCountryIDResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: GetCitiesListByCountryIDResponse | undefined;
+
+    constructor(data?: IIResponseOfGetCitiesListByCountryIDResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? GetCitiesListByCountryIDResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfGetCitiesListByCountryIDResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfGetCitiesListByCountryIDResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfGetCitiesListByCountryIDResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: GetCitiesListByCountryIDResponse | undefined;
+}
+
+export class GetCitiesListByCountryIDResponse implements IGetCitiesListByCountryIDResponse {
+    citiesList?: GetCitiesListItem[] | undefined;
+
+    constructor(data?: IGetCitiesListByCountryIDResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["CitiesList"])) {
+                this.citiesList = [] as any;
+                for (let item of _data["CitiesList"])
+                    this.citiesList!.push(GetCitiesListItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetCitiesListByCountryIDResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetCitiesListByCountryIDResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.citiesList)) {
+            data["CitiesList"] = [];
+            for (let item of this.citiesList)
+                data["CitiesList"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IGetCitiesListByCountryIDResponse {
+    citiesList?: GetCitiesListItem[] | undefined;
+}
+
+export class GetCitiesListItem implements IGetCitiesListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+
+    constructor(data?: IGetCitiesListItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.description = _data["Description"];
+        }
+    }
+
+    static fromJS(data: any): GetCitiesListItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetCitiesListItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["Description"] = this.description;
+        return data; 
+    }
+}
+
+export interface IGetCitiesListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+}
+
+export class IResponseOfGetDeviceTypeListResponse implements IIResponseOfGetDeviceTypeListResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: GetDeviceTypeListResponse | undefined;
+
+    constructor(data?: IIResponseOfGetDeviceTypeListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? GetDeviceTypeListResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfGetDeviceTypeListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfGetDeviceTypeListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfGetDeviceTypeListResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: GetDeviceTypeListResponse | undefined;
+}
+
+export class GetDeviceTypeListResponse implements IGetDeviceTypeListResponse {
+    deviceTypeList?: GetDeviceTypeListItem[] | undefined;
+
+    constructor(data?: IGetDeviceTypeListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["DeviceTypeList"])) {
+                this.deviceTypeList = [] as any;
+                for (let item of _data["DeviceTypeList"])
+                    this.deviceTypeList!.push(GetDeviceTypeListItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetDeviceTypeListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetDeviceTypeListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.deviceTypeList)) {
+            data["DeviceTypeList"] = [];
+            for (let item of this.deviceTypeList)
+                data["DeviceTypeList"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IGetDeviceTypeListResponse {
+    deviceTypeList?: GetDeviceTypeListItem[] | undefined;
+}
+
+export class GetDeviceTypeListItem implements IGetDeviceTypeListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+
+    constructor(data?: IGetDeviceTypeListItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.description = _data["Description"];
+        }
+    }
+
+    static fromJS(data: any): GetDeviceTypeListItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetDeviceTypeListItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["Description"] = this.description;
+        return data; 
+    }
+}
+
+export interface IGetDeviceTypeListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+}
+
+export class IResponseOfGetDeviceLocationInBranchListResponse implements IIResponseOfGetDeviceLocationInBranchListResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: GetDeviceLocationInBranchListResponse | undefined;
+
+    constructor(data?: IIResponseOfGetDeviceLocationInBranchListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? GetDeviceLocationInBranchListResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfGetDeviceLocationInBranchListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfGetDeviceLocationInBranchListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfGetDeviceLocationInBranchListResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: GetDeviceLocationInBranchListResponse | undefined;
+}
+
+export class GetDeviceLocationInBranchListResponse implements IGetDeviceLocationInBranchListResponse {
+    deviceLocationInBranchList?: GetDeviceLocationInBranchListItem[] | undefined;
+
+    constructor(data?: IGetDeviceLocationInBranchListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["DeviceLocationInBranchList"])) {
+                this.deviceLocationInBranchList = [] as any;
+                for (let item of _data["DeviceLocationInBranchList"])
+                    this.deviceLocationInBranchList!.push(GetDeviceLocationInBranchListItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetDeviceLocationInBranchListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetDeviceLocationInBranchListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.deviceLocationInBranchList)) {
+            data["DeviceLocationInBranchList"] = [];
+            for (let item of this.deviceLocationInBranchList)
+                data["DeviceLocationInBranchList"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IGetDeviceLocationInBranchListResponse {
+    deviceLocationInBranchList?: GetDeviceLocationInBranchListItem[] | undefined;
+}
+
+export class GetDeviceLocationInBranchListItem implements IGetDeviceLocationInBranchListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+
+    constructor(data?: IGetDeviceLocationInBranchListItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.description = _data["Description"];
+        }
+    }
+
+    static fromJS(data: any): GetDeviceLocationInBranchListItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetDeviceLocationInBranchListItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["Description"] = this.description;
+        return data; 
+    }
+}
+
+export interface IGetDeviceLocationInBranchListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+}
+
+export class AddDeviceLocationInBranchRequest implements IAddDeviceLocationInBranchRequest {
+    description?: string | undefined;
+
+    constructor(data?: IAddDeviceLocationInBranchRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.description = _data["Description"];
+        }
+    }
+
+    static fromJS(data: any): AddDeviceLocationInBranchRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddDeviceLocationInBranchRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Description"] = this.description;
+        return data; 
+    }
+}
+
+export interface IAddDeviceLocationInBranchRequest {
+    description?: string | undefined;
+}
+
+export class IResponseOfAddDeviceLocationInBranchResponse implements IIResponseOfAddDeviceLocationInBranchResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: AddDeviceLocationInBranchResponse | undefined;
+
+    constructor(data?: IIResponseOfAddDeviceLocationInBranchResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? AddDeviceLocationInBranchResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfAddDeviceLocationInBranchResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfAddDeviceLocationInBranchResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfAddDeviceLocationInBranchResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: AddDeviceLocationInBranchResponse | undefined;
+}
+
+export class AddDeviceLocationInBranchResponse implements IAddDeviceLocationInBranchResponse {
+
+    constructor(data?: IAddDeviceLocationInBranchResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): AddDeviceLocationInBranchResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddDeviceLocationInBranchResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+}
+
+export interface IAddDeviceLocationInBranchResponse {
+}
+
+export class EditDeviceLocationInBranchRequest implements IEditDeviceLocationInBranchRequest {
+    iD?: number | undefined;
+    description?: string | undefined;
+
+    constructor(data?: IEditDeviceLocationInBranchRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.description = _data["Description"];
+        }
+    }
+
+    static fromJS(data: any): EditDeviceLocationInBranchRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new EditDeviceLocationInBranchRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["Description"] = this.description;
+        return data; 
+    }
+}
+
+export interface IEditDeviceLocationInBranchRequest {
+    iD?: number | undefined;
+    description?: string | undefined;
+}
+
+export class IResponseOfEditDeviceLocationInBranchResponse implements IIResponseOfEditDeviceLocationInBranchResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: EditDeviceLocationInBranchResponse | undefined;
+
+    constructor(data?: IIResponseOfEditDeviceLocationInBranchResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? EditDeviceLocationInBranchResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfEditDeviceLocationInBranchResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfEditDeviceLocationInBranchResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfEditDeviceLocationInBranchResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: EditDeviceLocationInBranchResponse | undefined;
+}
+
+export class EditDeviceLocationInBranchResponse implements IEditDeviceLocationInBranchResponse {
+
+    constructor(data?: IEditDeviceLocationInBranchResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): EditDeviceLocationInBranchResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new EditDeviceLocationInBranchResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+}
+
+export interface IEditDeviceLocationInBranchResponse {
+}
+
+export class AddForgivenessTypeRequest implements IAddForgivenessTypeRequest {
+    description?: string | undefined;
+
+    constructor(data?: IAddForgivenessTypeRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.description = _data["Description"];
+        }
+    }
+
+    static fromJS(data: any): AddForgivenessTypeRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddForgivenessTypeRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Description"] = this.description;
+        return data; 
+    }
+}
+
+export interface IAddForgivenessTypeRequest {
+    description?: string | undefined;
+}
+
+export class IResponseOfAddForgivenessTypeResponse implements IIResponseOfAddForgivenessTypeResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: AddForgivenessTypeResponse | undefined;
+
+    constructor(data?: IIResponseOfAddForgivenessTypeResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? AddForgivenessTypeResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfAddForgivenessTypeResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfAddForgivenessTypeResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfAddForgivenessTypeResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: AddForgivenessTypeResponse | undefined;
+}
+
+export class AddForgivenessTypeResponse implements IAddForgivenessTypeResponse {
+
+    constructor(data?: IAddForgivenessTypeResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): AddForgivenessTypeResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddForgivenessTypeResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+}
+
+export interface IAddForgivenessTypeResponse {
+}
+
+export class EditForgivenessTypeRequest implements IEditForgivenessTypeRequest {
+    iD?: number | undefined;
+    description?: string | undefined;
+
+    constructor(data?: IEditForgivenessTypeRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.description = _data["Description"];
+        }
+    }
+
+    static fromJS(data: any): EditForgivenessTypeRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new EditForgivenessTypeRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["Description"] = this.description;
+        return data; 
+    }
+}
+
+export interface IEditForgivenessTypeRequest {
+    iD?: number | undefined;
+    description?: string | undefined;
+}
+
+export class IResponseOfEditForgivenessTypeResponse implements IIResponseOfEditForgivenessTypeResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: EditForgivenessTypeResponse | undefined;
+
+    constructor(data?: IIResponseOfEditForgivenessTypeResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? EditForgivenessTypeResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfEditForgivenessTypeResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfEditForgivenessTypeResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfEditForgivenessTypeResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: EditForgivenessTypeResponse | undefined;
+}
+
+export class EditForgivenessTypeResponse implements IEditForgivenessTypeResponse {
+
+    constructor(data?: IEditForgivenessTypeResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): EditForgivenessTypeResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new EditForgivenessTypeResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+}
+
+export interface IEditForgivenessTypeResponse {
+}
+
+export class IResponseOfGetHolidayTypesListResponse implements IIResponseOfGetHolidayTypesListResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: GetHolidayTypesListResponse | undefined;
+
+    constructor(data?: IIResponseOfGetHolidayTypesListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? GetHolidayTypesListResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfGetHolidayTypesListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfGetHolidayTypesListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfGetHolidayTypesListResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: GetHolidayTypesListResponse | undefined;
+}
+
+export class GetHolidayTypesListResponse implements IGetHolidayTypesListResponse {
+    holidayTypes?: GetHolidayTypeListItem[] | undefined;
+
+    constructor(data?: IGetHolidayTypesListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["HolidayTypes"])) {
+                this.holidayTypes = [] as any;
+                for (let item of _data["HolidayTypes"])
+                    this.holidayTypes!.push(GetHolidayTypeListItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetHolidayTypesListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetHolidayTypesListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.holidayTypes)) {
+            data["HolidayTypes"] = [];
+            for (let item of this.holidayTypes)
+                data["HolidayTypes"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IGetHolidayTypesListResponse {
+    holidayTypes?: GetHolidayTypeListItem[] | undefined;
+}
+
+export class GetHolidayTypeListItem implements IGetHolidayTypeListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+
+    constructor(data?: IGetHolidayTypeListItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.description = _data["Description"];
+        }
+    }
+
+    static fromJS(data: any): GetHolidayTypeListItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetHolidayTypeListItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["Description"] = this.description;
+        return data; 
+    }
+}
+
+export interface IGetHolidayTypeListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+}
+
+export class IResponseOfDateTime implements IIResponseOfDateTime {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: Date | undefined;
+
+    constructor(data?: IIResponseOfDateTime) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? new Date(_data["Data"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfDateTime {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfDateTime();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toISOString() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfDateTime {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: Date | undefined;
+}
+
+export class AddDeviceRequest implements IAddDeviceRequest {
+    name?: string | undefined;
+    numberDevices?: number | undefined;
+    iPAddress?: string | undefined;
+    deviceTypeID?: number | undefined;
+    branchID?: number | undefined;
+    deviceLocationInBranchID?: number | undefined;
+    userName?: string | undefined;
+    password?: string | undefined;
+    port?: string | undefined;
+
+    constructor(data?: IAddDeviceRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["Name"];
+            this.numberDevices = _data["NumberDevices"];
+            this.iPAddress = _data["IPAddress"];
+            this.deviceTypeID = _data["DeviceTypeID"];
+            this.branchID = _data["BranchID"];
+            this.deviceLocationInBranchID = _data["DeviceLocationInBranchID"];
+            this.userName = _data["UserName"];
+            this.password = _data["Password"];
+            this.port = _data["Port"];
+        }
+    }
+
+    static fromJS(data: any): AddDeviceRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddDeviceRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Name"] = this.name;
+        data["NumberDevices"] = this.numberDevices;
+        data["IPAddress"] = this.iPAddress;
+        data["DeviceTypeID"] = this.deviceTypeID;
+        data["BranchID"] = this.branchID;
+        data["DeviceLocationInBranchID"] = this.deviceLocationInBranchID;
+        data["UserName"] = this.userName;
+        data["Password"] = this.password;
+        data["Port"] = this.port;
+        return data; 
+    }
+}
+
+export interface IAddDeviceRequest {
+    name?: string | undefined;
+    numberDevices?: number | undefined;
+    iPAddress?: string | undefined;
+    deviceTypeID?: number | undefined;
+    branchID?: number | undefined;
+    deviceLocationInBranchID?: number | undefined;
+    userName?: string | undefined;
+    password?: string | undefined;
+    port?: string | undefined;
+}
+
+export class IResponseOfBoolean implements IIResponseOfBoolean {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: boolean | undefined;
+
+    constructor(data?: IIResponseOfBoolean) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"];
+        }
+    }
+
+    static fromJS(data: any): IResponseOfBoolean {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfBoolean();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data;
+        return data; 
+    }
+}
+
+export interface IIResponseOfBoolean {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: boolean | undefined;
+}
+
+export class IResponseOfGetDeviceListResponse implements IIResponseOfGetDeviceListResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: GetDeviceListResponse | undefined;
+
+    constructor(data?: IIResponseOfGetDeviceListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? GetDeviceListResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfGetDeviceListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfGetDeviceListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfGetDeviceListResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: GetDeviceListResponse | undefined;
+}
+
+export class GetDeviceListResponse implements IGetDeviceListResponse {
+    deviceList?: GetDeviceListItem[] | undefined;
+
+    constructor(data?: IGetDeviceListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["DeviceList"])) {
+                this.deviceList = [] as any;
+                for (let item of _data["DeviceList"])
+                    this.deviceList!.push(GetDeviceListItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetDeviceListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetDeviceListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.deviceList)) {
+            data["DeviceList"] = [];
+            for (let item of this.deviceList)
+                data["DeviceList"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IGetDeviceListResponse {
+    deviceList?: GetDeviceListItem[] | undefined;
+}
+
+export class GetDeviceListItem implements IGetDeviceListItem {
+    iD?: number | undefined;
+    iPAddress?: string | undefined;
+    lastSyncDate?: Date | undefined;
+    branch?: string | undefined;
+    locationInBranch?: string | undefined;
+    state?: number | undefined;
+
+    constructor(data?: IGetDeviceListItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.iPAddress = _data["IPAddress"];
+            this.lastSyncDate = _data["LastSyncDate"] ? new Date(_data["LastSyncDate"].toString()) : <any>undefined;
+            this.branch = _data["Branch"];
+            this.locationInBranch = _data["LocationInBranch"];
+            this.state = _data["State"];
+        }
+    }
+
+    static fromJS(data: any): GetDeviceListItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetDeviceListItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["IPAddress"] = this.iPAddress;
+        data["LastSyncDate"] = this.lastSyncDate ? this.lastSyncDate.toISOString() : <any>undefined;
+        data["Branch"] = this.branch;
+        data["LocationInBranch"] = this.locationInBranch;
+        data["State"] = this.state;
+        return data; 
+    }
+}
+
+export interface IGetDeviceListItem {
+    iD?: number | undefined;
+    iPAddress?: string | undefined;
+    lastSyncDate?: Date | undefined;
+    branch?: string | undefined;
+    locationInBranch?: string | undefined;
+    state?: number | undefined;
 }
 
 export class ApiException extends Error {

@@ -3,7 +3,7 @@
         <div class="card card-success card-tabs">
           <div class="card-header p-0 pt-1">
             <ul class="nav nav-tabs" id="custom-tabs-two-tab" role="tablist">
-              <li class="pt-2 px-3"><h3 class="card-title">თანამშრომლის დამატება</h3></li>
+              <li class="pt-2 px-3"><h3 class="card-title card-title-white">{{'HOME.AllCategories'|translate}}</h3></li>
               <li class="nav-item">
                 <a class="nav-link active" id="custom-tabs-two-home-tab" data-toggle="pill" href="#custom-tabs-two-home" role="tab" aria-controls="custom-tabs-two-home" aria-selected="true">მთავარი</a>
               </li>
@@ -13,12 +13,16 @@
               <li class="nav-item">
                 <a class="nav-link" id="custom-tabs-two-messages-tab" data-toggle="pill" href="#custom-tabs-two-messages" role="tab" aria-controls="custom-tabs-two-messages" aria-selected="false">შვებულება</a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" id="custom-tabs-two-messages-tab" data-toggle="pill" href="#custom-tabs-two-salary-graphic" role="tab" aria-controls="custom-tabs-two-salary-graphic" aria-selected="false">გრაფიკი</a>
+              </li>
             </ul>
           </div>
           <div class="card-body">
             <div class="tab-content" id="custom-tabs-two-tabContent">
               <div class="tab-pane fade show active" id="custom-tabs-two-home" role="tabpanel" aria-labelledby="custom-tabs-two-home-tab">
-               <div class="row">
+
+                <div class="row">
                    <div class="col-md-6">
                     <div class="form-group">
                         <label for="exampleInputEmail1">სახელი</label>
@@ -51,24 +55,192 @@
                    </div>
                    <div class="col-md-6">
                     <div class="form-group">
+                    <label for="exampleInputEmail1">ფილიალი</label>
+                    <select [(ngModel)]="AddEmployee.branchId" class="form-control" *ngIf="BranchList">
+                      <option *ngFor="let branch of BranchList" value="branch.iD">{{branch.description}}</option>
+                    </select>
+                    </div>
+                   </div>
+                   <div class="col-md-6">
+                     <div class="form-group">
+                    <label for="exampleInputEmail1">დეპარტამენტი</label>
+                    <select [(ngModel)]="AddEmployee.departmentID" class="form-control" *ngIf="DepartmentList">
+                      <option *ngFor="let department of DepartmentList" value="department.iD">{{department.description}}</option>
+                    </select>
+                  </div>
+                   </div>
+                   <div class="col-md-6">
+                    <div class="form-group">
                         <label for="exampleInputEmail1">თანამდებობა</label>
-                        <input type="text" class="form-control">
+                        <select [(ngModel)]="AddEmployee.employeePositionID" class="form-control" *ngIf="PositionList">
+                          <option *ngFor="let position of PositionList" value="position.iD">{{position.description}}</option>
+                        </select>
                       </div>
                    </div>
                    <div class="col-md-6">
                     <div class="form-group">
                         <label for="exampleInputEmail1">სქესი</label>
-                        <input type="text" class="form-control">
+                        <select [(ngModel)]="AddEmployee.genderID" class="form-control" *ngIf="GenderList">
+                          <option *ngFor="let gender of GenderList" value="gender.iD">{{gender.description}}</option>
+                        </select>
                       </div>
                    </div>
                </div>
               </div>
               <div class="tab-pane fade" id="custom-tabs-two-profile" role="tabpanel" aria-labelledby="custom-tabs-two-profile-tab">
-                 Mauris tincidunt mi at erat gravida, eget tristique urna bibendum. Mauris pharetra purus ut ligula tempor, et vulputate metus facilisis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Maecenas sollicitudin, nisi a luctus interdum, nisl ligula placerat mi, quis posuere purus ligula eu lectus. Donec nunc tellus, elementum sit amet ultricies at, posuere nec nunc. Nunc euismod pellentesque diam. 
+                <div class="row">
+
+                  <div class="col-md-6">
+                   <div class="form-group">
+                       <label for="exampleInputEmail1">ხელფასის დათვლის წესი</label>
+                       <select  class="form-control" *ngIf="SalaryTypeList">
+                         <option *ngFor="let salaryType of SalaryTypeList" value="salaryType.iD">{{salaryType.description}}</option>
+                       </select>
+                     </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">ხელფასი</label>
+                        <input type="number" class="form-control">
+                      </div>
+                   </div>
+                  <hr>
+                   <div class="col-md-12">
+                     <h3>ჯარიმები</h3>
+                   </div>
+                  <div class="col-md-6">
+                   <div class="form-group">
+                       <label for="exampleInputEmail1">ჯარიმის დათვლის წესი</label>
+                       <select  class="form-control" *ngIf="FineTypeList">
+                         <option *ngFor="let fine of FineTypeList" value="fine.iD">{{fine.description}}</option>
+                       </select>
+                     </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">ჯარიმა</label>
+                        <input type="number" class="form-control">
+                      </div>
+                   </div>
+                   <div class="col-md-12">
+                    <h3>პატიებები</h3>
+                  </div>
+                 <div class="col-md-6">
+                  <div class="form-group">
+                      <label for="exampleInputEmail1">პატიებები დათვლის წესი</label>
+                      <select  class="form-control" *ngIf="ForgivenessTypeList">
+                        <option *ngFor="let forgiveness of ForgivenessTypeList" value="forgiveness.iD">{{forgiveness.description}}</option>
+                      </select>
+                    </div>
+                 </div>
+                 <div class="col-md-6">
+                   <div class="form-group">
+                       <label for="exampleInputEmail1">პატიება</label>
+                       <input type="number" class="form-control">
+                     </div>
+                  </div>
+              </div>
               </div>
               <div class="tab-pane fade" id="custom-tabs-two-messages" role="tabpanel" aria-labelledby="custom-tabs-two-messages-tab">
-                 Morbi turpis dolor, vulputate vitae felis non, tincidunt congue mauris. Phasellus volutpat augue id mi placerat mollis. Vivamus faucibus eu massa eget condimentum. Fusce nec hendrerit sem, ac tristique nulla. Integer vestibulum orci odio. Cras nec augue ipsum. Suspendisse ut velit condimentum, mattis urna a, malesuada nunc. Curabitur eleifend facilisis velit finibus tristique. Nam vulputate, eros non luctus efficitur, ipsum odio volutpat massa, sit amet sollicitudin est libero sed ipsum. Nulla lacinia, ex vitae gravida fermentum, lectus ipsum gravida arcu, id fermentum metus arcu vel metus. Curabitur eget sem eu risus tincidunt eleifend ac ornare magna. 
+                  <div class="row" *ngFor="let holiday of HolidaysArray">
+                    <div class="col-md-6">
+                      <label for="exampleInputEmail1">შვებულების ტიპი</label>
+                      <select class="form-control">
+                        <option></option>
+                        <option value="0">შვებულება</option>
+                        <option value="1">დეკრეტი</option>
+                        <option value="2">უხელფასო შვებულება</option>
+                        <option value="3">Day Off</option>
+                        <option value="4">გამონაკლისი</option>
+                        <option value="5">ბიულეტინი</option>
+                      </select>
+                    </div>
+                    
+                    <div class="col-md-6">
+                      <label for="exampleInputEmail1">დღეების რაოდენობა</label>
+                      <input type="number" class="form-control">
+                    </div>
+                  </div>
+                  <div class="row">
+                  <div class="col-md-12">
+                    <button class="btn btn-default col-md-12 addHolidayTypeButton" (click)="addHolidayType()">
+                      <i class="fas fa-plus-circle"></i> დამატება
+                    </button>
+                  </div>
+                </div>
               </div>
+              <div class="tab-pane fade" id="custom-tabs-two-salary-graphic" role="tabpanel" aria-labelledby="custom-tabs-two-messages-tab">
+                <div class="row">
+                  <div class="col-md-12">
+                    <label for="checkbox">სტანდარტული გრაფიკი</label>
+                    <input type="checkbox" [checked]="standartSchedule" style="margin-left: 2%;" (change)="changeScheduleType()"/>
+                  </div>
+                </div>
+                <div *ngIf="standartSchedule; else individualSchedule">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="exampleInputEmail1">დაწყების დრო</label>
+                  <input type="time" class="form-control">
+                  </div>
+                  
+                  <div class="col-md-6">
+                    <label for="exampleInputEmail1">დასრულების დრო</label>
+                  <input type="time" class="form-control">
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="exampleInputEmail1">მხოლოდ სამუშოა დღეებში</label>
+                  <select class="form-control">
+                  <option value="1">კი</option>
+                  <option value="0">არა</option>  
+                  </select>
+                  </div>
+                  
+                  <div class="col-md-6">
+                  
+                      <label for="exampleInputEmail1">მხოლოდ სამუშოა საათებში</label>
+                    <select class="form-control">
+                    <option value="1">კი</option>
+                    <option value="0">არა</option>  
+                    </select>
+                  
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="exampleInputEmail1">თვეში სამუშაო საათები</label>
+                    <input type="number" class="form-control">
+                  </div>
+                  
+                  <div class="col-md-6">
+                      <label for="exampleInputEmail1">კვირაში სამუშაო საათები</label>
+                      <input type="number" class="form-control">
+                  
+                  </div>
+                </div>
+              </div>
+           
+              <ng-template #individualSchedule>
+                
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label for="exampleInputFile">ინდივიდუალური გრაფიკის ფაილის არჩევა (.xlsx ფორმატი)</label>
+                      <div class="input-group">
+                        <div class="custom-file">
+                          <input type="file" class="custom-file-input" id="exampleInputFile">
+                          <label class="custom-file-label" for="exampleInputFile">აირჩიეთ ფაილი</label>
+                        </div>
+                        <div class="input-group-append">
+                          <span class="input-group-text" id="">ატვირთვა</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </ng-template>
+            </div>
             </div>
           </div>
           <!-- /.card -->
