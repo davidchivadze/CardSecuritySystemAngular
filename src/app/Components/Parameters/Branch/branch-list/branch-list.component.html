@@ -15,7 +15,8 @@
             <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Rendering">ქვეყანა</th>
             <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Rendering">ქალაქი</th>
             <th class="sorting_desc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser" aria-sort="descending">მისამართი</th>
-        </tr>
+            <th></th>
+          </tr>
         </thead>
         <tbody *ngIf="BranchList">
         
@@ -25,6 +26,11 @@
           <td>{{branch.country}}</td>
           <td>{{branch.city}}</td>
           <td>{{branch.address}}</td>
+          <td class="editPosition">   
+            <a [routerLink]="['/Branch/EditBranch',branch.iD]" class="btn btn-info">
+              <i class="fas fa-edit"></i>
+            </a>
+          </td>
           
         </tr>        </tbody>
         <tfoot>
@@ -33,7 +39,8 @@
             <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Rendering">ქვეყანა</th>
             <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Rendering">ქალაქი</th>
             <th class="sorting_desc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser" aria-sort="descending">მისამართი</th>
-        </tfoot>
+            <th></th>
+          </tfoot>
       </table></div></div><div class="row"><div class="col-sm-12 col-md-5"><div class="dataTables_info" id="example1_info" role="status" aria-live="polite">ჩანაწერების რაოდენობა:</div></div><div class="col-sm-12 col-md-7"><div class="dataTables_paginate paging_simple_numbers" id="example1_paginate"><ul class="pagination"><li class="paginate_button page-item previous disabled" id="example1_previous"><a href="#" aria-controls="example1" data-dt-idx="0" tabindex="0" class="page-link">წინა</a></li><li class="paginate_button page-item active"><a href="#" aria-controls="example1" data-dt-idx="1" tabindex="0" class="page-link">1</a></li><li class="paginate_button page-item next disabled" id="example1_next"><a href="#" aria-controls="example1" data-dt-idx="2" tabindex="0" class="page-link">შემდეგი</a></li></ul></div></div></div></div>
     </div>
     <!-- /.card-body -->

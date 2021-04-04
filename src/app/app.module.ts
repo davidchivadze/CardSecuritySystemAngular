@@ -28,6 +28,7 @@ import { BranchMainComponent } from './Components/Parameters/Branch/branch-main/
 import { AddDepartmentComponent } from './Components/Parameters/Departments/add-department/add-department.component';
 import { DepartmentListComponent } from './Components/Parameters/Departments/department-list/department-list.component';
 import { DepartmentMainComponent } from './Components/Parameters/Departments/department-main/department-main.component';
+import { EditBranchComponent } from './Components/Parameters/Branch/edit-branch/edit-branch.component';
 export function CrateTranslateLoader(http:HttpClient){
   return new TranslateHttpLoader(http);
 } 
@@ -71,7 +72,8 @@ export class TranslateHandler implements MissingTranslationHandler {
     BranchMainComponent,
     AddDepartmentComponent,
     DepartmentListComponent,
-    DepartmentMainComponent
+    DepartmentMainComponent,
+    EditBranchComponent
   ],
   imports: [
     BrowserModule,

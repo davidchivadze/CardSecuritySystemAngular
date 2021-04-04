@@ -11,6 +11,7 @@ import { EmployeeComponent } from './Components/Main/employee/employee.component
 import { AddBranchComponent } from './Components/Parameters/Branch/add-branch/add-branch.component';
 import { BranchListComponent } from './Components/Parameters/Branch/branch-list/branch-list.component';
 import { BranchMainComponent } from './Components/Parameters/Branch/branch-main/branch-main.component';
+import { EditBranchComponent } from './Components/Parameters/Branch/edit-branch/edit-branch.component';
 import { AddDepartmentComponent } from './Components/Parameters/Departments/add-department/add-department.component';
 import { DepartmentListComponent } from './Components/Parameters/Departments/department-list/department-list.component';
 import { DepartmentMainComponent } from './Components/Parameters/Departments/department-main/department-main.component';
@@ -25,7 +26,8 @@ const routes: Routes = [
   {path:"Branch",component:BranchMainComponent,children:[
     {path:"",component:BranchListComponent},
     {path:"BranchList",component:BranchListComponent},
-    {path:"AddBranch",component:AddBranchComponent}
+    {path:"AddBranch",component:AddBranchComponent},
+    {path:"EditBranch/:branchID",component:EditBranchComponent}
   ]},
   {path:"Department",component:DepartmentMainComponent,children:[
     {path:"",component:DepartmentListComponent},
