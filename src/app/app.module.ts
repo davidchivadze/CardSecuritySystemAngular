@@ -29,6 +29,11 @@ import { AddDepartmentComponent } from './Components/Parameters/Departments/add-
 import { DepartmentListComponent } from './Components/Parameters/Departments/department-list/department-list.component';
 import { DepartmentMainComponent } from './Components/Parameters/Departments/department-main/department-main.component';
 import { EditBranchComponent } from './Components/Parameters/Branch/edit-branch/edit-branch.component';
+import { EditDepartmentComponent } from './Components/Parameters/Departments/edit-department/edit-department.component';
+import { EmployeePositionsListComponent } from './Components/Parameters/EmployeePositions/employee-positions-list/employee-positions-list.component';
+import { AddEmployeePositionComponent } from './Components/Parameters/EmployeePositions/add-employee-position/add-employee-position.component';
+import { EditEmployeePositionComponent } from './Components/Parameters/EmployeePositions/edit-employee-position/edit-employee-position.component';
+import { EmployeePositonMainComponent } from './Components/Parameters/EmployeePositions/employee-positon-main/employee-positon-main.component';
 export function CrateTranslateLoader(http:HttpClient){
   return new TranslateHttpLoader(http);
 } 
@@ -73,7 +78,12 @@ export class TranslateHandler implements MissingTranslationHandler {
     AddDepartmentComponent,
     DepartmentListComponent,
     DepartmentMainComponent,
-    EditBranchComponent
+    EditBranchComponent,
+    EditDepartmentComponent,
+    EmployeePositionsListComponent,
+    AddEmployeePositionComponent,
+    EditEmployeePositionComponent,
+    EmployeePositonMainComponent
   ],
   imports: [
     BrowserModule,

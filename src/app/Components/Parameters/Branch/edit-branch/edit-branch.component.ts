@@ -26,26 +26,27 @@ export class EditBranchComponent implements OnInit {
         this.EditBranch.cityID=res.data.cityID,
         this.EditBranch.countryID=res.data.countryID,
         this.EditBranch.iD=res.data.iD
+        this.ParametersService.getCountryList().subscribe(res=>{
+          if(res.ok){
+            this.CountryList=res.data.countryList
+            this.ParametersService.getCitiesListByCountryID(this.EditBranch.countryID).subscribe(res=>{
+              if(res.ok){
+                this.CityList=res.data.citiesList
+              }else{
+                console.log(res.errors);
+              }
+            })
+          }else{
+            console.log(res.errors);
+          }
+        })
       }else{
         this.router.navigate(["/Branch"]);
         console.log(res.errors);
         
       }
     })
-    this.ParametersService.getCountryList().subscribe(res=>{
-      if(res.ok){
-        this.CountryList=res.data.countryList
-        this.ParametersService.getCitiesListByCountryID(this.EditBranch.countryID).subscribe(res=>{
-          if(res.ok){
-            this.CityList=res.data.citiesList
-          }else{
-            console.log(res.errors);
-          }
-        })
-      }else{
-        console.log(res.errors);
-      }
-    })
+
     
 
   }

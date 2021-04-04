@@ -1,3 +1,5 @@
+
+
 <div class="row">
     <div class="col-12 col-sm-12">
         <div class="card card-success card-tabs">
@@ -26,31 +28,31 @@
                    <div class="col-md-6">
                     <div class="form-group">
                         <label for="exampleInputEmail1">სახელი</label>
-                        <input type="text" class="form-control">
+                        <input [(ngModel)]="AddEmployee.firsName" class="form-control">
                       </div>
                    </div>
                    <div class="col-md-6">
                     <div class="form-group">
                         <label for="exampleInputEmail1">გვარი</label>
-                        <input type="text" class="form-control">
+                        <input type="text" [(ngModel)]="AddEmployee.lastName" class="form-control">
                       </div>
                    </div>
-                   <div class="col-md-6">
+                   <!-- <div class="col-md-6">
                     <div class="form-group">
                         <label for="exampleInputEmail1">ID მოწყობილობაში</label>
-                        <input type="text" class="form-control">
+                        <input type="text" [(ngModel)]="" class="form-control">
                       </div>
-                   </div>
+                   </div> -->
                    <div class="col-md-6">
                     <div class="form-group">
                         <label for="exampleInputEmail1">ბარათის ნომერი</label>
-                        <input type="text" class="form-control">
+                        <input type="text" [(ngModel)]="AddEmployee.deviceCardID"  class="form-control">
                       </div>
                    </div>
                    <div class="col-md-6">
                     <div class="form-group">
                         <label for="exampleInputEmail1">პირადი ნომერი</label>
-                        <input type="text" class="form-control">
+                        <input type="text" [(ngModel)]="AddEmployee.personalNumber" class="form-control">
                       </div>
                    </div>
                    <div class="col-md-6">
@@ -81,7 +83,7 @@
                     <div class="form-group">
                         <label for="exampleInputEmail1">სქესი</label>
                         <select [(ngModel)]="AddEmployee.genderID" class="form-control" *ngIf="GenderList">
-                          <option *ngFor="let gender of GenderList" value="gender.iD">{{gender.description}}</option>
+                          <option *ngFor="let gender of GenderList" value="{{gender.iD}}">{{gender.description}}</option>
                         </select>
                       </div>
                    </div>
@@ -93,15 +95,15 @@
                   <div class="col-md-6">
                    <div class="form-group">
                        <label for="exampleInputEmail1">ხელფასის დათვლის წესი</label>
-                       <select  class="form-control" *ngIf="SalaryTypeList">
-                         <option *ngFor="let salaryType of SalaryTypeList" value="salaryType.iD">{{salaryType.description}}</option>
+                       <select  class="form-control" [(ngModel)]="AddEmployee.salary.salaryTypeID" *ngIf="SalaryTypeList">
+                         <option *ngFor="let salaryType of SalaryTypeList" value="{{salaryType.iD}}">{{salaryType.description}}</option>
                        </select>
                      </div>
                   </div>
                   <div class="col-md-6">
                     <div class="form-group">
                         <label for="exampleInputEmail1">ხელფასი</label>
-                        <input type="number" class="form-control">
+                        <input type="number" [(ngModel)]="AddEmployee.salary.amount" class="form-control">
                       </div>
                    </div>
                   <hr>
@@ -111,15 +113,15 @@
                   <div class="col-md-6">
                    <div class="form-group">
                        <label for="exampleInputEmail1">ჯარიმის დათვლის წესი</label>
-                       <select  class="form-control" *ngIf="FineTypeList">
-                         <option *ngFor="let fine of FineTypeList" value="fine.iD">{{fine.description}}</option>
+                       <select  class="form-control" [(ngModel)]="AddEmployee.fine.fineTypeID" *ngIf="FineTypeList">
+                         <option *ngFor="let fine of FineTypeList" value="{{fine.iD}}">{{fine.description}}</option>
                        </select>
                      </div>
                   </div>
                   <div class="col-md-6">
                     <div class="form-group">
                         <label for="exampleInputEmail1">ჯარიმა</label>
-                        <input type="number" class="form-control">
+                        <input type="number" [(ngModel)]="AddEmployee.fine.amount" class="form-control">
                       </div>
                    </div>
                    <div class="col-md-12">
@@ -128,37 +130,31 @@
                  <div class="col-md-6">
                   <div class="form-group">
                       <label for="exampleInputEmail1">პატიებები დათვლის წესი</label>
-                      <select  class="form-control" *ngIf="ForgivenessTypeList">
-                        <option *ngFor="let forgiveness of ForgivenessTypeList" value="forgiveness.iD">{{forgiveness.description}}</option>
+                      <select  class="form-control" [(ngModel)]="AddEmployee.forgiveness.forgivenessTypeID" *ngIf="ForgivenessTypeList">
+                        <option *ngFor="let forgiveness of ForgivenessTypeList" value="{{forgiveness.iD}}">{{forgiveness.description}}</option>
                       </select>
                     </div>
                  </div>
                  <div class="col-md-6">
                    <div class="form-group">
                        <label for="exampleInputEmail1">პატიება</label>
-                       <input type="number" class="form-control">
+                       <input type="number" [(ngModel)]="AddEmployee.forgiveness.amount" class="form-control">
                      </div>
                   </div>
               </div>
               </div>
-              <div class="tab-pane fade" id="custom-tabs-two-messages" role="tabpanel" aria-labelledby="custom-tabs-two-messages-tab">
-                  <div class="row" *ngFor="let holiday of HolidaysArray">
+              <div class="tab-pane fade" id="custom-tabs-two-messages" role="tabpanel" aria-labelledby="custom-tabs-two-messages-tab" >
+                  <div class="row" *ngFor="let holiday of AddEmployee.employeeHolidays; let i = index" >
                     <div class="col-md-6">
                       <label for="exampleInputEmail1">შვებულების ტიპი</label>
-                      <select class="form-control">
-                        <option></option>
-                        <option value="0">შვებულება</option>
-                        <option value="1">დეკრეტი</option>
-                        <option value="2">უხელფასო შვებულება</option>
-                        <option value="3">Day Off</option>
-                        <option value="4">გამონაკლისი</option>
-                        <option value="5">ბიულეტინი</option>
+                      <select [(ngModel)]="AddEmployee.employeeHolidays[i].holidayTypeID" class="form-control" *ngIf="HolidayTypes">
+                        <option *ngFor="let holidayType of HolidayTypes" value="{{holidayType.iD}}">{{holidayType.description}}</option>
                       </select>
                     </div>
                     
                     <div class="col-md-6">
                       <label for="exampleInputEmail1">დღეების რაოდენობა</label>
-                      <input type="number" class="form-control">
+                      <input type="number" [(ngModel)]="AddEmployee.employeeHolidays[i].allWritten" class="form-control">
                     </div>
                   </div>
                   <div class="row">
@@ -173,25 +169,26 @@
                 <div class="row">
                   <div class="col-md-12">
                     <label for="checkbox">სტანდარტული გრაფიკი</label>
-                    <input type="checkbox" [checked]="standartSchedule" style="margin-left: 2%;" (change)="changeScheduleType()"/>
+                    <input type="checkbox"  [checked]="standartSchedule" style="margin-left: 2%;" (change)="changeScheduleType()"/>
                   </div>
                 </div>
                 <div *ngIf="standartSchedule; else individualSchedule">
                 <div class="row">
+                  <input type="hidden" [(ngModel)]="AddEmployee.schedule.scheduleTypeID" value="1">
                   <div class="col-md-6">
                     <label for="exampleInputEmail1">დაწყების დრო</label>
-                  <input type="time" class="form-control">
+                  <input type="time" [(ngModel)]="AddEmployee.schedule.startTime" class="form-control">
                   </div>
                   
                   <div class="col-md-6">
                     <label for="exampleInputEmail1">დასრულების დრო</label>
-                  <input type="time" class="form-control">
+                  <input type="time"  [(ngModel)]="AddEmployee.schedule.endTime" class="form-control">
                   </div>
                 </div>
                 <div class="row">
                   <div class="col-md-6">
                     <label for="exampleInputEmail1">მხოლოდ სამუშოა დღეებში</label>
-                  <select class="form-control">
+                  <select class="form-control" [(ngModel)]="AddEmployee.schedule.onWorkingDaysOnly" >
                   <option value="1">კი</option>
                   <option value="0">არა</option>  
                   </select>
@@ -200,7 +197,7 @@
                   <div class="col-md-6">
                   
                       <label for="exampleInputEmail1">მხოლოდ სამუშოა საათებში</label>
-                    <select class="form-control">
+                    <select class="form-control" [(ngModel)]="AddEmployee.schedule.onWorkingHouresOnly" >
                     <option value="1">კი</option>
                     <option value="0">არა</option>  
                     </select>
@@ -209,20 +206,20 @@
                 </div>
                 <div class="row">
                   <div class="col-md-6">
-                    <label for="exampleInputEmail1">თვეში სამუშაო საათები</label>
-                    <input type="number" class="form-control">
+                    <label for="exampleInputEmail1">დღეში სამუშაო საათები</label>
+                    <input type="number" [(ngModel)]="AddEmployee.schedule.daylyHouresAmount" class="form-control">
                   </div>
                   
                   <div class="col-md-6">
                       <label for="exampleInputEmail1">კვირაში სამუშაო საათები</label>
-                      <input type="number" class="form-control">
+                      <input type="number" [(ngModel)]="AddEmployee.schedule.weekHouresAmount"   class="form-control">
                   
                   </div>
                 </div>
               </div>
            
               <ng-template #individualSchedule>
-                
+                <input type="hidden" [(ngModel)]="AddEmployee.schedule.scheduleTypeID" value="2">
                 <div class="row">
                   <div class="col-md-12">
                     <div class="form-group">
@@ -246,5 +243,7 @@
           <!-- /.card -->
         </div>
       </div>
-
+<div class="col-md-12">
+  <button class="btn btn-success col-12" (click)="addEmployeeSubmit()">დამატება</button>
+</div>
 </div>

@@ -35,3 +35,6 @@ option{
 .custom-file-label::after{
     content: 'არჩევა' !important;
 }
+.btn{
+    font-family: MainWebFont;
+}

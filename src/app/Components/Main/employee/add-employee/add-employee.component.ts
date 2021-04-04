@@ -16,6 +16,7 @@ export class AddEmployeeComponent implements OnInit {
   ForgivenessTypeList:Api.GetForgivenessTypeListItem[]
   SalaryTypeList:Api.GetSalaryTypeListItem[]
   AddEmployee:Api.AddEmployeeRequestModel
+  HolidayTypes:Api.GetHolidayTypeListItem[]
   HolidaysArray:number[]
   standartSchedule:boolean
   constructor(public ParameterService:Api.ParametersService,public addEmployeService:Api.EmployeeService) { }
@@ -24,8 +25,12 @@ export class AddEmployeeComponent implements OnInit {
       this.AddEmployee=new Api.AddEmployeeRequestModel();
       this.AddEmployee.forgiveness=new Api.Forgiveness();
       this.AddEmployee.fine=new Api.Fine();
-      this.HolidaysArray=new Array<number>();
-      this.HolidaysArray.push(1);
+      this.AddEmployee.salary=new Api.SalaryData();
+      this.AddEmployee.schedule=new Api.ScheduleData();
+      this.AddEmployee.employeeHolidays=new Array<Api.EmployeeHolidays>();
+      var firsArrayObj=new Api.EmployeeHolidays();
+      firsArrayObj.holidayTypeID=0;
+      this.AddEmployee.employeeHolidays.push(firsArrayObj);
       this.standartSchedule=true;
     this.ParameterService.getGenderList().subscribe(res=>{
        if(res.ok){
@@ -33,6 +38,13 @@ export class AddEmployeeComponent implements OnInit {
        }else{
          console.log(res);
        }
+    })
+    this.ParameterService.getHolidayTypeList().subscribe(res=>{
+      if(res.ok){
+        this.HolidayTypes=res.data.holidayTypes
+      }else{
+        console.log(res.errors);
+      }
     })
     this.ParameterService.getDepartmentsList().subscribe(res=>{
       if(res.ok){
@@ -79,10 +91,14 @@ export class AddEmployeeComponent implements OnInit {
  })
   }
   addHolidayType(){
-    this.HolidaysArray.push(this.HolidaysArray.length+1);
+    let newEmplyeeHoliday=new Api.EmployeeHolidays();
+    this.AddEmployee.employeeHolidays.push(newEmplyeeHoliday);
   }
   changeScheduleType(){
     this.standartSchedule=!this.standartSchedule;
     console.log(this.standartSchedule);
+  }
+  addEmployeeSubmit(){
+    console.log(this.AddEmployee);
   }
 }

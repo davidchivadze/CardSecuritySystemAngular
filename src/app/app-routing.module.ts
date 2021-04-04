@@ -15,6 +15,11 @@ import { EditBranchComponent } from './Components/Parameters/Branch/edit-branch/
 import { AddDepartmentComponent } from './Components/Parameters/Departments/add-department/add-department.component';
 import { DepartmentListComponent } from './Components/Parameters/Departments/department-list/department-list.component';
 import { DepartmentMainComponent } from './Components/Parameters/Departments/department-main/department-main.component';
+import { EditDepartmentComponent } from './Components/Parameters/Departments/edit-department/edit-department.component';
+import { AddEmployeePositionComponent } from './Components/Parameters/EmployeePositions/add-employee-position/add-employee-position.component';
+import { EditEmployeePositionComponent } from './Components/Parameters/EmployeePositions/edit-employee-position/edit-employee-position.component';
+import { EmployeePositionsListComponent } from './Components/Parameters/EmployeePositions/employee-positions-list/employee-positions-list.component';
+import { EmployeePositonMainComponent } from './Components/Parameters/EmployeePositions/employee-positon-main/employee-positon-main.component';
 
 const routes: Routes = [
   
@@ -32,7 +37,14 @@ const routes: Routes = [
   {path:"Department",component:DepartmentMainComponent,children:[
     {path:"",component:DepartmentListComponent},
     {path:"DepartmentList",component:DepartmentListComponent},
-    {path:"AddDepartment",component:AddDepartmentComponent}
+    {path:"AddDepartment",component:AddDepartmentComponent},
+    {path:"EditDepartment/:departmentID",component:EditDepartmentComponent}
+  ]},
+  {path:"EmployeePositions",component:EmployeePositonMainComponent,children:[
+    {path:"",component:EmployeePositionsListComponent},
+    {path:"EmployeePositionsList",component:EmployeePositionsListComponent},
+    {path:"AddEmployeePosition",component:AddEmployeePositionComponent},
+    {path:"EditEmployeePosition/:employeePositionID",component:EditEmployeePositionComponent}
   ]},
   {path:"Employee",component:EmployeeComponent,children:[
     {path:"",component:EmployeeListComponent},
