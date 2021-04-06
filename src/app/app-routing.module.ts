@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
 import { AddDeviceComponent } from './Components/Main/devices/add-device/add-device.component';
 import { DeviceListComponent } from './Components/Main/devices/device-list/device-list.component';
+import { DeviceLogListComponent } from './Components/Main/devices/device-log-list/device-log-list.component';
 import { DevicesComponent } from './Components/Main/devices/devices.component';
 import { AddEmployeeComponent } from './Components/Main/employee/add-employee/add-employee.component';
 import { DeviceEmployeeDataComponent } from './Components/Main/Employee/device-employee-data/device-employee-data.component';
@@ -26,7 +27,8 @@ const routes: Routes = [
   {path:"Device",component:DevicesComponent,children:[
     {path:"",component:DeviceListComponent},
     {path:"DeviceList",component:DeviceListComponent},
-    {path:"AddDevice",component:AddDeviceComponent}
+    {path:"AddDevice",component:AddDeviceComponent},
+    {path:"DeviceLogList",component:DeviceLogListComponent}
   ]},
   {path:"Branch",component:BranchMainComponent,children:[
     {path:"",component:BranchListComponent},

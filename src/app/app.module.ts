@@ -34,6 +34,7 @@ import { EmployeePositionsListComponent } from './Components/Parameters/Employee
 import { AddEmployeePositionComponent } from './Components/Parameters/EmployeePositions/add-employee-position/add-employee-position.component';
 import { EditEmployeePositionComponent } from './Components/Parameters/EmployeePositions/edit-employee-position/edit-employee-position.component';
 import { EmployeePositonMainComponent } from './Components/Parameters/EmployeePositions/employee-positon-main/employee-positon-main.component';
+import { DeviceLogListComponent } from './Components/Main/devices/device-log-list/device-log-list.component';
 export function CrateTranslateLoader(http:HttpClient){
   return new TranslateHttpLoader(http);
 } 
@@ -83,7 +84,8 @@ export class TranslateHandler implements MissingTranslationHandler {
     EmployeePositionsListComponent,
     AddEmployeePositionComponent,
     EditEmployeePositionComponent,
-    EmployeePositonMainComponent
+    EmployeePositonMainComponent,
+    DeviceLogListComponent
   ],
   imports: [
     BrowserModule,
