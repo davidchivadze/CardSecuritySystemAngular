@@ -9,7 +9,7 @@ import { DevicesComponent } from './Components/Main/devices/devices.component';
 import { EmployeeComponent } from './Components/Main/employee/employee.component';
 import {Api, Api as APIService,} from './Services/SwaggerClient'
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule,HttpClient } from '@angular/common/http';
+import { HttpClientModule,HttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AddEmployeeComponent } from './Components/Main/employee/add-employee/add-employee.component';
 import { EmployeeListComponent } from './Components/Main/employee/employee-list/employee-list.component';
 import {TranslateModule,TranslateLoader, TranslateService, MissingTranslationHandler, MissingTranslationHandlerParams} from '@ngx-translate/core';
@@ -35,6 +35,11 @@ import { AddEmployeePositionComponent } from './Components/Parameters/EmployeePo
 import { EditEmployeePositionComponent } from './Components/Parameters/EmployeePositions/edit-employee-position/edit-employee-position.component';
 import { EmployeePositonMainComponent } from './Components/Parameters/EmployeePositions/employee-positon-main/employee-positon-main.component';
 import { DeviceLogListComponent } from './Components/Main/devices/device-log-list/device-log-list.component';
+import { LoginComponent } from './Components/Auth/login/login.component';
+import { AuthGuard } from './Guard/Guard/auth.guard';
+import { CookieService } from 'ngx-cookie-service';
+import { LoginLayoutComponent } from './Components/Shared/login-layout/login-layout.component';
+import { TokenInterceptorService } from './Services/Auth/token-interceptor.service';
 export function CrateTranslateLoader(http:HttpClient){
   return new TranslateHttpLoader(http);
 } 
@@ -85,7 +90,10 @@ export class TranslateHandler implements MissingTranslationHandler {
     AddEmployeePositionComponent,
     EditEmployeePositionComponent,
     EmployeePositonMainComponent,
-    DeviceLogListComponent
+    DeviceLogListComponent,
+    LoginLayoutComponent,
+    LoginComponent,
+
   ],
   imports: [
     BrowserModule,
@@ -108,6 +116,9 @@ export class TranslateHandler implements MissingTranslationHandler {
     Api.EmployeeService,
     Api.ParametersService,
     Api.RemoteDeviceService,
+    AuthGuard,
+    CookieService,
+    {provide:HTTP_INTERCEPTORS,useClass:TokenInterceptorService,multi:true},
     {provide:APIService.API_BASE_URL, useValue:"https://localhost:44376"},
   ],
   bootstrap: [AppComponent]

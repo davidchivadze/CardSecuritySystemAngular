@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
+import { LoginComponent } from './Components/Auth/login/login.component';
 import { AddDeviceComponent } from './Components/Main/devices/add-device/add-device.component';
 import { DeviceListComponent } from './Components/Main/devices/device-list/device-list.component';
 import { DeviceLogListComponent } from './Components/Main/devices/device-log-list/device-log-list.component';
@@ -21,39 +22,50 @@ import { AddEmployeePositionComponent } from './Components/Parameters/EmployeePo
 import { EditEmployeePositionComponent } from './Components/Parameters/EmployeePositions/edit-employee-position/edit-employee-position.component';
 import { EmployeePositionsListComponent } from './Components/Parameters/EmployeePositions/employee-positions-list/employee-positions-list.component';
 import { EmployeePositonMainComponent } from './Components/Parameters/EmployeePositions/employee-positon-main/employee-positon-main.component';
+import { AuthLayoutComponent } from './Components/Shared/auth-layout/auth-layout.component';
+import { LoginLayoutComponent } from './Components/Shared/login-layout/login-layout.component';
+import { AuthGuard } from './Guard/Guard/auth.guard';
 
 const routes: Routes = [
-  
+  {path:"",component:AuthLayoutComponent,children:[
   {path:"Device",component:DevicesComponent,children:[
     {path:"",component:DeviceListComponent},
     {path:"DeviceList",component:DeviceListComponent},
     {path:"AddDevice",component:AddDeviceComponent},
     {path:"DeviceLogList",component:DeviceLogListComponent}
-  ]},
+  ],
+  },
   {path:"Branch",component:BranchMainComponent,children:[
     {path:"",component:BranchListComponent},
     {path:"BranchList",component:BranchListComponent},
     {path:"AddBranch",component:AddBranchComponent},
     {path:"EditBranch/:branchID",component:EditBranchComponent}
-  ]},
+  ],
+},
   {path:"Department",component:DepartmentMainComponent,children:[
     {path:"",component:DepartmentListComponent},
     {path:"DepartmentList",component:DepartmentListComponent},
     {path:"AddDepartment",component:AddDepartmentComponent},
     {path:"EditDepartment/:departmentID",component:EditDepartmentComponent}
-  ]},
+  ],
+ },
   {path:"EmployeePositions",component:EmployeePositonMainComponent,children:[
     {path:"",component:EmployeePositionsListComponent},
     {path:"EmployeePositionsList",component:EmployeePositionsListComponent},
     {path:"AddEmployeePosition",component:AddEmployeePositionComponent},
     {path:"EditEmployeePosition/:employeePositionID",component:EditEmployeePositionComponent}
-  ]},
+  ],
+ },
   {path:"Employee",component:EmployeeComponent,children:[
     {path:"",component:EmployeeListComponent},
     {path:"AddEmployee",component:AddEmployeeComponent},
     {path:"EmployeeListDevice",component:DeviceEmployeeDataComponent}
   ]},
-  {path:"",component:AppComponent}
+  ]//,  canActivate:[AuthGuard]
+},
+  {path:"Auth",component:LoginLayoutComponent,children:[
+    {path:"Login",component:LoginComponent}
+  ]}  
 ];
 
 @NgModule({
