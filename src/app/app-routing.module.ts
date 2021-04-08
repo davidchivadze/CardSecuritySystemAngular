@@ -18,6 +18,10 @@ import { AddDepartmentComponent } from './Components/Parameters/Departments/add-
 import { DepartmentListComponent } from './Components/Parameters/Departments/department-list/department-list.component';
 import { DepartmentMainComponent } from './Components/Parameters/Departments/department-main/department-main.component';
 import { EditDepartmentComponent } from './Components/Parameters/Departments/edit-department/edit-department.component';
+import { AddDeviceLocationInBranchComponent } from './Components/Parameters/DeviceLocationInBranch/add-device-location-in-branch/add-device-location-in-branch.component';
+import { DeviceLocationInBranchListComponent } from './Components/Parameters/DeviceLocationInBranch/device-location-in-branch-list/device-location-in-branch-list.component';
+import { EditDeviceLocationInBranchComponent } from './Components/Parameters/DeviceLocationInBranch/edit-device-location-in-branch/edit-device-location-in-branch.component';
+import { MainDeviceLocationInBranchComponent } from './Components/Parameters/DeviceLocationInBranch/main-device-location-in-branch/main-device-location-in-branch.component';
 import { AddEmployeePositionComponent } from './Components/Parameters/EmployeePositions/add-employee-position/add-employee-position.component';
 import { EditEmployeePositionComponent } from './Components/Parameters/EmployeePositions/edit-employee-position/edit-employee-position.component';
 import { EmployeePositionsListComponent } from './Components/Parameters/EmployeePositions/employee-positions-list/employee-positions-list.component';
@@ -42,6 +46,13 @@ const routes: Routes = [
     {path:"EditBranch/:branchID",component:EditBranchComponent}
   ],
 },
+{path:"DeviceLocationInBranch",component:MainDeviceLocationInBranchComponent,children:[
+  {path:"",component:DeviceLocationInBranchListComponent},
+  {path:"DeviceLocationInBranchList",component:DeviceLocationInBranchListComponent},
+  {path:"AddDeviceLocationInBranch",component:AddDeviceLocationInBranchComponent},
+  {path:"EditDeviceLocationInBranch/:deviceLocationInBranchID",component:EditDeviceLocationInBranchComponent}
+],
+},
   {path:"Department",component:DepartmentMainComponent,children:[
     {path:"",component:DepartmentListComponent},
     {path:"DepartmentList",component:DepartmentListComponent},
@@ -59,7 +70,8 @@ const routes: Routes = [
   {path:"Employee",component:EmployeeComponent,children:[
     {path:"",component:EmployeeListComponent},
     {path:"AddEmployee",component:AddEmployeeComponent},
-    {path:"EmployeeListDevice",component:DeviceEmployeeDataComponent}
+    {path:"EmployeeListDevice",component:DeviceEmployeeDataComponent},
+    {path:"EmployeeList",component:EmployeeListComponent}
   ]},
   ]//,  canActivate:[AuthGuard]
 },

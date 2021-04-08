@@ -15,6 +15,86 @@ import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angula
 export module Api {
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
+export interface IAuthService {
+    /**
+     * @return OK
+     */
+    login(username: string, password: string): Observable<IResponseOfString>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class AuthService implements IAuthService {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://localhost:44376";
+    }
+
+    /**
+     * @return OK
+     */
+    login(username: string, password: string): Observable<IResponseOfString> {
+        let url_ = this.baseUrl + "/api/Auth/Login?";
+        if (username === undefined || username === null)
+            throw new Error("The parameter 'username' must be defined and cannot be null.");
+        else
+            url_ += "username=" + encodeURIComponent("" + username) + "&";
+        if (password === undefined || password === null)
+            throw new Error("The parameter 'password' must be defined and cannot be null.");
+        else
+            url_ += "password=" + encodeURIComponent("" + password) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processLogin(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processLogin(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfString>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfString>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processLogin(response: HttpResponseBase): Observable<IResponseOfString> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfString.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfString>(<any>null);
+    }
+}
+
 export interface IEmployeeService {
     /**
      * @return OK
@@ -25,6 +105,10 @@ export interface IEmployeeService {
      * @return OK
      */
     getEmployeeHolidayList(model_employeeID: number | null | undefined): Observable<IResponseOfGetEmployeeHolidayListResponse>;
+    /**
+     * @return OK
+     */
+    getEmployeeList(): Observable<IResponseOfGetEmployeeListResponse>;
 }
 
 @Injectable({
@@ -148,6 +232,57 @@ export class EmployeeService implements IEmployeeService {
             }));
         }
         return _observableOf<IResponseOfGetEmployeeHolidayListResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    getEmployeeList(): Observable<IResponseOfGetEmployeeListResponse> {
+        let url_ = this.baseUrl + "/api/Employee/GetEmployeeList";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetEmployeeList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetEmployeeList(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfGetEmployeeListResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfGetEmployeeListResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetEmployeeList(response: HttpResponseBase): Observable<IResponseOfGetEmployeeListResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfGetEmployeeListResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfGetEmployeeListResponse>(<any>null);
     }
 }
 
@@ -1728,6 +1863,10 @@ export interface IRemoteDeviceService {
     /**
      * @return OK
      */
+    getDeviceUserLogList(): Observable<IResponseOfGetDeviceUserLogResponse>;
+    /**
+     * @return OK
+     */
     getDeviceList(): Observable<IResponseOfGetDeviceListResponse>;
     /**
      * @return OK
@@ -1736,7 +1875,19 @@ export interface IRemoteDeviceService {
     /**
      * @return OK
      */
+    clearDeviceData(): Observable<IResponseOfBoolean>;
+    /**
+     * @return OK
+     */
     updateUserListFromDevice(): Observable<IResponseOfBoolean>;
+    /**
+     * @return OK
+     */
+    insertUserToDevice(userID: number): Observable<IResponseOfBoolean>;
+    /**
+     * @return OK
+     */
+    getAllUserInfo(machineNumber: number): Observable<UserInfo[]>;
 }
 
 @Injectable({
@@ -1861,6 +2012,57 @@ export class RemoteDeviceService implements IRemoteDeviceService {
     /**
      * @return OK
      */
+    getDeviceUserLogList(): Observable<IResponseOfGetDeviceUserLogResponse> {
+        let url_ = this.baseUrl + "/api/RemoteDevice/GetDeviceUserLogList";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetDeviceUserLogList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDeviceUserLogList(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfGetDeviceUserLogResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfGetDeviceUserLogResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetDeviceUserLogList(response: HttpResponseBase): Observable<IResponseOfGetDeviceUserLogResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfGetDeviceUserLogResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfGetDeviceUserLogResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
     getDeviceList(): Observable<IResponseOfGetDeviceListResponse> {
         let url_ = this.baseUrl + "/api/RemoteDevice/GetDeviceList";
         url_ = url_.replace(/[?&]$/, "");
@@ -1963,6 +2165,57 @@ export class RemoteDeviceService implements IRemoteDeviceService {
     /**
      * @return OK
      */
+    clearDeviceData(): Observable<IResponseOfBoolean> {
+        let url_ = this.baseUrl + "/api/RemoteDevice/ClearDeviceData";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processClearDeviceData(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processClearDeviceData(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfBoolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfBoolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processClearDeviceData(response: HttpResponseBase): Observable<IResponseOfBoolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfBoolean.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfBoolean>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
     updateUserListFromDevice(): Observable<IResponseOfBoolean> {
         let url_ = this.baseUrl + "/api/RemoteDevice/UpdateUserListFromDevice";
         url_ = url_.replace(/[?&]$/, "");
@@ -2009,6 +2262,121 @@ export class RemoteDeviceService implements IRemoteDeviceService {
             }));
         }
         return _observableOf<IResponseOfBoolean>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    insertUserToDevice(userID: number): Observable<IResponseOfBoolean> {
+        let url_ = this.baseUrl + "/api/RemoteDevice/InsertUserToDevice?";
+        if (userID === undefined || userID === null)
+            throw new Error("The parameter 'userID' must be defined and cannot be null.");
+        else
+            url_ += "UserID=" + encodeURIComponent("" + userID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processInsertUserToDevice(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processInsertUserToDevice(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfBoolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfBoolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processInsertUserToDevice(response: HttpResponseBase): Observable<IResponseOfBoolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfBoolean.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfBoolean>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    getAllUserInfo(machineNumber: number): Observable<UserInfo[]> {
+        let url_ = this.baseUrl + "/api/RemoteDevice/GetAllUserInfo?";
+        if (machineNumber === undefined || machineNumber === null)
+            throw new Error("The parameter 'machineNumber' must be defined and cannot be null.");
+        else
+            url_ += "machineNumber=" + encodeURIComponent("" + machineNumber) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllUserInfo(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAllUserInfo(<any>response_);
+                } catch (e) {
+                    return <Observable<UserInfo[]>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<UserInfo[]>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetAllUserInfo(response: HttpResponseBase): Observable<UserInfo[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(UserInfo.fromJS(item));
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<UserInfo[]>(<any>null);
     }
 }
 
@@ -2086,6 +2454,58 @@ export class ValuesService implements IValuesService {
         }
         return _observableOf<string[]>(<any>null);
     }
+}
+
+export class IResponseOfString implements IIResponseOfString {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: string | undefined;
+
+    constructor(data?: IIResponseOfString) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"];
+        }
+    }
+
+    static fromJS(data: any): IResponseOfString {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfString();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data;
+        return data; 
+    }
+}
+
+export interface IIResponseOfString {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: string | undefined;
 }
 
 export class AddEmployeeRequestModel implements IAddEmployeeRequestModel {
@@ -2792,6 +3212,242 @@ export interface IGetEmployeeHolidayListItem {
     deactivateDate?: Date | undefined;
     isActive?: boolean | undefined;
     employeeID?: number | undefined;
+}
+
+export class IResponseOfGetEmployeeListResponse implements IIResponseOfGetEmployeeListResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: GetEmployeeListResponse | undefined;
+
+    constructor(data?: IIResponseOfGetEmployeeListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? GetEmployeeListResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfGetEmployeeListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfGetEmployeeListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfGetEmployeeListResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: GetEmployeeListResponse | undefined;
+}
+
+export class GetEmployeeListResponse implements IGetEmployeeListResponse {
+    getEmployeeList?: GetEmployeeListItem[] | undefined;
+
+    constructor(data?: IGetEmployeeListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["GetEmployeeList"])) {
+                this.getEmployeeList = [] as any;
+                for (let item of _data["GetEmployeeList"])
+                    this.getEmployeeList!.push(GetEmployeeListItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetEmployeeListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetEmployeeListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.getEmployeeList)) {
+            data["GetEmployeeList"] = [];
+            for (let item of this.getEmployeeList)
+                data["GetEmployeeList"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IGetEmployeeListResponse {
+    getEmployeeList?: GetEmployeeListItem[] | undefined;
+}
+
+export class GetEmployeeListItem implements IGetEmployeeListItem {
+    iD?: number | undefined;
+    firsName?: string | undefined;
+    firsName_ka?: string | undefined;
+    firsName_ru?: string | undefined;
+    lastName?: string | undefined;
+    lastName_ka?: string | undefined;
+    lastName_ru?: string | undefined;
+    country?: string | undefined;
+    dateOfBirth?: Date | undefined;
+    address?: string | undefined;
+    address_ka?: string | undefined;
+    address_ru?: string | undefined;
+    email?: string | undefined;
+    isActive?: boolean | undefined;
+    employeePosition?: string | undefined;
+    deviceCardID?: string | undefined;
+    userIDInDevice?: number | undefined;
+    branchName?: string | undefined;
+    departmentName?: string | undefined;
+    gender?: string | undefined;
+    personalNumber?: string | undefined;
+    mobileNumbers?: string[] | undefined;
+    forgiveness?: number | undefined;
+    fine?: number | undefined;
+    salary?: number | undefined;
+
+    constructor(data?: IGetEmployeeListItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.firsName = _data["FirsName"];
+            this.firsName_ka = _data["FirsName_ka"];
+            this.firsName_ru = _data["FirsName_ru"];
+            this.lastName = _data["LastName"];
+            this.lastName_ka = _data["LastName_ka"];
+            this.lastName_ru = _data["LastName_ru"];
+            this.country = _data["Country"];
+            this.dateOfBirth = _data["DateOfBirth"] ? new Date(_data["DateOfBirth"].toString()) : <any>undefined;
+            this.address = _data["Address"];
+            this.address_ka = _data["Address_ka"];
+            this.address_ru = _data["Address_ru"];
+            this.email = _data["Email"];
+            this.isActive = _data["IsActive"];
+            this.employeePosition = _data["EmployeePosition"];
+            this.deviceCardID = _data["DeviceCardID"];
+            this.userIDInDevice = _data["UserIDInDevice"];
+            this.branchName = _data["BranchName"];
+            this.departmentName = _data["DepartmentName"];
+            this.gender = _data["Gender"];
+            this.personalNumber = _data["PersonalNumber"];
+            if (Array.isArray(_data["MobileNumbers"])) {
+                this.mobileNumbers = [] as any;
+                for (let item of _data["MobileNumbers"])
+                    this.mobileNumbers!.push(item);
+            }
+            this.forgiveness = _data["Forgiveness"];
+            this.fine = _data["Fine"];
+            this.salary = _data["Salary"];
+        }
+    }
+
+    static fromJS(data: any): GetEmployeeListItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetEmployeeListItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["FirsName"] = this.firsName;
+        data["FirsName_ka"] = this.firsName_ka;
+        data["FirsName_ru"] = this.firsName_ru;
+        data["LastName"] = this.lastName;
+        data["LastName_ka"] = this.lastName_ka;
+        data["LastName_ru"] = this.lastName_ru;
+        data["Country"] = this.country;
+        data["DateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
+        data["Address"] = this.address;
+        data["Address_ka"] = this.address_ka;
+        data["Address_ru"] = this.address_ru;
+        data["Email"] = this.email;
+        data["IsActive"] = this.isActive;
+        data["EmployeePosition"] = this.employeePosition;
+        data["DeviceCardID"] = this.deviceCardID;
+        data["UserIDInDevice"] = this.userIDInDevice;
+        data["BranchName"] = this.branchName;
+        data["DepartmentName"] = this.departmentName;
+        data["Gender"] = this.gender;
+        data["PersonalNumber"] = this.personalNumber;
+        if (Array.isArray(this.mobileNumbers)) {
+            data["MobileNumbers"] = [];
+            for (let item of this.mobileNumbers)
+                data["MobileNumbers"].push(item);
+        }
+        data["Forgiveness"] = this.forgiveness;
+        data["Fine"] = this.fine;
+        data["Salary"] = this.salary;
+        return data; 
+    }
+}
+
+export interface IGetEmployeeListItem {
+    iD?: number | undefined;
+    firsName?: string | undefined;
+    firsName_ka?: string | undefined;
+    firsName_ru?: string | undefined;
+    lastName?: string | undefined;
+    lastName_ka?: string | undefined;
+    lastName_ru?: string | undefined;
+    country?: string | undefined;
+    dateOfBirth?: Date | undefined;
+    address?: string | undefined;
+    address_ka?: string | undefined;
+    address_ru?: string | undefined;
+    email?: string | undefined;
+    isActive?: boolean | undefined;
+    employeePosition?: string | undefined;
+    deviceCardID?: string | undefined;
+    userIDInDevice?: number | undefined;
+    branchName?: string | undefined;
+    departmentName?: string | undefined;
+    gender?: string | undefined;
+    personalNumber?: string | undefined;
+    mobileNumbers?: string[] | undefined;
+    forgiveness?: number | undefined;
+    fine?: number | undefined;
+    salary?: number | undefined;
 }
 
 export class IResponseOfGetGenderListResponse implements IIResponseOfGetGenderListResponse {
@@ -5565,6 +6221,8 @@ export interface IGetDeviceLocationInBranchListResponse {
 export class GetDeviceLocationInBranchListItem implements IGetDeviceLocationInBranchListItem {
     iD?: number | undefined;
     description?: string | undefined;
+    branchName?: string | undefined;
+    branchID?: number | undefined;
 
     constructor(data?: IGetDeviceLocationInBranchListItem) {
         if (data) {
@@ -5579,6 +6237,8 @@ export class GetDeviceLocationInBranchListItem implements IGetDeviceLocationInBr
         if (_data) {
             this.iD = _data["ID"];
             this.description = _data["Description"];
+            this.branchName = _data["BranchName"];
+            this.branchID = _data["BranchID"];
         }
     }
 
@@ -5593,6 +6253,8 @@ export class GetDeviceLocationInBranchListItem implements IGetDeviceLocationInBr
         data = typeof data === 'object' ? data : {};
         data["ID"] = this.iD;
         data["Description"] = this.description;
+        data["BranchName"] = this.branchName;
+        data["BranchID"] = this.branchID;
         return data; 
     }
 }
@@ -5600,10 +6262,13 @@ export class GetDeviceLocationInBranchListItem implements IGetDeviceLocationInBr
 export interface IGetDeviceLocationInBranchListItem {
     iD?: number | undefined;
     description?: string | undefined;
+    branchName?: string | undefined;
+    branchID?: number | undefined;
 }
 
 export class AddDeviceLocationInBranchRequest implements IAddDeviceLocationInBranchRequest {
     description?: string | undefined;
+    branchID?: number | undefined;
 
     constructor(data?: IAddDeviceLocationInBranchRequest) {
         if (data) {
@@ -5617,6 +6282,7 @@ export class AddDeviceLocationInBranchRequest implements IAddDeviceLocationInBra
     init(_data?: any) {
         if (_data) {
             this.description = _data["Description"];
+            this.branchID = _data["BranchID"];
         }
     }
 
@@ -5630,12 +6296,14 @@ export class AddDeviceLocationInBranchRequest implements IAddDeviceLocationInBra
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["Description"] = this.description;
+        data["BranchID"] = this.branchID;
         return data; 
     }
 }
 
 export interface IAddDeviceLocationInBranchRequest {
     description?: string | undefined;
+    branchID?: number | undefined;
 }
 
 export class IResponseOfAddDeviceLocationInBranchResponse implements IIResponseOfAddDeviceLocationInBranchResponse {
@@ -5722,6 +6390,7 @@ export interface IAddDeviceLocationInBranchResponse {
 
 export class EditDeviceLocationInBranchRequest implements IEditDeviceLocationInBranchRequest {
     iD?: number | undefined;
+    branchID?: number | undefined;
     description?: string | undefined;
 
     constructor(data?: IEditDeviceLocationInBranchRequest) {
@@ -5736,6 +6405,7 @@ export class EditDeviceLocationInBranchRequest implements IEditDeviceLocationInB
     init(_data?: any) {
         if (_data) {
             this.iD = _data["ID"];
+            this.branchID = _data["BranchID"];
             this.description = _data["Description"];
         }
     }
@@ -5750,6 +6420,7 @@ export class EditDeviceLocationInBranchRequest implements IEditDeviceLocationInB
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["ID"] = this.iD;
+        data["BranchID"] = this.branchID;
         data["Description"] = this.description;
         return data; 
     }
@@ -5757,6 +6428,7 @@ export class EditDeviceLocationInBranchRequest implements IEditDeviceLocationInB
 
 export interface IEditDeviceLocationInBranchRequest {
     iD?: number | undefined;
+    branchID?: number | undefined;
     description?: string | undefined;
 }
 
@@ -6390,6 +7062,162 @@ export interface IIResponseOfBoolean {
     data?: boolean | undefined;
 }
 
+export class IResponseOfGetDeviceUserLogResponse implements IIResponseOfGetDeviceUserLogResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: GetDeviceUserLogResponse | undefined;
+
+    constructor(data?: IIResponseOfGetDeviceUserLogResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? GetDeviceUserLogResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfGetDeviceUserLogResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfGetDeviceUserLogResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfGetDeviceUserLogResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: GetDeviceUserLogResponse | undefined;
+}
+
+export class GetDeviceUserLogResponse implements IGetDeviceUserLogResponse {
+    deviceUserLogList?: GetDeviceUserLogItem[] | undefined;
+
+    constructor(data?: IGetDeviceUserLogResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["DeviceUserLogList"])) {
+                this.deviceUserLogList = [] as any;
+                for (let item of _data["DeviceUserLogList"])
+                    this.deviceUserLogList!.push(GetDeviceUserLogItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetDeviceUserLogResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetDeviceUserLogResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.deviceUserLogList)) {
+            data["DeviceUserLogList"] = [];
+            for (let item of this.deviceUserLogList)
+                data["DeviceUserLogList"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IGetDeviceUserLogResponse {
+    deviceUserLogList?: GetDeviceUserLogItem[] | undefined;
+}
+
+export class GetDeviceUserLogItem implements IGetDeviceUserLogItem {
+    firsName?: string | undefined;
+    lastName?: string | undefined;
+    personalNumber?: string | undefined;
+    recordTime?: Date | undefined;
+    userIDInDevice?: number | undefined;
+    machineNumber?: number | undefined;
+    verifyMode?: number | undefined;
+
+    constructor(data?: IGetDeviceUserLogItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.firsName = _data["FirsName"];
+            this.lastName = _data["LastName"];
+            this.personalNumber = _data["PersonalNumber"];
+            this.recordTime = _data["RecordTime"] ? new Date(_data["RecordTime"].toString()) : <any>undefined;
+            this.userIDInDevice = _data["UserIDInDevice"];
+            this.machineNumber = _data["MachineNumber"];
+            this.verifyMode = _data["VerifyMode"];
+        }
+    }
+
+    static fromJS(data: any): GetDeviceUserLogItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetDeviceUserLogItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["FirsName"] = this.firsName;
+        data["LastName"] = this.lastName;
+        data["PersonalNumber"] = this.personalNumber;
+        data["RecordTime"] = this.recordTime ? this.recordTime.toISOString() : <any>undefined;
+        data["UserIDInDevice"] = this.userIDInDevice;
+        data["MachineNumber"] = this.machineNumber;
+        data["VerifyMode"] = this.verifyMode;
+        return data; 
+    }
+}
+
+export interface IGetDeviceUserLogItem {
+    firsName?: string | undefined;
+    lastName?: string | undefined;
+    personalNumber?: string | undefined;
+    recordTime?: Date | undefined;
+    userIDInDevice?: number | undefined;
+    machineNumber?: number | undefined;
+    verifyMode?: number | undefined;
+}
+
 export class IResponseOfGetDeviceListResponse implements IIResponseOfGetDeviceListResponse {
     ok!: boolean;
     errors?: string[] | undefined;
@@ -6540,6 +7368,104 @@ export interface IGetDeviceListItem {
     branch?: string | undefined;
     locationInBranch?: string | undefined;
     state?: number | undefined;
+}
+
+export class IZKEM implements IIZKEM {
+
+    constructor(data?: IIZKEM) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): IZKEM {
+        data = typeof data === 'object' ? data : {};
+        let result = new IZKEM();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+}
+
+export interface IIZKEM {
+}
+
+export class UserInfo implements IUserInfo {
+    machineNumber?: number | undefined;
+    enrollNumber?: string | undefined;
+    name?: string | undefined;
+    fingerIndex?: number | undefined;
+    tmpData?: string | undefined;
+    privelage?: number | undefined;
+    password?: string | undefined;
+    enabled?: boolean | undefined;
+    iFlag?: string | undefined;
+
+    constructor(data?: IUserInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.machineNumber = _data["MachineNumber"];
+            this.enrollNumber = _data["EnrollNumber"];
+            this.name = _data["Name"];
+            this.fingerIndex = _data["FingerIndex"];
+            this.tmpData = _data["TmpData"];
+            this.privelage = _data["Privelage"];
+            this.password = _data["Password"];
+            this.enabled = _data["Enabled"];
+            this.iFlag = _data["iFlag"];
+        }
+    }
+
+    static fromJS(data: any): UserInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["MachineNumber"] = this.machineNumber;
+        data["EnrollNumber"] = this.enrollNumber;
+        data["Name"] = this.name;
+        data["FingerIndex"] = this.fingerIndex;
+        data["TmpData"] = this.tmpData;
+        data["Privelage"] = this.privelage;
+        data["Password"] = this.password;
+        data["Enabled"] = this.enabled;
+        data["iFlag"] = this.iFlag;
+        return data; 
+    }
+}
+
+export interface IUserInfo {
+    machineNumber?: number | undefined;
+    enrollNumber?: string | undefined;
+    name?: string | undefined;
+    fingerIndex?: number | undefined;
+    tmpData?: string | undefined;
+    privelage?: number | undefined;
+    password?: string | undefined;
+    enabled?: boolean | undefined;
+    iFlag?: string | undefined;
 }
 
 export class ApiException extends Error {

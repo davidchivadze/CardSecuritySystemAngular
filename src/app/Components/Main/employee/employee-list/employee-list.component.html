@@ -16,40 +16,38 @@
             <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s)">ბარათის ნომერი</th>
             <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending">დეპარტამენტი</th>
             <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="CSS grade">სერვის ცენტრი</th>
-            <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="CSS grade">განყოფილება</th>
+            <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="CSS grade">თანამდებობა</th>
+            <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="CSS grade">სტატუსი</th>
+            <th></th>
         </tr>
         </thead>
-        <tbody>
+        <tbody *ngIf="EmployeeList">
         
-        <tr role="row" class="odd">
-          <td class="dtr-control" tabindex="0">1</td>
-          <td class="sorting_1">დავითი ჩივაძე</td>
-          <td>35001122068</td>
-          <td>35001122068</td>
-          <td>პროგრამული უზრუნველყოფის დეპარტამენტი</td>
-          <td>სათავო ოფისი</td>
-          <td>IT განყოფილება</td>
-          
-        </tr>        <tr role="row" class="odd">
-          <td class="dtr-control" tabindex="0">1</td>
-          <td class="sorting_1">ალექსანდრე კახელი</td>
-          <td>35001122068</td>
-          <td>35001122068</td>
-          <td>პროგრამული უზრუნველყოფის დეპარტამენტი</td>
-          <td>სათავო ოფისი</td>
-          <td>IT განყოფილება</td>
-          
-        </tr></tbody>
+          <tr role="row" class="odd"  *ngFor="let employee of EmployeeList">
+            <td class="dtr-control" tabindex="0">{{employee.iD}}</td>
+            <td class="sorting_1">{{employee.firsName}} {{employee.lastName}}</td>
+            <td>{{employee.personalNumber}}</td>
+            <td>{{employee.deviceCardID}}</td>
+            <td>{{employee.departmentName}}</td>
+            <td>{{employee.branchName}}</td>
+            <td>{{employee.employeePosition}}</td>
+            <td><span class="text-success" *ngIf="employee.isActive==1">აქტიური</span><span class="text-default" *ngIf="employee.isActive==0">არააქტიური</span></td>
+            <td *ngIf="!employee.userIDInDevice"><button class="btn btn-success" (click)="SyncUserToDevice(employee.iD)"><i class="fas fa-user-plus"></i></button></td>
+            <td *ngIf="employee.userIDInDevice"></td>
+            
+          </tr>        </tbody>
         <tfoot>
-        <tr>            <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Rendering">ID</th>
+        <tr>                        <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Rendering">ID</th>
           <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Rendering">სახელი,გვარი</th>
           <th class="sorting_desc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser" aria-sort="descending">პირადი ნომერი</th>
           <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s)">ბარათის ნომერი</th>
           <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending">დეპარტამენტი</th>
           <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="CSS grade">სერვის ცენტრი</th>
-          <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="CSS grade">განყოფილება</th></tr>
+          <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="CSS grade">თანამდებობა</th>
+          <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="CSS grade">სტატუსი</th>
+          <th></th>
         </tfoot>
-      </table></div></div><div class="row"><div class="col-sm-12 col-md-5"><div class="dataTables_info" id="example1_info" role="status" aria-live="polite">ჩანაწერების რაოდენობა:</div></div><div class="col-sm-12 col-md-7"><div class="dataTables_paginate paging_simple_numbers" id="example1_paginate"><ul class="pagination"><li class="paginate_button page-item previous disabled" id="example1_previous"><a href="#" aria-controls="example1" data-dt-idx="0" tabindex="0" class="page-link">წინა</a></li><li class="paginate_button page-item active"><a href="#" aria-controls="example1" data-dt-idx="1" tabindex="0" class="page-link">1</a></li><li class="paginate_button page-item next disabled" id="example1_next"><a href="#" aria-controls="example1" data-dt-idx="2" tabindex="0" class="page-link">შემდეგი</a></li></ul></div></div></div></div>
+      </table></div></div><div class="row"><div class="col-sm-12 col-md-5"><div class="dataTables_info" id="example1_info" role="status" aria-live="polite">ჩანაწერების რაოდენობა:{{EmployeeList.length}}</div></div><div class="col-sm-12 col-md-7"><div class="dataTables_paginate paging_simple_numbers" id="example1_paginate"><ul class="pagination"><li class="paginate_button page-item previous disabled" id="example1_previous"><a href="#" aria-controls="example1" data-dt-idx="0" tabindex="0" class="page-link">წინა</a></li><li class="paginate_button page-item active"><a href="#" aria-controls="example1" data-dt-idx="1" tabindex="0" class="page-link">1</a></li><li class="paginate_button page-item next disabled" id="example1_next"><a href="#" aria-controls="example1" data-dt-idx="2" tabindex="0" class="page-link">შემდეგი</a></li></ul></div></div></div></div>
     </div>
     <!-- /.card-body -->
   </div>

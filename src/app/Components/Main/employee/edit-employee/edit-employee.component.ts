@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Api } from 'src/app/Services/SwaggerClient';
 
 @Component({
-  selector: 'app-add-employee',
-  templateUrl: './add-employee.component.html',
-  styleUrls: ['./add-employee.component.css']
+  selector: 'app-edit-employee',
+  templateUrl: './edit-employee.component.html',
+  styleUrls: ['./edit-employee.component.css']
 })
-export class AddEmployeeComponent implements OnInit {
+export class EditEmployeeComponent implements OnInit {
+
 
   GenderList:Api.IGetGenderListItem[]
   DepartmentList:Api.GetDepartmentsListItem[]
@@ -21,10 +22,11 @@ export class AddEmployeeComponent implements OnInit {
   HolidaysArray:number[]
   standartSchedule:boolean
   ErrorMessageResponse:String
-  constructor(public ParameterService:Api.ParametersService,public EmployeService:Api.EmployeeService,private router:Router) { }
+  constructor(public ParameterService:Api.ParametersService,public EmployeService:Api.EmployeeService,private router:Router,private route:ActivatedRoute) { }
 
   ngOnInit(): void {
-   
+    const routeParams = this.route.snapshot.paramMap;
+    const productIdFromRoute = Number(routeParams.get('deviceLocationInBranchID'));
       this.AddEmployee=new Api.AddEmployeeRequestModel();
       this.AddEmployee.forgiveness=new Api.Forgiveness();
       this.AddEmployee.fine=new Api.Fine();
@@ -41,6 +43,11 @@ export class AddEmployeeComponent implements OnInit {
        }else{
          console.log(res);
        }
+    })
+    this.EmployeService.getEmployeeList().subscribe(res=>{
+      if(res.ok){
+       // this.AddEmployee=res.data.getEmployeeList.find(element=>element.iD==productIdFromRoute)
+      }
     })
     this.ParameterService.getHolidayTypeList().subscribe(res=>{
       if(res.ok){

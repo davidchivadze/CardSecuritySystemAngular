@@ -18,13 +18,23 @@
                    <div class="col-md-6">
                     <div class="form-group">
                         <label for="exampleInputEmail1">დასახელება</label>
-                        <input type="text" [(ngModel)]="AddDeviceRequestModel.name" class="form-control">
+                        <input type="text" [(ngModel)]="AddDeviceRequestModel.name" id="deviceName" #deviceName="ngModel" class="form-control" required>
+                        <div *ngIf="deviceName.invalid && (deviceName.dirty || deviceName.touched)" class="alert alert-danger">
+                          <div *ngIf="deviceName.errors.required">
+                              მოწყობილობის სახელის მითითება სავალდებულოა
+                          </div>
+                        </div>
                       </div>
                    </div>
                    <div class="col-md-6">
                     <div class="form-group">
                         <label for="exampleInputEmail1">IP მისამართი</label>
-                        <input type="text" placeholder="xxx.xxx.xxx.xxx" [(ngModel)]="AddDeviceRequestModel.iPAddress" minlength="7" maxlength="15" size="15" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$" class="form-control">
+                        <input type="text" placeholder="xxx.xxx.xxx.xxx" [(ngModel)]="AddDeviceRequestModel.iPAddress" minlength="7" maxlength="15" size="15" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$" id="iPAddress" #iPAddress="ngModel" class="form-control" required>
+                        <div *ngIf="iPAddress.invalid && (iPAddress.dirty || iPAddress.touched)" class="alert alert-danger">
+                          <div *ngIf="iPAddress.errors.required">
+                              IP მისამართის მითითება სავალდებულოა
+                          </div>
+                        </div>
                       </div>
                    </div>
                    <!-- <div class="col-md-6">
@@ -61,19 +71,34 @@
                    <div class="col-md-6">
                      <div class="form-group">
                     <label for="exampleInputEmail1">მომხმარებელი</label>
-                    <input type="text" [(ngModel)]="AddDeviceRequestModel.userName" class="form-control">
+                    <input type="text" [(ngModel)]="AddDeviceRequestModel.userName" id="userName" #userName="ngModel" class="form-control" required>
+                    <div *ngIf="userName.invalid && (userName.dirty || userName.touched)" class="alert alert-danger">
+                      <div *ngIf="userName.errors.required">
+                          მომხმარებელის სახელის შევსება სავალდებულოა
+                      </div>
+                    </div>
                   </div>
                    </div>
                    <div class="col-md-6">
                     <div class="form-group">
                         <label for="exampleInputEmail1">პაროლი</label>
-                        <input type="password" [(ngModel)]="AddDeviceRequestModel.password" class="form-control">
+                        <input type="password" [(ngModel)]="AddDeviceRequestModel.password" id="password" #password="ngModel" class="form-control" required>
+                        <div *ngIf="password.invalid && (password.dirty || password.touched)" class="alert alert-danger">
+                          <div *ngIf="password.errors.required">
+                              პაროლის მითითება სავალდებულოა
+                          </div>
+                        </div>
                       </div>
                    </div>
                    <div class="col-md-6">
                     <div class="form-group">
                         <label for="exampleInputEmail1">პორტი</label>
-                        <input type="number" [(ngModel)]="AddDeviceRequestModel.port" class="form-control">
+                        <input type="number" [(ngModel)]="AddDeviceRequestModel.port" id="port" #port="ngModel" class="form-control" required>
+                        <div *ngIf="port.invalid && (port.dirty || port.touched)" class="alert alert-danger">
+                          <div *ngIf="port.errors.required">
+                              პორტის მითითება სავალდებულოა
+                          </div>
+                        </div>
                       </div>
                    </div>
                </div>

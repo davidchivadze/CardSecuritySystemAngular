@@ -18,7 +18,12 @@
                    <div class="col-md-12">
                         <div class="form-group">
                             <label for="exampleInputEmail1">დასახელება</label>
-                            <input type="text" [(ngModel)]="AddEmployeePosition.description" class="form-control">
+                            <input type="text" [(ngModel)]="AddEmployeePosition.description" id="positionName" #positionName="ngModel" class="form-control" required>
+                            <div *ngIf="positionName.invalid && (positionName.dirty || positionName.touched)" class="alert alert-danger">
+                              <div *ngIf="positionName.errors.required">
+                                  დასახელების მითითება სავალდებულოა
+                              </div>
+                            </div>
                         </div>
                 </div>
                </div>

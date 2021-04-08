@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Api } from 'src/app/Services/SwaggerClient';
 
 @Component({
   selector: 'app-device-employee-data',
@@ -7,9 +8,17 @@ import { Component, OnInit } from '@angular/core';
 })
 export class DeviceEmployeeDataComponent implements OnInit {
 
-  constructor() { }
+  DeviceEmployeeUsers:Api.GetDeviceUserLogItem[]
+  constructor(private DeviceService:Api.RemoteDeviceService) { }
 
   ngOnInit(): void {
+    this.DeviceService.getDeviceUserLogList().subscribe(res=>{
+      if(res.ok){
+        this.DeviceEmployeeUsers=res.data.deviceUserLogList
+      }else{
+        console.log(res);
+      }
+    })
   }
 
 }

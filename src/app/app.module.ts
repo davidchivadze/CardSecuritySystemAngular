@@ -8,7 +8,7 @@ import { UserManagmentComponent } from './Components/Main/user-managment/user-ma
 import { DevicesComponent } from './Components/Main/devices/devices.component';
 import { EmployeeComponent } from './Components/Main/employee/employee.component';
 import {Api, Api as APIService,} from './Services/SwaggerClient'
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormsModule } from '@angular/forms';
 import { HttpClientModule,HttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AddEmployeeComponent } from './Components/Main/employee/add-employee/add-employee.component';
 import { EmployeeListComponent } from './Components/Main/employee/employee-list/employee-list.component';
@@ -40,6 +40,11 @@ import { AuthGuard } from './Guard/Guard/auth.guard';
 import { CookieService } from 'ngx-cookie-service';
 import { LoginLayoutComponent } from './Components/Shared/login-layout/login-layout.component';
 import { TokenInterceptorService } from './Services/Auth/token-interceptor.service';
+import { AddDeviceLocationInBranchComponent } from './Components/Parameters/DeviceLocationInBranch/add-device-location-in-branch/add-device-location-in-branch.component';
+import { MainDeviceLocationInBranchComponent } from './Components/Parameters/DeviceLocationInBranch/main-device-location-in-branch/main-device-location-in-branch.component';
+import { EditDeviceLocationInBranchComponent } from './Components/Parameters/DeviceLocationInBranch/edit-device-location-in-branch/edit-device-location-in-branch.component';
+import { DeviceLocationInBranchListComponent } from './Components/Parameters/DeviceLocationInBranch/device-location-in-branch-list/device-location-in-branch-list.component';
+import { EditEmployeeComponent } from './Components/Main/employee/edit-employee/edit-employee.component';
 export function CrateTranslateLoader(http:HttpClient){
   return new TranslateHttpLoader(http);
 } 
@@ -93,6 +98,11 @@ export class TranslateHandler implements MissingTranslationHandler {
     DeviceLogListComponent,
     LoginLayoutComponent,
     LoginComponent,
+    AddDeviceLocationInBranchComponent,
+    MainDeviceLocationInBranchComponent,
+    EditDeviceLocationInBranchComponent,
+    DeviceLocationInBranchListComponent,
+    EditEmployeeComponent,
 
   ],
   imports: [

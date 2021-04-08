@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Api } from 'src/app/Services/SwaggerClient';
 
 @Component({
   selector: 'app-employee',
@@ -7,9 +8,14 @@ import { Component, OnInit } from '@angular/core';
 })
 export class EmployeeComponent implements OnInit {
 
-  constructor() { }
+  constructor(private DeviceService:Api.RemoteDeviceService) { }
 
   ngOnInit(): void {
+  }
+  SyncDeviceData(){
+    this.DeviceService.syncUserLog().subscribe(res=>{
+      
+    });
   }
 
 }
