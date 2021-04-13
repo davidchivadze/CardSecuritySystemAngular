@@ -20,5 +20,14 @@ export class DepartmentListComponent implements OnInit {
     })
     
   }
+  DeleteDepartment(departmentID:number){
+    this.ParameterService.deleteDepartment(departmentID).subscribe(res=>{
+      if(res.ok){
+       this.DepartmentList.splice(this.DepartmentList.findIndex(e=>e.iD==departmentID),1);
+      }else{
+        console.log(res.errors);
+      }
+    })
+  }
 
 }

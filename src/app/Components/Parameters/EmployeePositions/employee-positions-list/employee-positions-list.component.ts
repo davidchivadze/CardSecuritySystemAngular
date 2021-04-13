@@ -19,5 +19,14 @@ export class EmployeePositionsListComponent implements OnInit {
       }
     });
   }
+  DeleteEmployeePosition(employeePositionID:number){
+    this.ParameterService.deleteEmployeePosition(employeePositionID).subscribe(res=>{
+      if(res.ok){
+       this.EmployeePositionList.splice(this.EmployeePositionList.findIndex(e=>e.iD==employeePositionID),1);
+      }else{
+        console.log(res.errors);
+      }
+    })
+  }
 
 }

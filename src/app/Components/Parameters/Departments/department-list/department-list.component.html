@@ -24,7 +24,9 @@
           <td>{{department.parentDescription}}</td>
           <td><a [routerLink]="['/Department/EditDepartment',department.iD]" class="btn btn-info">
             <i class="fas fa-edit"></i>
-          </a></td>
+          </a>
+          <button class="btn btn-danger"><i class="fas fa-trash" (click)="DeleteDepartment(departmentID)"></i></button></td>
+
           
         </tr>        </tbody>
         <tfoot>

@@ -20,5 +20,14 @@ BranchList:Api.GetBranchListItem[]
       }
     });
   }
+  DeleteBranch(branchID:number){
+    this.ParameterService.deleteDevice(branchID).subscribe(res=>{
+      if(res.ok){
+       this.BranchList.splice(this.BranchList.findIndex(e=>e.iD==branchID),1);
+      }else{
+        console.log(res.errors);
+      }
+    })
+  }
 
 }
