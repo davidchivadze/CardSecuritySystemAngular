@@ -115,7 +115,7 @@ export class AddEmployeeComponent implements OnInit {
     }
     this.EmployeService.addEmployee(this.AddEmployee).subscribe(res=>{
       if(res.ok){
-        this.router.navigate(["/EmployeeList"])
+        this.router.navigate(["/Employee/EmployeeList"])
       }else{
         this.ErrorMessageResponse=res.errors[0]
       }

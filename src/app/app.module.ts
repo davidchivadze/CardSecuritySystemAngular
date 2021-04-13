@@ -45,6 +45,7 @@ import { MainDeviceLocationInBranchComponent } from './Components/Parameters/Dev
 import { EditDeviceLocationInBranchComponent } from './Components/Parameters/DeviceLocationInBranch/edit-device-location-in-branch/edit-device-location-in-branch.component';
 import { DeviceLocationInBranchListComponent } from './Components/Parameters/DeviceLocationInBranch/device-location-in-branch-list/device-location-in-branch-list.component';
 import { EditEmployeeComponent } from './Components/Main/employee/edit-employee/edit-employee.component';
+import { environment } from 'src/environments/environment';
 export function CrateTranslateLoader(http:HttpClient){
   return new TranslateHttpLoader(http);
 } 
@@ -129,7 +130,7 @@ export class TranslateHandler implements MissingTranslationHandler {
     AuthGuard,
     CookieService,
     {provide:HTTP_INTERCEPTORS,useClass:TokenInterceptorService,multi:true},
-    {provide:APIService.API_BASE_URL, useValue:"https://localhost:44376"},
+    {provide:APIService.API_BASE_URL, useValue:environment.API_URL},
   ],
   bootstrap: [AppComponent]
 })

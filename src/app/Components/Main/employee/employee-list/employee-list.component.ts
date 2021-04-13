@@ -32,5 +32,14 @@ export class EmployeeListComponent implements OnInit {
         }
       })
   }
+  DeleteEmployee(employeeID:number){
+    this.EmployeeService.deleteEmployee(employeeID).subscribe(res=>{
+      if(res.ok){
+       this.EmployeeList.splice(this.EmployeeList.findIndex(e=>e.iD==employeeID),1);
+      }else{
+        console.log(res.errors);
+      }
+    })
+  }
 
 }

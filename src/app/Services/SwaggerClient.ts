@@ -101,6 +101,10 @@ export interface IEmployeeService {
      */
     addEmployee(request: AddEmployeeRequestModel): Observable<IResponseOfAddEmployeeResposeModel>;
     /**
+     * @return OK
+     */
+    deleteEmployee(employeeID: number): Observable<IResponseOfBoolean>;
+    /**
      * @param model_employeeID (optional) 
      * @return OK
      */
@@ -177,6 +181,61 @@ export class EmployeeService implements IEmployeeService {
             }));
         }
         return _observableOf<IResponseOfAddEmployeeResposeModel>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    deleteEmployee(employeeID: number): Observable<IResponseOfBoolean> {
+        let url_ = this.baseUrl + "/api/Employee/DeleteEmployee?";
+        if (employeeID === undefined || employeeID === null)
+            throw new Error("The parameter 'employeeID' must be defined and cannot be null.");
+        else
+            url_ += "employeeID=" + encodeURIComponent("" + employeeID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteEmployee(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteEmployee(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfBoolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfBoolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processDeleteEmployee(response: HttpResponseBase): Observable<IResponseOfBoolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfBoolean.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfBoolean>(<any>null);
     }
 
     /**
@@ -311,6 +370,22 @@ export interface IParametersService {
      * @return OK
      */
     getBranchForEdit(id: number): Observable<IResponseOfGetBranchListItem>;
+    /**
+     * @return OK
+     */
+    deleteBranch(branchID: number): Observable<IResponseOfBoolean>;
+    /**
+     * @return OK
+     */
+    deleteDepartment(departmentID: number): Observable<IResponseOfBoolean>;
+    /**
+     * @return OK
+     */
+    deleteDevice(deviceID: number): Observable<IResponseOfBoolean>;
+    /**
+     * @return OK
+     */
+    deleteEmployeePosition(employeePositionID: number): Observable<IResponseOfBoolean>;
     /**
      * @return OK
      */
@@ -725,6 +800,226 @@ export class ParametersService implements IParametersService {
             }));
         }
         return _observableOf<IResponseOfGetBranchListItem>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    deleteBranch(branchID: number): Observable<IResponseOfBoolean> {
+        let url_ = this.baseUrl + "/api/Parameters/DeleteBranch?";
+        if (branchID === undefined || branchID === null)
+            throw new Error("The parameter 'branchID' must be defined and cannot be null.");
+        else
+            url_ += "branchID=" + encodeURIComponent("" + branchID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteBranch(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteBranch(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfBoolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfBoolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processDeleteBranch(response: HttpResponseBase): Observable<IResponseOfBoolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfBoolean.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfBoolean>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    deleteDepartment(departmentID: number): Observable<IResponseOfBoolean> {
+        let url_ = this.baseUrl + "/api/Parameters/DeleteDepartment?";
+        if (departmentID === undefined || departmentID === null)
+            throw new Error("The parameter 'departmentID' must be defined and cannot be null.");
+        else
+            url_ += "departmentID=" + encodeURIComponent("" + departmentID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteDepartment(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteDepartment(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfBoolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfBoolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processDeleteDepartment(response: HttpResponseBase): Observable<IResponseOfBoolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfBoolean.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfBoolean>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    deleteDevice(deviceID: number): Observable<IResponseOfBoolean> {
+        let url_ = this.baseUrl + "/api/Parameters/DeleteDevice?";
+        if (deviceID === undefined || deviceID === null)
+            throw new Error("The parameter 'deviceID' must be defined and cannot be null.");
+        else
+            url_ += "DeviceID=" + encodeURIComponent("" + deviceID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteDevice(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteDevice(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfBoolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfBoolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processDeleteDevice(response: HttpResponseBase): Observable<IResponseOfBoolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfBoolean.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfBoolean>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    deleteEmployeePosition(employeePositionID: number): Observable<IResponseOfBoolean> {
+        let url_ = this.baseUrl + "/api/Parameters/DeleteEmployeePosition?";
+        if (employeePositionID === undefined || employeePositionID === null)
+            throw new Error("The parameter 'employeePositionID' must be defined and cannot be null.");
+        else
+            url_ += "employeePositionID=" + encodeURIComponent("" + employeePositionID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteEmployeePosition(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteEmployeePosition(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfBoolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfBoolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processDeleteEmployeePosition(response: HttpResponseBase): Observable<IResponseOfBoolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfBoolean.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfBoolean>(<any>null);
     }
 
     /**
@@ -3010,6 +3305,58 @@ export class AddEmployeeResposeModel implements IAddEmployeeResposeModel {
 export interface IAddEmployeeResposeModel {
 }
 
+export class IResponseOfBoolean implements IIResponseOfBoolean {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: boolean | undefined;
+
+    constructor(data?: IIResponseOfBoolean) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"];
+        }
+    }
+
+    static fromJS(data: any): IResponseOfBoolean {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfBoolean();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data;
+        return data; 
+    }
+}
+
+export interface IIResponseOfBoolean {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: boolean | undefined;
+}
+
 export class GetEmployeeHolidayListRequest implements IGetEmployeeHolidayListRequest {
     employeeID?: number | undefined;
 
@@ -3686,6 +4033,7 @@ export class GetDepartmentsListItem implements IGetDepartmentsListItem {
     iD?: number | undefined;
     description?: string | undefined;
     parentDescription?: string | undefined;
+    isActive?: boolean | undefined;
     parentID?: number | undefined;
 
     constructor(data?: IGetDepartmentsListItem) {
@@ -3702,6 +4050,7 @@ export class GetDepartmentsListItem implements IGetDepartmentsListItem {
             this.iD = _data["ID"];
             this.description = _data["Description"];
             this.parentDescription = _data["ParentDescription"];
+            this.isActive = _data["IsActive"];
             this.parentID = _data["ParentID"];
         }
     }
@@ -3718,6 +4067,7 @@ export class GetDepartmentsListItem implements IGetDepartmentsListItem {
         data["ID"] = this.iD;
         data["Description"] = this.description;
         data["ParentDescription"] = this.parentDescription;
+        data["IsActive"] = this.isActive;
         data["ParentID"] = this.parentID;
         return data; 
     }
@@ -3727,6 +4077,7 @@ export interface IGetDepartmentsListItem {
     iD?: number | undefined;
     description?: string | undefined;
     parentDescription?: string | undefined;
+    isActive?: boolean | undefined;
     parentID?: number | undefined;
 }
 
@@ -4082,6 +4433,7 @@ export class GetBranchListItem implements IGetBranchListItem {
     city?: string | undefined;
     cityID?: number | undefined;
     address?: string | undefined;
+    isActive?: boolean | undefined;
 
     constructor(data?: IGetBranchListItem) {
         if (data) {
@@ -4101,6 +4453,7 @@ export class GetBranchListItem implements IGetBranchListItem {
             this.city = _data["City"];
             this.cityID = _data["CityID"];
             this.address = _data["Address"];
+            this.isActive = _data["IsActive"];
         }
     }
 
@@ -4120,6 +4473,7 @@ export class GetBranchListItem implements IGetBranchListItem {
         data["City"] = this.city;
         data["CityID"] = this.cityID;
         data["Address"] = this.address;
+        data["IsActive"] = this.isActive;
         return data; 
     }
 }
@@ -4132,6 +4486,7 @@ export interface IGetBranchListItem {
     city?: string | undefined;
     cityID?: number | undefined;
     address?: string | undefined;
+    isActive?: boolean | undefined;
 }
 
 export class IResponseOfGetBranchListItem implements IIResponseOfGetBranchListItem {
@@ -7010,58 +7365,6 @@ export interface IAddDeviceRequest {
     port?: string | undefined;
 }
 
-export class IResponseOfBoolean implements IIResponseOfBoolean {
-    ok!: boolean;
-    errors?: string[] | undefined;
-    data?: boolean | undefined;
-
-    constructor(data?: IIResponseOfBoolean) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.ok = _data["Ok"];
-            if (Array.isArray(_data["Errors"])) {
-                this.errors = [] as any;
-                for (let item of _data["Errors"])
-                    this.errors!.push(item);
-            }
-            this.data = _data["Data"];
-        }
-    }
-
-    static fromJS(data: any): IResponseOfBoolean {
-        data = typeof data === 'object' ? data : {};
-        let result = new IResponseOfBoolean();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["Ok"] = this.ok;
-        if (Array.isArray(this.errors)) {
-            data["Errors"] = [];
-            for (let item of this.errors)
-                data["Errors"].push(item);
-        }
-        data["Data"] = this.data;
-        return data; 
-    }
-}
-
-export interface IIResponseOfBoolean {
-    ok: boolean;
-    errors?: string[] | undefined;
-    data?: boolean | undefined;
-}
-
 export class IResponseOfGetDeviceUserLogResponse implements IIResponseOfGetDeviceUserLogResponse {
     ok!: boolean;
     errors?: string[] | undefined;
@@ -7166,6 +7469,7 @@ export class GetDeviceUserLogItem implements IGetDeviceUserLogItem {
     userIDInDevice?: number | undefined;
     machineNumber?: number | undefined;
     verifyMode?: number | undefined;
+    isActive?: boolean | undefined;
 
     constructor(data?: IGetDeviceUserLogItem) {
         if (data) {
@@ -7185,6 +7489,7 @@ export class GetDeviceUserLogItem implements IGetDeviceUserLogItem {
             this.userIDInDevice = _data["UserIDInDevice"];
             this.machineNumber = _data["MachineNumber"];
             this.verifyMode = _data["VerifyMode"];
+            this.isActive = _data["IsActive"];
         }
     }
 
@@ -7204,6 +7509,7 @@ export class GetDeviceUserLogItem implements IGetDeviceUserLogItem {
         data["UserIDInDevice"] = this.userIDInDevice;
         data["MachineNumber"] = this.machineNumber;
         data["VerifyMode"] = this.verifyMode;
+        data["IsActive"] = this.isActive;
         return data; 
     }
 }
@@ -7216,6 +7522,7 @@ export interface IGetDeviceUserLogItem {
     userIDInDevice?: number | undefined;
     machineNumber?: number | undefined;
     verifyMode?: number | undefined;
+    isActive?: boolean | undefined;
 }
 
 export class IResponseOfGetDeviceListResponse implements IIResponseOfGetDeviceListResponse {
