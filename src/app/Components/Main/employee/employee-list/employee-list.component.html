@@ -33,7 +33,7 @@
             <td>{{employee.employeePosition}}</td>
             <td><span class="text-success" *ngIf="employee.isActive==1">აქტიური</span><span class="text-default" *ngIf="employee.isActive==0">არააქტიური</span></td>
             <td ><button class="btn btn-success" *ngIf="!employee.userIDInDevice" (click)="SyncUserToDevice(employee.iD)"><i class="fas fa-user-plus"></i></button>
-            <button class="btn btn-danger"><i class="fas fa-trash" (click)="DeleteEmployee(employee.iD)"></i></button>
+            <button class="btn btn-danger" (click)="DeleteEmployee(employee.iD)"><i class="fas fa-trash" ></i></button>
             </td>
             
             

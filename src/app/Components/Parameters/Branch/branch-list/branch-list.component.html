@@ -30,7 +30,7 @@
             <a [routerLink]="['/Branch/EditBranch',branch.iD]" class="btn btn-info">
               <i class="fas fa-edit"></i>
             </a>
-            <button class="btn btn-danger"><i class="fas fa-trash" (click)="DeleteBranch(branchID)"></i></button>
+            <button class="btn btn-danger" (click)="DeleteBranch(branch.iD)"><i class="fas fa-trash" ></i></button>
           </td>
           
         </tr>        </tbody>

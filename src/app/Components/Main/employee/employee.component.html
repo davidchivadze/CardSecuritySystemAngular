@@ -30,7 +30,7 @@
       </div>
       <div class="col-md-3 col-sm-6 col-12">
         <div class="info-box" (click)="SyncDeviceData()">
-            <span class="info-box-icon bg-success"><i class="fas fa-sync"></i></span>
+            <span class="info-box-icon bg-success"><i class="fas fa-sync" [ngClass]="IsRunning?'fa-spin':''"></i></span>
       
             <div class="info-box-content">
               <span class="info-box-text" style="color:#007bff; cursor: pointer;">სინქრონიზაცია</span>

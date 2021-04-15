@@ -30,7 +30,7 @@
           <td>{{device.branch}}</td>
           <td>{{device.locationInBranch}}</td>
           <td><span class="text-success" *ngIf="device.state==1">აქტიური</span><span class="text-default" *ngIf="device.state==0">არააქტიური</span></td>
-          <td><button class="btn btn-danger"><i class="fas fa-trash" (click)="DeleteDevice(DeviceID)"></i></button></td>
+          <td><button class="btn btn-danger" (click)="DeleteDevice(device.iD)"><i class="fas fa-trash" ></i></button></td>
         </tr>        </tbody>
         <tfoot>
         <tr>                      <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Rendering">ID</th>
