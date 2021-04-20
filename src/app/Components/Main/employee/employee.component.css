@@ -4,3 +4,10 @@
 .info-box-text{
     font-family: MainWebFont;
 }
+
+.info-box .info-box-icon{
+    min-width: 70px  !important;
+}
+.info-box .progress-description, .info-box .info-box-text{
+    white-space:normal;
+}

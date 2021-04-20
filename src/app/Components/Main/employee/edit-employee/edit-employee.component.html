@@ -90,7 +90,7 @@
                    <div class="col-md-6">
                     <div class="form-group">
                         <label for="exampleInputEmail1">დავადების თარიღი</label>
-                        <input type="date" [(ngModel)]="AddEmployee.dateOfBirth" id="dateOfBirth" #dateOfBirth="ngModel" class="form-control" required>
+                        <input type="date"  [ngModel] ="AddEmployee.dateOfBirth | date:'yyyy-MM-dd'" (ngModelChange)="AddEmployee.dateOfBirth = $event" id="dateOfBirth" #dateOfBirth="ngModel" class="form-control" required>
                         <div *ngIf="dateOfBirth.invalid && (dateOfBirth.dirty || dateOfBirth.touched)" class="alert alert-danger">
                           <div *ngIf="dateOfBirth.errors.required">
                               დაბადების თარიღის შევსება სავალდებულოა
@@ -257,13 +257,31 @@
                     </div>
                   </div>
                   </div>
+                  <div class="col-md-6">
+                    <label for="exampleInputEmail1">მინიმალური მოსვლის დრო</label>
+                  <input type="time"  [(ngModel)]="AddEmployee.schedule.minCheckInTime" id="minCheckInTime" #minCheckInTime="ngModel" class="form-control" required>
+                  <div *ngIf="minCheckInTime.invalid && (minCheckInTime.dirty || minCheckInTime.touched)" class="alert alert-danger">
+                    <div *ngIf="minCheckInTime.errors.required">
+                      მინიმალური მოსვლის დროის მითითება სავალდებულოა
+                    </div>
+                  </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="exampleInputEmail1">მაქსიმალური გასვლის დრო</label>
+                  <input type="time"  [(ngModel)]="AddEmployee.schedule.maxCheckOutTime" id="maxCheckOutTime" #maxCheckOutTime="ngModel" class="form-control" required>
+                  <div *ngIf="maxCheckOutTime.invalid && (maxCheckOutTime.dirty || maxCheckOutTime.touched)" class="alert alert-danger">
+                    <div *ngIf="maxCheckOutTime.errors.required">
+                      მაქსიმალური გასვლის დროის მითითება სავალდებულოა
+                    </div>
+                  </div>
+                  </div>
                 </div>
                 <div class="row">
                   <div class="col-md-6">
                     <label for="exampleInputEmail1">მხოლოდ სამუშოა დღეებში</label>
                   <select class="form-control" [(ngModel)]="AddEmployee.schedule.onWorkingDaysOnly" >
-                  <option value="1">კი</option>
-                  <option value="0">არა</option>  
+                  <option value="true">კი</option>
+                  <option value="false">არა</option>  
                   </select>
                   </div>
                   
@@ -271,8 +289,8 @@
                   
                       <label for="exampleInputEmail1">მხოლოდ სამუშოა საათებში</label>
                     <select class="form-control" [(ngModel)]="AddEmployee.schedule.onWorkingHouresOnly" >
-                    <option value="1">კი</option>
-                    <option value="0">არა</option>  
+                    <option value="true">კი</option>
+                    <option value="false">არა</option>  
                     </select>
                   
                   </div>
@@ -297,6 +315,15 @@
                         </div>
                       </div>
                   </div>
+                  <div class="col-md-6">
+                    <label for="exampleInputEmail1">დღეში შესვენების დრო საათებში</label>
+                    <input type="text" [(ngModel)]="AddEmployee.schedule.breakAmount" id="breakAmount" #breakAmount="ngModel" class="form-control"  required>
+                    <div *ngIf="breakAmount.invalid && (breakAmount.dirty || breakAmount.touched)" class="alert alert-danger">
+                      <div *ngIf="breakAmount.errors.required">
+                          დღეში შესვენების დროის მითითება სავალდებულოა
+                      </div>
+                    </div>
+                </div>
                 </div>
               </div>
            
@@ -332,6 +359,6 @@
     </div>
       
   
-  <button class="btn btn-success col-12" (click)="addEmployeeSubmit()">დამატება</button>
+  <button class="btn btn-success col-12" (click)="addEmployeeSubmit()">რედაქტირება</button>
 </div>
 </div>

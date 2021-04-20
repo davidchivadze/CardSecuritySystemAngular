@@ -35,3 +35,41 @@ option{
 .custom-file-label::after{
     content: 'არჩევა' !important;
 }
+.successAddInfo{
+    text-align: center;
+    font-family: MainWebFont;
+}
+.btn-success{
+    font-family: MainWebFont;
+ }
+/* upload */
+label,input,select{
+    font-family: MainWebFont;
+}
+.select2-container--below{
+    width: 100% !important;
+}
+.uploadFileLabel{
+    width: 150px;
+    height: 150px;
+    margin-left: auto;
+    margin-right: auto;
+    border:3px dashed #dddddd;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 50px;
+    font-size: 1rem;
+ 
+}
+.uploadFile{
+display: none;
+}
+.uploadImageView{
+    width: 150px;
+    height: 150px;
+    position: relative;
+}
+.img-wrap{
+    position: relative;
+}

@@ -25,6 +25,23 @@
               <div class="tab-pane fade show active" id="custom-tabs-two-home" role="tabpanel" aria-labelledby="custom-tabs-two-home-tab">
 
                 <div class="row">
+                  <div class="col-md-2" *ngIf="!AddEmployee.avatarImage">
+                    <div class="form-group">
+                    <label for="uploadFiles" class="uploadFileLabel" (click)="file.click()"><i class="fas fa-cloud-upload-alt"></i>თანამშრომლის სურათი</label>
+                    <input type="file" (change)="onFilesChosen($event)" class="uploadFile" #file>
+                  </div>
+                  </div>
+                  <div class="col-md-2" *ngIf="AddEmployee.avatarImage">
+                    <span class="close"><i class="fas fa-times-circle" (click)="removeChosen(i)"></i></span>
+                    <img [src]='AddEmployee.avatarImage' class="uploadImageView" />
+                  </div>
+               
+                  <div class="col-md-10" style="padding-top: 50px;">
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">ID მოწყობილობაში</label>
+                        <input [(ngModel)]="AddEmployee.userIdInDevice" id="userIdInDevice" #userIdInDevice="ngModel" class="form-control" >
+                      </div>
+                   </div>
                    <div class="col-md-6">
                     <div class="form-group">
                         <label for="exampleInputEmail1">სახელი</label>
@@ -257,6 +274,24 @@
                     </div>
                   </div>
                   </div>
+                  <div class="col-md-6">
+                    <label for="exampleInputEmail1">მინიმალური მოსვლის დრო</label>
+                  <input type="time"  [(ngModel)]="AddEmployee.schedule.minCheckInTime" id="minCheckInTime" #minCheckInTime="ngModel" class="form-control" required>
+                  <div *ngIf="minCheckInTime.invalid && (minCheckInTime.dirty || minCheckInTime.touched)" class="alert alert-danger">
+                    <div *ngIf="minCheckInTime.errors.required">
+                      მინიმალური მოსვლის დროის მითითება სავალდებულოა
+                    </div>
+                  </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="exampleInputEmail1">მაქსიმალური გასვლის დრო</label>
+                  <input type="time"  [(ngModel)]="AddEmployee.schedule.maxCheckOutTime" id="maxCheckOutTime" #maxCheckOutTime="ngModel" class="form-control" required>
+                  <div *ngIf="maxCheckOutTime.invalid && (maxCheckOutTime.dirty || maxCheckOutTime.touched)" class="alert alert-danger">
+                    <div *ngIf="maxCheckOutTime.errors.required">
+                      მაქსიმალური გასვლის დროის მითითება სავალდებულოა
+                    </div>
+                  </div>
+                  </div>
                 </div>
                 <div class="row">
                   <div class="col-md-6">
@@ -297,6 +332,15 @@
                         </div>
                       </div>
                   </div>
+                  <div class="col-md-6">
+                    <label for="exampleInputEmail1">დღეში შესვენების დრო საათებში</label>
+                    <input type="text" [(ngModel)]="AddEmployee.schedule.breakAmount" id="breakAmount" #breakAmount="ngModel" class="form-control"  required>
+                    <div *ngIf="breakAmount.invalid && (breakAmount.dirty || breakAmount.touched)" class="alert alert-danger">
+                      <div *ngIf="breakAmount.errors.required">
+                          დღეში შესვენების დროის მითითება სავალდებულოა
+                      </div>
+                    </div>
+                </div>
                 </div>
               </div>
            
@@ -330,7 +374,9 @@
     <div class="alert alert-danger col-12" *ngIf="ErrorMessageResponse">
       {{ErrorMessageResponse}}
     </div>
-      
+    <div class="alert alert-info col-12 successAddInfo"  *ngIf="ShowSuccess">
+     თანამშრომლის დასრულება წარმატებით დასრულდა, გვერდის გასუფთავებამდე დარჩა {{TimeLeft}}
+    </div>
   
   <button class="btn btn-success col-12" (click)="addEmployeeSubmit()">დამატება</button>
 </div>

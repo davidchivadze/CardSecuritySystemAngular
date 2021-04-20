@@ -17,7 +17,7 @@ export class EditEmployeeComponent implements OnInit {
   FineTypeList:Api.GetFineTypeListItem[]
   ForgivenessTypeList:Api.GetForgivenessTypeListItem[]
   SalaryTypeList:Api.GetSalaryTypeListItem[]
-  AddEmployee:Api.AddEmployeeRequestModel
+  AddEmployee:Api.GetEmployeeForEdit
   HolidayTypes:Api.GetHolidayTypeListItem[]
   HolidaysArray:number[]
   standartSchedule:boolean
@@ -26,7 +26,7 @@ export class EditEmployeeComponent implements OnInit {
 
   ngOnInit(): void {
     const routeParams = this.route.snapshot.paramMap;
-    const productIdFromRoute = Number(routeParams.get('deviceLocationInBranchID'));
+    const productIdFromRoute = Number(routeParams.get('editEmployeeID'));
       this.AddEmployee=new Api.AddEmployeeRequestModel();
       this.AddEmployee.forgiveness=new Api.Forgiveness();
       this.AddEmployee.fine=new Api.Fine();
@@ -98,6 +98,13 @@ export class EditEmployeeComponent implements OnInit {
         console.log(res);
       }
     })
+    this.EmployeService.getEmployeeForEdit(productIdFromRoute).subscribe(res=>{
+      if(res.ok){
+        this.AddEmployee=res.data
+      }else{
+        console.log(res.errors);
+      }
+    })
  })
   }
   addHolidayType(){
@@ -120,9 +127,9 @@ export class EditEmployeeComponent implements OnInit {
     }else{
       this.AddEmployee.schedule.scheduleTypeID=2
     }
-    this.EmployeService.addEmployee(this.AddEmployee).subscribe(res=>{
+    this.EmployeService.editEmployee(this.AddEmployee).subscribe(res=>{
       if(res.ok){
-        this.router.navigate(["/EmployeeList"])
+        this.router.navigate(["/Employee"])
       }else{
         this.ErrorMessageResponse=res.errors[0]
       }

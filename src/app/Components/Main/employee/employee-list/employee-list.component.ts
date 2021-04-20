@@ -10,9 +10,11 @@ export class EmployeeListComponent implements OnInit {
 
   EmployeeList:Api.GetEmployeeListItem[]
   RecordLength:number
+  DeleteIDs:number[]
   constructor(private EmployeeService:Api.EmployeeService,private DeviceService:Api.RemoteDeviceService) { }
 
   ngOnInit(): void {
+    this.DeleteIDs=new Array<number>();
     this.RecordLength=0;
     this.EmployeeService.getEmployeeList().subscribe(res=>{
        if(res.ok){
@@ -41,5 +43,29 @@ export class EmployeeListComponent implements OnInit {
       }
     })
   }
+  ChangeEmployeeCheck(event:any,id:number){
+    if(event.currentTarget.checked){
+      this.DeleteIDs.push(id);
+    }else{
+      this.DeleteIDs.splice(this.DeleteIDs.findIndex(e=>e===id),1);
+    }
+    console.log(this.DeleteIDs);
 
+  }
+  DeleteSelected(){
+    this.EmployeeService.deleteEmployees(this.DeleteIDs).subscribe(res=>{
+     if(res.ok){
+      this.EmployeeService.getEmployeeList().subscribe(res=>{
+        if(res.ok){
+          this.EmployeeList=res.data.getEmployeeList
+          this.RecordLength=res.data.getEmployeeList.length
+        }else{
+          console.log(res.ok);
+        }
+     })
+    }else{
+      console.log(res.errors);
+    }
+    })
+  }
 }

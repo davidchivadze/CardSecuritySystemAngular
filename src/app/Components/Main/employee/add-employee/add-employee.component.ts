@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { timeInterval } from 'rxjs/operators';
 import { Api } from 'src/app/Services/SwaggerClient';
 
 @Component({
@@ -21,11 +22,31 @@ export class AddEmployeeComponent implements OnInit {
   HolidaysArray:number[]
   standartSchedule:boolean
   ErrorMessageResponse:String
-  constructor(public ParameterService:Api.ParametersService,public EmployeService:Api.EmployeeService,private router:Router) { }
+  TimeLeft: number = 5;
+  ShowSuccess:boolean=false;
+  interval;
+
+startTimer() {
+    this.interval = setInterval(() => {
+      if(this.TimeLeft > 0) {
+        this.TimeLeft--;
+      } else {
+        clearInterval(this.interval);
+        
+        location.reload();
+      }
+    },1000)
+  }
+
+  constructor(public ParameterService:Api.ParametersService,public EmployeService:Api.EmployeeService,private router:Router,private route:ActivatedRoute) { }
 
   ngOnInit(): void {
-   
+    const routeParams = this.route.snapshot.paramMap;
+    const productIdFromRoute = Number(routeParams.get('deviceUserID'));
       this.AddEmployee=new Api.AddEmployeeRequestModel();
+      if(productIdFromRoute){
+      this.AddEmployee.userIdInDevice=productIdFromRoute
+    }
       this.AddEmployee.forgiveness=new Api.Forgiveness();
       this.AddEmployee.fine=new Api.Fine();
       this.AddEmployee.salary=new Api.SalaryData();
@@ -35,6 +56,7 @@ export class AddEmployeeComponent implements OnInit {
       firsArrayObj.holidayTypeID=0;
       this.AddEmployee.employeeHolidays.push(firsArrayObj);
       this.standartSchedule=true;
+      
     this.ParameterService.getGenderList().subscribe(res=>{
        if(res.ok){
          this.GenderList=res.data.genderList;
@@ -115,10 +137,35 @@ export class AddEmployeeComponent implements OnInit {
     }
     this.EmployeService.addEmployee(this.AddEmployee).subscribe(res=>{
       if(res.ok){
-        this.router.navigate(["/Employee/EmployeeList"])
+        this.ShowSuccess=true;
+        this.startTimer();
+        // this.router.navigate(["/Employee/EmployeeList"])
       }else{
         this.ErrorMessageResponse=res.errors[0]
       }
     })
   }
+  onFilesChosen(event){
+  
+  
+      if (event.target.files && event.target.files[0]) {
+        var filesAmount = event.target.files.length;
+        for (let i = 0; i < filesAmount; i++) {
+                var reader = new FileReader();
+  
+                reader.onload = (event:any) => {
+                
+                   this.AddEmployee.avatarImage=event.target.result; 
+                  
+                }
+  
+                reader.readAsDataURL(event.target.files[i]);
+        }
+    }
+  
+    }
+    removeChosen(index){
+  
+      this.AddEmployee.avatarImage=undefined;
+    }
 }
