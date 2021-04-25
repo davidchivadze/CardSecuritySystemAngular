@@ -46,6 +46,9 @@ import { EditDeviceLocationInBranchComponent } from './Components/Parameters/Dev
 import { DeviceLocationInBranchListComponent } from './Components/Parameters/DeviceLocationInBranch/device-location-in-branch-list/device-location-in-branch-list.component';
 import { EditEmployeeComponent } from './Components/Main/employee/edit-employee/edit-employee.component';
 import { environment } from 'src/environments/environment';
+import { EditDeviceComponent } from './Components/Main/devices/edit-device/edit-device.component';
+import { KeygenInsertComponent } from './Components/Auth/keygen-insert/keygen-insert.component';
+import { EmployeeListFromDeviceComponent } from './Components/Main/employee/employee-list-from-device/employee-list-from-device.component';
 export function CrateTranslateLoader(http:HttpClient){
   return new TranslateHttpLoader(http);
 } 
@@ -104,6 +107,9 @@ export class TranslateHandler implements MissingTranslationHandler {
     EditDeviceLocationInBranchComponent,
     DeviceLocationInBranchListComponent,
     EditEmployeeComponent,
+    EditDeviceComponent,
+    KeygenInsertComponent,
+    EmployeeListFromDeviceComponent,
 
   ],
   imports: [

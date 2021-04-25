@@ -20,6 +20,14 @@ export interface IAuthService {
      * @return OK
      */
     login(username: string, password: string): Observable<IResponseOfString>;
+    /**
+     * @return OK
+     */
+    getSerialKey(): Observable<IResponseOfString>;
+    /**
+     * @return OK
+     */
+    updateSerialKey(key: string): Observable<IResponseOfBoolean>;
 }
 
 @Injectable({
@@ -93,6 +101,112 @@ export class AuthService implements IAuthService {
         }
         return _observableOf<IResponseOfString>(<any>null);
     }
+
+    /**
+     * @return OK
+     */
+    getSerialKey(): Observable<IResponseOfString> {
+        let url_ = this.baseUrl + "/api/Auth/GetSerialKey";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetSerialKey(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetSerialKey(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfString>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfString>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetSerialKey(response: HttpResponseBase): Observable<IResponseOfString> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfString.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfString>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    updateSerialKey(key: string): Observable<IResponseOfBoolean> {
+        let url_ = this.baseUrl + "/api/Auth/UpdateSerialKey?";
+        if (key === undefined || key === null)
+            throw new Error("The parameter 'key' must be defined and cannot be null.");
+        else
+            url_ += "key=" + encodeURIComponent("" + key) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateSerialKey(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateSerialKey(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfBoolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfBoolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processUpdateSerialKey(response: HttpResponseBase): Observable<IResponseOfBoolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfBoolean.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfBoolean>(<any>null);
+    }
 }
 
 export interface IEmployeeService {
@@ -100,6 +214,18 @@ export interface IEmployeeService {
      * @return OK
      */
     addEmployee(request: AddEmployeeRequestModel): Observable<IResponseOfAddEmployeeResposeModel>;
+    /**
+     * @return OK
+     */
+    editEmployee(request: GetEmployeeForEdit): Observable<IResponseOfEditEmployeeResposeModel>;
+    /**
+     * @return OK
+     */
+    deleteEmployees(employeeIDs: number[]): Observable<IResponseOfBoolean>;
+    /**
+     * @return OK
+     */
+    getEmployeeForEdit(employeeID: number): Observable<IResponseOfGetEmployeeForEdit>;
     /**
      * @return OK
      */
@@ -181,6 +307,171 @@ export class EmployeeService implements IEmployeeService {
             }));
         }
         return _observableOf<IResponseOfAddEmployeeResposeModel>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    editEmployee(request: GetEmployeeForEdit): Observable<IResponseOfEditEmployeeResposeModel> {
+        let url_ = this.baseUrl + "/api/Employee/EditEmployee";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEditEmployee(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEditEmployee(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfEditEmployeeResposeModel>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfEditEmployeeResposeModel>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processEditEmployee(response: HttpResponseBase): Observable<IResponseOfEditEmployeeResposeModel> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfEditEmployeeResposeModel.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfEditEmployeeResposeModel>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    deleteEmployees(employeeIDs: number[]): Observable<IResponseOfBoolean> {
+        let url_ = this.baseUrl + "/api/Employee/DeleteEmployees";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(employeeIDs);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteEmployees(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteEmployees(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfBoolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfBoolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processDeleteEmployees(response: HttpResponseBase): Observable<IResponseOfBoolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfBoolean.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfBoolean>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    getEmployeeForEdit(employeeID: number): Observable<IResponseOfGetEmployeeForEdit> {
+        let url_ = this.baseUrl + "/api/Employee/GetEmployeeForEdit?";
+        if (employeeID === undefined || employeeID === null)
+            throw new Error("The parameter 'employeeID' must be defined and cannot be null.");
+        else
+            url_ += "EmployeeID=" + encodeURIComponent("" + employeeID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetEmployeeForEdit(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetEmployeeForEdit(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfGetEmployeeForEdit>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfGetEmployeeForEdit>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetEmployeeForEdit(response: HttpResponseBase): Observable<IResponseOfGetEmployeeForEdit> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfGetEmployeeForEdit.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfGetEmployeeForEdit>(<any>null);
     }
 
     /**
@@ -2158,6 +2449,14 @@ export interface IRemoteDeviceService {
     /**
      * @return OK
      */
+    editDevice(model: AddDeviceRequest): Observable<IResponseOfBoolean>;
+    /**
+     * @return OK
+     */
+    getDeviceForEdit(deviceID: number): Observable<IResponseOfAddDeviceRequest>;
+    /**
+     * @return OK
+     */
     getDeviceUserLogList(): Observable<IResponseOfGetDeviceUserLogResponse>;
     /**
      * @return OK
@@ -2179,6 +2478,11 @@ export interface IRemoteDeviceService {
      * @return OK
      */
     updateUserListFromDevice(): Observable<IResponseOfBoolean>;
+    /**
+     * @param request_isRegistrated (optional) 
+     * @return OK
+     */
+    getDeviceUserList(request_isRegistrated: boolean | null | undefined): Observable<IResponseOfDeviceUserListResponse>;
     /**
      * @return OK
      */
@@ -2306,6 +2610,116 @@ export class RemoteDeviceService implements IRemoteDeviceService {
             }));
         }
         return _observableOf<IResponseOfBoolean>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    editDevice(model: AddDeviceRequest): Observable<IResponseOfBoolean> {
+        let url_ = this.baseUrl + "/api/RemoteDevice/EditDevice";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEditDevice(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEditDevice(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfBoolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfBoolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processEditDevice(response: HttpResponseBase): Observable<IResponseOfBoolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfBoolean.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfBoolean>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    getDeviceForEdit(deviceID: number): Observable<IResponseOfAddDeviceRequest> {
+        let url_ = this.baseUrl + "/api/RemoteDevice/GetDeviceForEdit?";
+        if (deviceID === undefined || deviceID === null)
+            throw new Error("The parameter 'deviceID' must be defined and cannot be null.");
+        else
+            url_ += "deviceID=" + encodeURIComponent("" + deviceID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetDeviceForEdit(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDeviceForEdit(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfAddDeviceRequest>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfAddDeviceRequest>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetDeviceForEdit(response: HttpResponseBase): Observable<IResponseOfAddDeviceRequest> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfAddDeviceRequest.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfAddDeviceRequest>(<any>null);
     }
 
     /**
@@ -2611,6 +3025,61 @@ export class RemoteDeviceService implements IRemoteDeviceService {
     }
 
     /**
+     * @param request_isRegistrated (optional) 
+     * @return OK
+     */
+    getDeviceUserList(request_isRegistrated: boolean | null | undefined): Observable<IResponseOfDeviceUserListResponse> {
+        let url_ = this.baseUrl + "/api/RemoteDevice/GetDeviceUserList?";
+        if (request_isRegistrated !== undefined && request_isRegistrated !== null)
+            url_ += "request.isRegistrated=" + encodeURIComponent("" + request_isRegistrated) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetDeviceUserList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDeviceUserList(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfDeviceUserListResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfDeviceUserListResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetDeviceUserList(response: HttpResponseBase): Observable<IResponseOfDeviceUserListResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfDeviceUserListResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfDeviceUserListResponse>(<any>null);
+    }
+
+    /**
      * @return OK
      */
     insertUserToDevice(userID: number): Observable<IResponseOfBoolean> {
@@ -2854,7 +3323,61 @@ export interface IIResponseOfString {
     data?: string | undefined;
 }
 
+export class IResponseOfBoolean implements IIResponseOfBoolean {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: boolean | undefined;
+
+    constructor(data?: IIResponseOfBoolean) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"];
+        }
+    }
+
+    static fromJS(data: any): IResponseOfBoolean {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfBoolean();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data;
+        return data; 
+    }
+}
+
+export interface IIResponseOfBoolean {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: boolean | undefined;
+}
+
 export class AddEmployeeRequestModel implements IAddEmployeeRequestModel {
+    avatarImage?: string | undefined;
+    userIdInDevice?: number | undefined;
     firsName?: string | undefined;
     firsName_ka?: string | undefined;
     firsName_ru?: string | undefined;
@@ -2893,6 +3416,8 @@ export class AddEmployeeRequestModel implements IAddEmployeeRequestModel {
 
     init(_data?: any) {
         if (_data) {
+            this.avatarImage = _data["AvatarImage"];
+            this.userIdInDevice = _data["UserIdInDevice"];
             this.firsName = _data["FirsName"];
             this.firsName_ka = _data["FirsName_ka"];
             this.firsName_ru = _data["FirsName_ru"];
@@ -2939,6 +3464,8 @@ export class AddEmployeeRequestModel implements IAddEmployeeRequestModel {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["AvatarImage"] = this.avatarImage;
+        data["UserIdInDevice"] = this.userIdInDevice;
         data["FirsName"] = this.firsName;
         data["FirsName_ka"] = this.firsName_ka;
         data["FirsName_ru"] = this.firsName_ru;
@@ -2978,6 +3505,8 @@ export class AddEmployeeRequestModel implements IAddEmployeeRequestModel {
 }
 
 export interface IAddEmployeeRequestModel {
+    avatarImage?: string | undefined;
+    userIdInDevice?: number | undefined;
     firsName?: string | undefined;
     firsName_ka?: string | undefined;
     firsName_ru?: string | undefined;
@@ -3007,6 +3536,7 @@ export interface IAddEmployeeRequestModel {
 }
 
 export class Forgiveness implements IForgiveness {
+    iD?: number | undefined;
     forgivenessTypeID?: number | undefined;
     amount?: number | undefined;
 
@@ -3021,6 +3551,7 @@ export class Forgiveness implements IForgiveness {
 
     init(_data?: any) {
         if (_data) {
+            this.iD = _data["ID"];
             this.forgivenessTypeID = _data["ForgivenessTypeID"];
             this.amount = _data["Amount"];
         }
@@ -3035,6 +3566,7 @@ export class Forgiveness implements IForgiveness {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
         data["ForgivenessTypeID"] = this.forgivenessTypeID;
         data["Amount"] = this.amount;
         return data; 
@@ -3042,11 +3574,13 @@ export class Forgiveness implements IForgiveness {
 }
 
 export interface IForgiveness {
+    iD?: number | undefined;
     forgivenessTypeID?: number | undefined;
     amount?: number | undefined;
 }
 
 export class Fine implements IFine {
+    iD?: number | undefined;
     fineTypeID?: number | undefined;
     amount?: number | undefined;
     currencyID?: number | undefined;
@@ -3062,6 +3596,7 @@ export class Fine implements IFine {
 
     init(_data?: any) {
         if (_data) {
+            this.iD = _data["ID"];
             this.fineTypeID = _data["FineTypeID"];
             this.amount = _data["Amount"];
             this.currencyID = _data["CurrencyID"];
@@ -3077,6 +3612,7 @@ export class Fine implements IFine {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
         data["FineTypeID"] = this.fineTypeID;
         data["Amount"] = this.amount;
         data["CurrencyID"] = this.currencyID;
@@ -3085,12 +3621,14 @@ export class Fine implements IFine {
 }
 
 export interface IFine {
+    iD?: number | undefined;
     fineTypeID?: number | undefined;
     amount?: number | undefined;
     currencyID?: number | undefined;
 }
 
 export class SalaryData implements ISalaryData {
+    iD?: number | undefined;
     amount?: number | undefined;
     currencyID?: number | undefined;
     isHourly?: boolean | undefined;
@@ -3107,6 +3645,7 @@ export class SalaryData implements ISalaryData {
 
     init(_data?: any) {
         if (_data) {
+            this.iD = _data["ID"];
             this.amount = _data["Amount"];
             this.currencyID = _data["CurrencyID"];
             this.isHourly = _data["IsHourly"];
@@ -3123,6 +3662,7 @@ export class SalaryData implements ISalaryData {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
         data["Amount"] = this.amount;
         data["CurrencyID"] = this.currencyID;
         data["IsHourly"] = this.isHourly;
@@ -3132,6 +3672,7 @@ export class SalaryData implements ISalaryData {
 }
 
 export interface ISalaryData {
+    iD?: number | undefined;
     amount?: number | undefined;
     currencyID?: number | undefined;
     isHourly?: boolean | undefined;
@@ -3139,9 +3680,13 @@ export interface ISalaryData {
 }
 
 export class ScheduleData implements IScheduleData {
+    iD?: number | undefined;
     scheduleTypeID?: number | undefined;
     startTime?: string | undefined;
     endTime?: string | undefined;
+    minCheckInTime?: string | undefined;
+    maxCheckOutTime?: string | undefined;
+    breakAmount?: number | undefined;
     weekHouresAmount?: number | undefined;
     daylyHouresAmount?: number | undefined;
     onWorkingDaysOnly?: boolean | undefined;
@@ -3161,9 +3706,13 @@ export class ScheduleData implements IScheduleData {
 
     init(_data?: any) {
         if (_data) {
+            this.iD = _data["ID"];
             this.scheduleTypeID = _data["ScheduleTypeID"];
             this.startTime = _data["StartTime"];
             this.endTime = _data["EndTime"];
+            this.minCheckInTime = _data["MinCheckInTime"];
+            this.maxCheckOutTime = _data["MaxCheckOutTime"];
+            this.breakAmount = _data["BreakAmount"];
             this.weekHouresAmount = _data["WeekHouresAmount"];
             this.daylyHouresAmount = _data["DaylyHouresAmount"];
             this.onWorkingDaysOnly = _data["OnWorkingDaysOnly"];
@@ -3183,9 +3732,13 @@ export class ScheduleData implements IScheduleData {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
         data["ScheduleTypeID"] = this.scheduleTypeID;
         data["StartTime"] = this.startTime;
         data["EndTime"] = this.endTime;
+        data["MinCheckInTime"] = this.minCheckInTime;
+        data["MaxCheckOutTime"] = this.maxCheckOutTime;
+        data["BreakAmount"] = this.breakAmount;
         data["WeekHouresAmount"] = this.weekHouresAmount;
         data["DaylyHouresAmount"] = this.daylyHouresAmount;
         data["OnWorkingDaysOnly"] = this.onWorkingDaysOnly;
@@ -3198,9 +3751,13 @@ export class ScheduleData implements IScheduleData {
 }
 
 export interface IScheduleData {
+    iD?: number | undefined;
     scheduleTypeID?: number | undefined;
     startTime?: string | undefined;
     endTime?: string | undefined;
+    minCheckInTime?: string | undefined;
+    maxCheckOutTime?: string | undefined;
+    breakAmount?: number | undefined;
     weekHouresAmount?: number | undefined;
     daylyHouresAmount?: number | undefined;
     onWorkingDaysOnly?: boolean | undefined;
@@ -3211,6 +3768,7 @@ export interface IScheduleData {
 }
 
 export class EmployeeHolidays implements IEmployeeHolidays {
+    iD?: number | undefined;
     holidayTypeID?: number | undefined;
     allWritten?: number | undefined;
     left?: number | undefined;
@@ -3231,6 +3789,7 @@ export class EmployeeHolidays implements IEmployeeHolidays {
 
     init(_data?: any) {
         if (_data) {
+            this.iD = _data["ID"];
             this.holidayTypeID = _data["HolidayTypeID"];
             this.allWritten = _data["AllWritten"];
             this.left = _data["Left"];
@@ -3251,6 +3810,7 @@ export class EmployeeHolidays implements IEmployeeHolidays {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
         data["HolidayTypeID"] = this.holidayTypeID;
         data["AllWritten"] = this.allWritten;
         data["Left"] = this.left;
@@ -3264,6 +3824,7 @@ export class EmployeeHolidays implements IEmployeeHolidays {
 }
 
 export interface IEmployeeHolidays {
+    iD?: number | undefined;
     holidayTypeID?: number | undefined;
     allWritten?: number | undefined;
     left?: number | undefined;
@@ -3356,12 +3917,180 @@ export class AddEmployeeResposeModel implements IAddEmployeeResposeModel {
 export interface IAddEmployeeResposeModel {
 }
 
-export class IResponseOfBoolean implements IIResponseOfBoolean {
+export class GetEmployeeForEdit implements IGetEmployeeForEdit {
+    iD?: number | undefined;
+    avatarImage?: string | undefined;
+    employeeDetailsID?: number | undefined;
+    firsName?: string | undefined;
+    firsName_ka?: string | undefined;
+    firsName_ru?: string | undefined;
+    lastName?: string | undefined;
+    lastName_ka?: string | undefined;
+    lastName_ru?: string | undefined;
+    country?: string | undefined;
+    dateOfBirth?: Date | undefined;
+    address?: string | undefined;
+    address_ka?: string | undefined;
+    address_ru?: string | undefined;
+    email?: string | undefined;
+    isActive?: boolean | undefined;
+    employeePositionID?: number | undefined;
+    deviceCardID?: string | undefined;
+    salaryID?: number | undefined;
+    userIDInDevice?: number | undefined;
+    branchID?: number | undefined;
+    departmentID?: number | undefined;
+    genderID?: number | undefined;
+    personalNumber?: string | undefined;
+    mobileNumbers?: string[] | undefined;
+    forgiveness?: Forgiveness | undefined;
+    fine?: Fine | undefined;
+    salary?: SalaryData | undefined;
+    schedule?: ScheduleData | undefined;
+    employeeHolidays?: EmployeeHolidays[] | undefined;
+
+    constructor(data?: IGetEmployeeForEdit) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.avatarImage = _data["AvatarImage"];
+            this.employeeDetailsID = _data["EmployeeDetailsID"];
+            this.firsName = _data["FirsName"];
+            this.firsName_ka = _data["FirsName_ka"];
+            this.firsName_ru = _data["FirsName_ru"];
+            this.lastName = _data["LastName"];
+            this.lastName_ka = _data["LastName_ka"];
+            this.lastName_ru = _data["LastName_ru"];
+            this.country = _data["Country"];
+            this.dateOfBirth = _data["DateOfBirth"] ? new Date(_data["DateOfBirth"].toString()) : <any>undefined;
+            this.address = _data["Address"];
+            this.address_ka = _data["Address_ka"];
+            this.address_ru = _data["Address_ru"];
+            this.email = _data["Email"];
+            this.isActive = _data["IsActive"];
+            this.employeePositionID = _data["EmployeePositionID"];
+            this.deviceCardID = _data["DeviceCardID"];
+            this.salaryID = _data["SalaryID"];
+            this.userIDInDevice = _data["UserIDInDevice"];
+            this.branchID = _data["BranchID"];
+            this.departmentID = _data["DepartmentID"];
+            this.genderID = _data["GenderID"];
+            this.personalNumber = _data["PersonalNumber"];
+            if (Array.isArray(_data["MobileNumbers"])) {
+                this.mobileNumbers = [] as any;
+                for (let item of _data["MobileNumbers"])
+                    this.mobileNumbers!.push(item);
+            }
+            this.forgiveness = _data["Forgiveness"] ? Forgiveness.fromJS(_data["Forgiveness"]) : <any>undefined;
+            this.fine = _data["Fine"] ? Fine.fromJS(_data["Fine"]) : <any>undefined;
+            this.salary = _data["Salary"] ? SalaryData.fromJS(_data["Salary"]) : <any>undefined;
+            this.schedule = _data["Schedule"] ? ScheduleData.fromJS(_data["Schedule"]) : <any>undefined;
+            if (Array.isArray(_data["EmployeeHolidays"])) {
+                this.employeeHolidays = [] as any;
+                for (let item of _data["EmployeeHolidays"])
+                    this.employeeHolidays!.push(EmployeeHolidays.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetEmployeeForEdit {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetEmployeeForEdit();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["AvatarImage"] = this.avatarImage;
+        data["EmployeeDetailsID"] = this.employeeDetailsID;
+        data["FirsName"] = this.firsName;
+        data["FirsName_ka"] = this.firsName_ka;
+        data["FirsName_ru"] = this.firsName_ru;
+        data["LastName"] = this.lastName;
+        data["LastName_ka"] = this.lastName_ka;
+        data["LastName_ru"] = this.lastName_ru;
+        data["Country"] = this.country;
+        data["DateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
+        data["Address"] = this.address;
+        data["Address_ka"] = this.address_ka;
+        data["Address_ru"] = this.address_ru;
+        data["Email"] = this.email;
+        data["IsActive"] = this.isActive;
+        data["EmployeePositionID"] = this.employeePositionID;
+        data["DeviceCardID"] = this.deviceCardID;
+        data["SalaryID"] = this.salaryID;
+        data["UserIDInDevice"] = this.userIDInDevice;
+        data["BranchID"] = this.branchID;
+        data["DepartmentID"] = this.departmentID;
+        data["GenderID"] = this.genderID;
+        data["PersonalNumber"] = this.personalNumber;
+        if (Array.isArray(this.mobileNumbers)) {
+            data["MobileNumbers"] = [];
+            for (let item of this.mobileNumbers)
+                data["MobileNumbers"].push(item);
+        }
+        data["Forgiveness"] = this.forgiveness ? this.forgiveness.toJSON() : <any>undefined;
+        data["Fine"] = this.fine ? this.fine.toJSON() : <any>undefined;
+        data["Salary"] = this.salary ? this.salary.toJSON() : <any>undefined;
+        data["Schedule"] = this.schedule ? this.schedule.toJSON() : <any>undefined;
+        if (Array.isArray(this.employeeHolidays)) {
+            data["EmployeeHolidays"] = [];
+            for (let item of this.employeeHolidays)
+                data["EmployeeHolidays"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IGetEmployeeForEdit {
+    iD?: number | undefined;
+    avatarImage?: string | undefined;
+    employeeDetailsID?: number | undefined;
+    firsName?: string | undefined;
+    firsName_ka?: string | undefined;
+    firsName_ru?: string | undefined;
+    lastName?: string | undefined;
+    lastName_ka?: string | undefined;
+    lastName_ru?: string | undefined;
+    country?: string | undefined;
+    dateOfBirth?: Date | undefined;
+    address?: string | undefined;
+    address_ka?: string | undefined;
+    address_ru?: string | undefined;
+    email?: string | undefined;
+    isActive?: boolean | undefined;
+    employeePositionID?: number | undefined;
+    deviceCardID?: string | undefined;
+    salaryID?: number | undefined;
+    userIDInDevice?: number | undefined;
+    branchID?: number | undefined;
+    departmentID?: number | undefined;
+    genderID?: number | undefined;
+    personalNumber?: string | undefined;
+    mobileNumbers?: string[] | undefined;
+    forgiveness?: Forgiveness | undefined;
+    fine?: Fine | undefined;
+    salary?: SalaryData | undefined;
+    schedule?: ScheduleData | undefined;
+    employeeHolidays?: EmployeeHolidays[] | undefined;
+}
+
+export class IResponseOfEditEmployeeResposeModel implements IIResponseOfEditEmployeeResposeModel {
     ok!: boolean;
     errors?: string[] | undefined;
-    data?: boolean | undefined;
+    data?: EditEmployeeResposeModel | undefined;
 
-    constructor(data?: IIResponseOfBoolean) {
+    constructor(data?: IIResponseOfEditEmployeeResposeModel) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -3378,13 +4107,13 @@ export class IResponseOfBoolean implements IIResponseOfBoolean {
                 for (let item of _data["Errors"])
                     this.errors!.push(item);
             }
-            this.data = _data["Data"];
+            this.data = _data["Data"] ? EditEmployeeResposeModel.fromJS(_data["Data"]) : <any>undefined;
         }
     }
 
-    static fromJS(data: any): IResponseOfBoolean {
+    static fromJS(data: any): IResponseOfEditEmployeeResposeModel {
         data = typeof data === 'object' ? data : {};
-        let result = new IResponseOfBoolean();
+        let result = new IResponseOfEditEmployeeResposeModel();
         result.init(data);
         return result;
     }
@@ -3397,15 +4126,97 @@ export class IResponseOfBoolean implements IIResponseOfBoolean {
             for (let item of this.errors)
                 data["Errors"].push(item);
         }
-        data["Data"] = this.data;
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
         return data; 
     }
 }
 
-export interface IIResponseOfBoolean {
+export interface IIResponseOfEditEmployeeResposeModel {
     ok: boolean;
     errors?: string[] | undefined;
-    data?: boolean | undefined;
+    data?: EditEmployeeResposeModel | undefined;
+}
+
+export class EditEmployeeResposeModel implements IEditEmployeeResposeModel {
+
+    constructor(data?: IEditEmployeeResposeModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): EditEmployeeResposeModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new EditEmployeeResposeModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+}
+
+export interface IEditEmployeeResposeModel {
+}
+
+export class IResponseOfGetEmployeeForEdit implements IIResponseOfGetEmployeeForEdit {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: GetEmployeeForEdit | undefined;
+
+    constructor(data?: IIResponseOfGetEmployeeForEdit) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? GetEmployeeForEdit.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfGetEmployeeForEdit {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfGetEmployeeForEdit();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfGetEmployeeForEdit {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: GetEmployeeForEdit | undefined;
 }
 
 export class GetEmployeeHolidayListRequest implements IGetEmployeeHolidayListRequest {
@@ -7349,6 +8160,7 @@ export interface IIResponseOfDateTime {
 }
 
 export class AddDeviceRequest implements IAddDeviceRequest {
+    iD?: number | undefined;
     name?: string | undefined;
     numberDevices?: number | undefined;
     iPAddress?: string | undefined;
@@ -7370,6 +8182,7 @@ export class AddDeviceRequest implements IAddDeviceRequest {
 
     init(_data?: any) {
         if (_data) {
+            this.iD = _data["ID"];
             this.name = _data["Name"];
             this.numberDevices = _data["NumberDevices"];
             this.iPAddress = _data["IPAddress"];
@@ -7391,6 +8204,7 @@ export class AddDeviceRequest implements IAddDeviceRequest {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
         data["Name"] = this.name;
         data["NumberDevices"] = this.numberDevices;
         data["IPAddress"] = this.iPAddress;
@@ -7405,6 +8219,7 @@ export class AddDeviceRequest implements IAddDeviceRequest {
 }
 
 export interface IAddDeviceRequest {
+    iD?: number | undefined;
     name?: string | undefined;
     numberDevices?: number | undefined;
     iPAddress?: string | undefined;
@@ -7414,6 +8229,58 @@ export interface IAddDeviceRequest {
     userName?: string | undefined;
     password?: string | undefined;
     port?: string | undefined;
+}
+
+export class IResponseOfAddDeviceRequest implements IIResponseOfAddDeviceRequest {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: AddDeviceRequest | undefined;
+
+    constructor(data?: IIResponseOfAddDeviceRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? AddDeviceRequest.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfAddDeviceRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfAddDeviceRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfAddDeviceRequest {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: AddDeviceRequest | undefined;
 }
 
 export class IResponseOfGetDeviceUserLogResponse implements IIResponseOfGetDeviceUserLogResponse {
@@ -7679,6 +8546,7 @@ export class GetDeviceListItem implements IGetDeviceListItem {
     branch?: string | undefined;
     locationInBranch?: string | undefined;
     state?: number | undefined;
+    name?: string | undefined;
 
     constructor(data?: IGetDeviceListItem) {
         if (data) {
@@ -7697,6 +8565,7 @@ export class GetDeviceListItem implements IGetDeviceListItem {
             this.branch = _data["Branch"];
             this.locationInBranch = _data["LocationInBranch"];
             this.state = _data["State"];
+            this.name = _data["Name"];
         }
     }
 
@@ -7715,6 +8584,7 @@ export class GetDeviceListItem implements IGetDeviceListItem {
         data["Branch"] = this.branch;
         data["LocationInBranch"] = this.locationInBranch;
         data["State"] = this.state;
+        data["Name"] = this.name;
         return data; 
     }
 }
@@ -7726,6 +8596,215 @@ export interface IGetDeviceListItem {
     branch?: string | undefined;
     locationInBranch?: string | undefined;
     state?: number | undefined;
+    name?: string | undefined;
+}
+
+export class DeviceUserListRequest implements IDeviceUserListRequest {
+    isRegistrated?: boolean | undefined;
+
+    constructor(data?: IDeviceUserListRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.isRegistrated = _data["IsRegistrated"];
+        }
+    }
+
+    static fromJS(data: any): DeviceUserListRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new DeviceUserListRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["IsRegistrated"] = this.isRegistrated;
+        return data; 
+    }
+}
+
+export interface IDeviceUserListRequest {
+    isRegistrated?: boolean | undefined;
+}
+
+export class IResponseOfDeviceUserListResponse implements IIResponseOfDeviceUserListResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: DeviceUserListResponse | undefined;
+
+    constructor(data?: IIResponseOfDeviceUserListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? DeviceUserListResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfDeviceUserListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfDeviceUserListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfDeviceUserListResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: DeviceUserListResponse | undefined;
+}
+
+export class DeviceUserListResponse implements IDeviceUserListResponse {
+    deviceUserListItems?: DeviceUserListItem[] | undefined;
+
+    constructor(data?: IDeviceUserListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["deviceUserListItems"])) {
+                this.deviceUserListItems = [] as any;
+                for (let item of _data["deviceUserListItems"])
+                    this.deviceUserListItems!.push(DeviceUserListItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): DeviceUserListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new DeviceUserListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.deviceUserListItems)) {
+            data["deviceUserListItems"] = [];
+            for (let item of this.deviceUserListItems)
+                data["deviceUserListItems"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IDeviceUserListResponse {
+    deviceUserListItems?: DeviceUserListItem[] | undefined;
+}
+
+export class DeviceUserListItem implements IDeviceUserListItem {
+    iD?: number | undefined;
+    userDeviceID?: number | undefined;
+    machineNumber?: number | undefined;
+    name?: string | undefined;
+    fingerIndex?: number | undefined;
+    tmpData?: string | undefined;
+    privelage?: number | undefined;
+    password?: string | undefined;
+    enabled?: boolean | undefined;
+    iFlag?: string | undefined;
+    isRegistratedSystem?: boolean | undefined;
+
+    constructor(data?: IDeviceUserListItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.userDeviceID = _data["UserDeviceID"];
+            this.machineNumber = _data["MachineNumber"];
+            this.name = _data["Name"];
+            this.fingerIndex = _data["FingerIndex"];
+            this.tmpData = _data["TmpData"];
+            this.privelage = _data["Privelage"];
+            this.password = _data["Password"];
+            this.enabled = _data["Enabled"];
+            this.iFlag = _data["iFlag"];
+            this.isRegistratedSystem = _data["IsRegistratedSystem"];
+        }
+    }
+
+    static fromJS(data: any): DeviceUserListItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new DeviceUserListItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["UserDeviceID"] = this.userDeviceID;
+        data["MachineNumber"] = this.machineNumber;
+        data["Name"] = this.name;
+        data["FingerIndex"] = this.fingerIndex;
+        data["TmpData"] = this.tmpData;
+        data["Privelage"] = this.privelage;
+        data["Password"] = this.password;
+        data["Enabled"] = this.enabled;
+        data["iFlag"] = this.iFlag;
+        data["IsRegistratedSystem"] = this.isRegistratedSystem;
+        return data; 
+    }
+}
+
+export interface IDeviceUserListItem {
+    iD?: number | undefined;
+    userDeviceID?: number | undefined;
+    machineNumber?: number | undefined;
+    name?: string | undefined;
+    fingerIndex?: number | undefined;
+    tmpData?: string | undefined;
+    privelage?: number | undefined;
+    password?: string | undefined;
+    enabled?: boolean | undefined;
+    iFlag?: string | undefined;
+    isRegistratedSystem?: boolean | undefined;
 }
 
 export class IZKEM implements IIZKEM {

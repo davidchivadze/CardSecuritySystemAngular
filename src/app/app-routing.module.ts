@@ -1,13 +1,17 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
+import { KeygenInsertComponent } from './Components/Auth/keygen-insert/keygen-insert.component';
 import { LoginComponent } from './Components/Auth/login/login.component';
 import { AddDeviceComponent } from './Components/Main/devices/add-device/add-device.component';
 import { DeviceListComponent } from './Components/Main/devices/device-list/device-list.component';
 import { DeviceLogListComponent } from './Components/Main/devices/device-log-list/device-log-list.component';
 import { DevicesComponent } from './Components/Main/devices/devices.component';
+import { EditDeviceComponent } from './Components/Main/devices/edit-device/edit-device.component';
 import { AddEmployeeComponent } from './Components/Main/employee/add-employee/add-employee.component';
 import { DeviceEmployeeDataComponent } from './Components/Main/Employee/device-employee-data/device-employee-data.component';
+import { EditEmployeeComponent } from './Components/Main/employee/edit-employee/edit-employee.component';
+import { EmployeeListFromDeviceComponent } from './Components/Main/employee/employee-list-from-device/employee-list-from-device.component';
 import { EmployeeListComponent } from './Components/Main/employee/employee-list/employee-list.component';
 import { EmployeeComponent } from './Components/Main/employee/employee.component';
 import { AddBranchComponent } from './Components/Parameters/Branch/add-branch/add-branch.component';
@@ -36,7 +40,8 @@ const routes: Routes = [
     {path:"",component:DeviceListComponent},
     {path:"DeviceList",component:DeviceListComponent},
     {path:"AddDevice",component:AddDeviceComponent},
-    {path:"DeviceLogList",component:DeviceLogListComponent}
+    {path:"DeviceLogList",component:DeviceLogListComponent},
+    {path:"EditDevice/:deviceID",component:EditDeviceComponent}
   ],
   },
   {path:"Branch",component:BranchMainComponent,children:[
@@ -69,15 +74,21 @@ const routes: Routes = [
  },
   {path:"Employee",component:EmployeeComponent,children:[
     {path:"",component:EmployeeListComponent},
+    {path:"EmployeeListFromDevice",component:EmployeeListFromDeviceComponent},
     {path:"AddEmployee",component:AddEmployeeComponent},
+    {path:"AddEmployee/:deviceUserID",component:AddEmployeeComponent},
+ 
     {path:"EmployeeListDevice",component:DeviceEmployeeDataComponent},
-    {path:"EmployeeList",component:EmployeeListComponent}
+    {path:"EmployeeList",component:EmployeeListComponent},
+    {path:"EditEmployee/:editEmployeeID",component:EditEmployeeComponent}
   ]},
-  ]//,  canActivate:[AuthGuard]
+  ],  canActivate:[AuthGuard]
 },
   {path:"Auth",component:LoginLayoutComponent,children:[
-    {path:"Login",component:LoginComponent}
-  ]}  
+    {path:"Login",component:LoginComponent},
+ 
+  ]},
+  {path:"InsertKeygen",component:KeygenInsertComponent}
 ];
 
 @NgModule({
