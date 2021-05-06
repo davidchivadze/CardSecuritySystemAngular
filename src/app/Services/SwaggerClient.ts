@@ -239,6 +239,46 @@ export interface IEmployeeService {
      * @return OK
      */
     getEmployeeList(): Observable<IResponseOfGetEmployeeListResponse>;
+    /**
+     * @return OK
+     */
+    addGovernmentHoliday(model: AddGovernmentRequest): Observable<IResponseOfAddGovernmentResponse>;
+    /**
+     * @return OK
+     */
+    getGovernmentHolidayList(): Observable<IResponseOfGetGovernmentHolidayListResponse>;
+    /**
+     * @return OK
+     */
+    editGovernmentHoliday(model: EditGovernmentHolidayRequest): Observable<IResponseOfEditGovernmentHolidayResponse>;
+    /**
+     * @return OK
+     */
+    deleteGovernmentHoliday(governmentHolidayID: number): Observable<IResponseOfBoolean>;
+    /**
+     * @return OK
+     */
+    getEmployeeHolidayRequestList(employeeID: number): Observable<IResponseOfGetEmployeeHolidayReqListResponse>;
+    /**
+     * @return OK
+     */
+    addEmployteeHolidayRequest(model: AddEmployeeHolidayReqRequest): Observable<IResponseOfAddEmployeeHolidayReqResponse>;
+    /**
+     * @return OK
+     */
+    editHolidayRequest(model: EditEmployeeHolidayReqRequest): Observable<IResponseOfEditEmployeeHolidayReqResponse>;
+    /**
+     * @return OK
+     */
+    getEmployeeModReport(month: number, year: number, employeeID: number): Observable<IResponseOfListOfGetEmployeeModReportResponse>;
+    /**
+     * @return OK
+     */
+    getEmployeeFullReport(month: number, year: number, employeeID: number): Observable<IResponseOfGetEmployeeFullReportResponse>;
+    /**
+     * @return OK
+     */
+    deleteEmployeeHolidayRequest(holidayID: number): Observable<IResponseOfBoolean>;
 }
 
 @Injectable({
@@ -633,6 +673,568 @@ export class EmployeeService implements IEmployeeService {
             }));
         }
         return _observableOf<IResponseOfGetEmployeeListResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    addGovernmentHoliday(model: AddGovernmentRequest): Observable<IResponseOfAddGovernmentResponse> {
+        let url_ = this.baseUrl + "/api/Employee/AddGovernmentHoliday";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddGovernmentHoliday(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddGovernmentHoliday(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfAddGovernmentResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfAddGovernmentResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processAddGovernmentHoliday(response: HttpResponseBase): Observable<IResponseOfAddGovernmentResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfAddGovernmentResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfAddGovernmentResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    getGovernmentHolidayList(): Observable<IResponseOfGetGovernmentHolidayListResponse> {
+        let url_ = this.baseUrl + "/api/Employee/GetGovernmentHolidayList";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetGovernmentHolidayList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetGovernmentHolidayList(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfGetGovernmentHolidayListResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfGetGovernmentHolidayListResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetGovernmentHolidayList(response: HttpResponseBase): Observable<IResponseOfGetGovernmentHolidayListResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfGetGovernmentHolidayListResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfGetGovernmentHolidayListResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    editGovernmentHoliday(model: EditGovernmentHolidayRequest): Observable<IResponseOfEditGovernmentHolidayResponse> {
+        let url_ = this.baseUrl + "/api/Employee/EditGovernmentHoliday";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEditGovernmentHoliday(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEditGovernmentHoliday(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfEditGovernmentHolidayResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfEditGovernmentHolidayResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processEditGovernmentHoliday(response: HttpResponseBase): Observable<IResponseOfEditGovernmentHolidayResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfEditGovernmentHolidayResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfEditGovernmentHolidayResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    deleteGovernmentHoliday(governmentHolidayID: number): Observable<IResponseOfBoolean> {
+        let url_ = this.baseUrl + "/api/Employee/DeleteGovernmentHoliday?";
+        if (governmentHolidayID === undefined || governmentHolidayID === null)
+            throw new Error("The parameter 'governmentHolidayID' must be defined and cannot be null.");
+        else
+            url_ += "governmentHolidayID=" + encodeURIComponent("" + governmentHolidayID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteGovernmentHoliday(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteGovernmentHoliday(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfBoolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfBoolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processDeleteGovernmentHoliday(response: HttpResponseBase): Observable<IResponseOfBoolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfBoolean.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfBoolean>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    getEmployeeHolidayRequestList(employeeID: number): Observable<IResponseOfGetEmployeeHolidayReqListResponse> {
+        let url_ = this.baseUrl + "/api/Employee/GetEmployeeHolidayRequestList?";
+        if (employeeID === undefined || employeeID === null)
+            throw new Error("The parameter 'employeeID' must be defined and cannot be null.");
+        else
+            url_ += "EmployeeID=" + encodeURIComponent("" + employeeID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetEmployeeHolidayRequestList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetEmployeeHolidayRequestList(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfGetEmployeeHolidayReqListResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfGetEmployeeHolidayReqListResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetEmployeeHolidayRequestList(response: HttpResponseBase): Observable<IResponseOfGetEmployeeHolidayReqListResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfGetEmployeeHolidayReqListResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfGetEmployeeHolidayReqListResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    addEmployteeHolidayRequest(model: AddEmployeeHolidayReqRequest): Observable<IResponseOfAddEmployeeHolidayReqResponse> {
+        let url_ = this.baseUrl + "/api/Employee/AddEmployteeHolidayRequest";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddEmployteeHolidayRequest(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddEmployteeHolidayRequest(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfAddEmployeeHolidayReqResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfAddEmployeeHolidayReqResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processAddEmployteeHolidayRequest(response: HttpResponseBase): Observable<IResponseOfAddEmployeeHolidayReqResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfAddEmployeeHolidayReqResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfAddEmployeeHolidayReqResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    editHolidayRequest(model: EditEmployeeHolidayReqRequest): Observable<IResponseOfEditEmployeeHolidayReqResponse> {
+        let url_ = this.baseUrl + "/api/Employee/EditHolidayRequest";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEditHolidayRequest(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEditHolidayRequest(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfEditEmployeeHolidayReqResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfEditEmployeeHolidayReqResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processEditHolidayRequest(response: HttpResponseBase): Observable<IResponseOfEditEmployeeHolidayReqResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfEditEmployeeHolidayReqResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfEditEmployeeHolidayReqResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    getEmployeeModReport(month: number, year: number, employeeID: number): Observable<IResponseOfListOfGetEmployeeModReportResponse> {
+        let url_ = this.baseUrl + "/api/Employee/GetEmployeeModReport?";
+        if (month === undefined || month === null)
+            throw new Error("The parameter 'month' must be defined and cannot be null.");
+        else
+            url_ += "month=" + encodeURIComponent("" + month) + "&";
+        if (year === undefined || year === null)
+            throw new Error("The parameter 'year' must be defined and cannot be null.");
+        else
+            url_ += "year=" + encodeURIComponent("" + year) + "&";
+        if (employeeID === undefined || employeeID === null)
+            throw new Error("The parameter 'employeeID' must be defined and cannot be null.");
+        else
+            url_ += "EmployeeID=" + encodeURIComponent("" + employeeID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetEmployeeModReport(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetEmployeeModReport(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfListOfGetEmployeeModReportResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfListOfGetEmployeeModReportResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetEmployeeModReport(response: HttpResponseBase): Observable<IResponseOfListOfGetEmployeeModReportResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfListOfGetEmployeeModReportResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfListOfGetEmployeeModReportResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    getEmployeeFullReport(month: number, year: number, employeeID: number): Observable<IResponseOfGetEmployeeFullReportResponse> {
+        let url_ = this.baseUrl + "/api/Employee/GetEmployeeFullReport?";
+        if (month === undefined || month === null)
+            throw new Error("The parameter 'month' must be defined and cannot be null.");
+        else
+            url_ += "month=" + encodeURIComponent("" + month) + "&";
+        if (year === undefined || year === null)
+            throw new Error("The parameter 'year' must be defined and cannot be null.");
+        else
+            url_ += "year=" + encodeURIComponent("" + year) + "&";
+        if (employeeID === undefined || employeeID === null)
+            throw new Error("The parameter 'employeeID' must be defined and cannot be null.");
+        else
+            url_ += "EmployeeID=" + encodeURIComponent("" + employeeID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetEmployeeFullReport(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetEmployeeFullReport(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfGetEmployeeFullReportResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfGetEmployeeFullReportResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetEmployeeFullReport(response: HttpResponseBase): Observable<IResponseOfGetEmployeeFullReportResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfGetEmployeeFullReportResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfGetEmployeeFullReportResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    deleteEmployeeHolidayRequest(holidayID: number): Observable<IResponseOfBoolean> {
+        let url_ = this.baseUrl + "/api/Employee/DeleteEmployeeHolidayRequest?";
+        if (holidayID === undefined || holidayID === null)
+            throw new Error("The parameter 'holidayID' must be defined and cannot be null.");
+        else
+            url_ += "holidayID=" + encodeURIComponent("" + holidayID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteEmployeeHolidayRequest(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteEmployeeHolidayRequest(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfBoolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfBoolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processDeleteEmployeeHolidayRequest(response: HttpResponseBase): Observable<IResponseOfBoolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfBoolean.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfBoolean>(<any>null);
     }
 }
 
@@ -4657,6 +5259,1326 @@ export interface IGetEmployeeListItem {
     forgiveness?: number | undefined;
     fine?: number | undefined;
     salary?: number | undefined;
+}
+
+export class AddGovernmentRequest implements IAddGovernmentRequest {
+    description?: string | undefined;
+    holidayDate?: Date | undefined;
+
+    constructor(data?: IAddGovernmentRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.description = _data["Description"];
+            this.holidayDate = _data["HolidayDate"] ? new Date(_data["HolidayDate"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): AddGovernmentRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddGovernmentRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Description"] = this.description;
+        data["HolidayDate"] = this.holidayDate ? this.holidayDate.toISOString() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IAddGovernmentRequest {
+    description?: string | undefined;
+    holidayDate?: Date | undefined;
+}
+
+export class IResponseOfAddGovernmentResponse implements IIResponseOfAddGovernmentResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: AddGovernmentResponse | undefined;
+
+    constructor(data?: IIResponseOfAddGovernmentResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? AddGovernmentResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfAddGovernmentResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfAddGovernmentResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfAddGovernmentResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: AddGovernmentResponse | undefined;
+}
+
+export class AddGovernmentResponse implements IAddGovernmentResponse {
+
+    constructor(data?: IAddGovernmentResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): AddGovernmentResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddGovernmentResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+}
+
+export interface IAddGovernmentResponse {
+}
+
+export class IResponseOfGetGovernmentHolidayListResponse implements IIResponseOfGetGovernmentHolidayListResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: GetGovernmentHolidayListResponse | undefined;
+
+    constructor(data?: IIResponseOfGetGovernmentHolidayListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? GetGovernmentHolidayListResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfGetGovernmentHolidayListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfGetGovernmentHolidayListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfGetGovernmentHolidayListResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: GetGovernmentHolidayListResponse | undefined;
+}
+
+export class GetGovernmentHolidayListResponse implements IGetGovernmentHolidayListResponse {
+    governmentHolidayList?: GetGovernmentHolidayListItem[] | undefined;
+
+    constructor(data?: IGetGovernmentHolidayListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["GovernmentHolidayList"])) {
+                this.governmentHolidayList = [] as any;
+                for (let item of _data["GovernmentHolidayList"])
+                    this.governmentHolidayList!.push(GetGovernmentHolidayListItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetGovernmentHolidayListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetGovernmentHolidayListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.governmentHolidayList)) {
+            data["GovernmentHolidayList"] = [];
+            for (let item of this.governmentHolidayList)
+                data["GovernmentHolidayList"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IGetGovernmentHolidayListResponse {
+    governmentHolidayList?: GetGovernmentHolidayListItem[] | undefined;
+}
+
+export class GetGovernmentHolidayListItem implements IGetGovernmentHolidayListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+    holidayDate?: Date | undefined;
+
+    constructor(data?: IGetGovernmentHolidayListItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.description = _data["Description"];
+            this.holidayDate = _data["HolidayDate"] ? new Date(_data["HolidayDate"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): GetGovernmentHolidayListItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetGovernmentHolidayListItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["Description"] = this.description;
+        data["HolidayDate"] = this.holidayDate ? this.holidayDate.toISOString() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IGetGovernmentHolidayListItem {
+    iD?: number | undefined;
+    description?: string | undefined;
+    holidayDate?: Date | undefined;
+}
+
+export class EditGovernmentHolidayRequest implements IEditGovernmentHolidayRequest {
+    iD?: number | undefined;
+    description?: string | undefined;
+    holidayDate?: Date | undefined;
+
+    constructor(data?: IEditGovernmentHolidayRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.description = _data["Description"];
+            this.holidayDate = _data["HolidayDate"] ? new Date(_data["HolidayDate"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): EditGovernmentHolidayRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new EditGovernmentHolidayRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["Description"] = this.description;
+        data["HolidayDate"] = this.holidayDate ? this.holidayDate.toISOString() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IEditGovernmentHolidayRequest {
+    iD?: number | undefined;
+    description?: string | undefined;
+    holidayDate?: Date | undefined;
+}
+
+export class IResponseOfEditGovernmentHolidayResponse implements IIResponseOfEditGovernmentHolidayResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: EditGovernmentHolidayResponse | undefined;
+
+    constructor(data?: IIResponseOfEditGovernmentHolidayResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? EditGovernmentHolidayResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfEditGovernmentHolidayResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfEditGovernmentHolidayResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfEditGovernmentHolidayResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: EditGovernmentHolidayResponse | undefined;
+}
+
+export class EditGovernmentHolidayResponse implements IEditGovernmentHolidayResponse {
+
+    constructor(data?: IEditGovernmentHolidayResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): EditGovernmentHolidayResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new EditGovernmentHolidayResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+}
+
+export interface IEditGovernmentHolidayResponse {
+}
+
+export class IResponseOfGetEmployeeHolidayReqListResponse implements IIResponseOfGetEmployeeHolidayReqListResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: GetEmployeeHolidayReqListResponse | undefined;
+
+    constructor(data?: IIResponseOfGetEmployeeHolidayReqListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? GetEmployeeHolidayReqListResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfGetEmployeeHolidayReqListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfGetEmployeeHolidayReqListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfGetEmployeeHolidayReqListResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: GetEmployeeHolidayReqListResponse | undefined;
+}
+
+export class GetEmployeeHolidayReqListResponse implements IGetEmployeeHolidayReqListResponse {
+    getEmployeeHolidayRequestList?: GetEmployeeHolidayReqListItem[] | undefined;
+
+    constructor(data?: IGetEmployeeHolidayReqListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["GetEmployeeHolidayRequestList"])) {
+                this.getEmployeeHolidayRequestList = [] as any;
+                for (let item of _data["GetEmployeeHolidayRequestList"])
+                    this.getEmployeeHolidayRequestList!.push(GetEmployeeHolidayReqListItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetEmployeeHolidayReqListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetEmployeeHolidayReqListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.getEmployeeHolidayRequestList)) {
+            data["GetEmployeeHolidayRequestList"] = [];
+            for (let item of this.getEmployeeHolidayRequestList)
+                data["GetEmployeeHolidayRequestList"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IGetEmployeeHolidayReqListResponse {
+    getEmployeeHolidayRequestList?: GetEmployeeHolidayReqListItem[] | undefined;
+}
+
+export class GetEmployeeHolidayReqListItem implements IGetEmployeeHolidayReqListItem {
+    iD?: number | undefined;
+    registartionDate?: Date | undefined;
+    holidayTypeID?: number | undefined;
+    fromDate?: Date | undefined;
+    toDate?: Date | undefined;
+    amountWorkDays?: number | undefined;
+    employeeID?: number | undefined;
+
+    constructor(data?: IGetEmployeeHolidayReqListItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.registartionDate = _data["RegistartionDate"] ? new Date(_data["RegistartionDate"].toString()) : <any>undefined;
+            this.holidayTypeID = _data["HolidayTypeID"];
+            this.fromDate = _data["FromDate"] ? new Date(_data["FromDate"].toString()) : <any>undefined;
+            this.toDate = _data["ToDate"] ? new Date(_data["ToDate"].toString()) : <any>undefined;
+            this.amountWorkDays = _data["AmountWorkDays"];
+            this.employeeID = _data["EmployeeID"];
+        }
+    }
+
+    static fromJS(data: any): GetEmployeeHolidayReqListItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetEmployeeHolidayReqListItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["RegistartionDate"] = this.registartionDate ? this.registartionDate.toISOString() : <any>undefined;
+        data["HolidayTypeID"] = this.holidayTypeID;
+        data["FromDate"] = this.fromDate ? this.fromDate.toISOString() : <any>undefined;
+        data["ToDate"] = this.toDate ? this.toDate.toISOString() : <any>undefined;
+        data["AmountWorkDays"] = this.amountWorkDays;
+        data["EmployeeID"] = this.employeeID;
+        return data; 
+    }
+}
+
+export interface IGetEmployeeHolidayReqListItem {
+    iD?: number | undefined;
+    registartionDate?: Date | undefined;
+    holidayTypeID?: number | undefined;
+    fromDate?: Date | undefined;
+    toDate?: Date | undefined;
+    amountWorkDays?: number | undefined;
+    employeeID?: number | undefined;
+}
+
+export class AddEmployeeHolidayReqRequest implements IAddEmployeeHolidayReqRequest {
+    holidayTypeID?: number | undefined;
+    fromDate?: Date | undefined;
+    toDate?: Date | undefined;
+    employeeID?: number | undefined;
+
+    constructor(data?: IAddEmployeeHolidayReqRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.holidayTypeID = _data["HolidayTypeID"];
+            this.fromDate = _data["FromDate"] ? new Date(_data["FromDate"].toString()) : <any>undefined;
+            this.toDate = _data["ToDate"] ? new Date(_data["ToDate"].toString()) : <any>undefined;
+            this.employeeID = _data["EmployeeID"];
+        }
+    }
+
+    static fromJS(data: any): AddEmployeeHolidayReqRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddEmployeeHolidayReqRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["HolidayTypeID"] = this.holidayTypeID;
+        data["FromDate"] = this.fromDate ? this.fromDate.toISOString() : <any>undefined;
+        data["ToDate"] = this.toDate ? this.toDate.toISOString() : <any>undefined;
+        data["EmployeeID"] = this.employeeID;
+        return data; 
+    }
+}
+
+export interface IAddEmployeeHolidayReqRequest {
+    holidayTypeID?: number | undefined;
+    fromDate?: Date | undefined;
+    toDate?: Date | undefined;
+    employeeID?: number | undefined;
+}
+
+export class IResponseOfAddEmployeeHolidayReqResponse implements IIResponseOfAddEmployeeHolidayReqResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: AddEmployeeHolidayReqResponse | undefined;
+
+    constructor(data?: IIResponseOfAddEmployeeHolidayReqResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? AddEmployeeHolidayReqResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfAddEmployeeHolidayReqResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfAddEmployeeHolidayReqResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfAddEmployeeHolidayReqResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: AddEmployeeHolidayReqResponse | undefined;
+}
+
+export class AddEmployeeHolidayReqResponse implements IAddEmployeeHolidayReqResponse {
+
+    constructor(data?: IAddEmployeeHolidayReqResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): AddEmployeeHolidayReqResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddEmployeeHolidayReqResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+}
+
+export interface IAddEmployeeHolidayReqResponse {
+}
+
+export class EditEmployeeHolidayReqRequest implements IEditEmployeeHolidayReqRequest {
+    iD?: number | undefined;
+    holidayTypeID?: number | undefined;
+    fromDate?: Date | undefined;
+    toDate?: Date | undefined;
+    employeeID?: number | undefined;
+
+    constructor(data?: IEditEmployeeHolidayReqRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.holidayTypeID = _data["HolidayTypeID"];
+            this.fromDate = _data["FromDate"] ? new Date(_data["FromDate"].toString()) : <any>undefined;
+            this.toDate = _data["ToDate"] ? new Date(_data["ToDate"].toString()) : <any>undefined;
+            this.employeeID = _data["EmployeeID"];
+        }
+    }
+
+    static fromJS(data: any): EditEmployeeHolidayReqRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new EditEmployeeHolidayReqRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["HolidayTypeID"] = this.holidayTypeID;
+        data["FromDate"] = this.fromDate ? this.fromDate.toISOString() : <any>undefined;
+        data["ToDate"] = this.toDate ? this.toDate.toISOString() : <any>undefined;
+        data["EmployeeID"] = this.employeeID;
+        return data; 
+    }
+}
+
+export interface IEditEmployeeHolidayReqRequest {
+    iD?: number | undefined;
+    holidayTypeID?: number | undefined;
+    fromDate?: Date | undefined;
+    toDate?: Date | undefined;
+    employeeID?: number | undefined;
+}
+
+export class IResponseOfEditEmployeeHolidayReqResponse implements IIResponseOfEditEmployeeHolidayReqResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: EditEmployeeHolidayReqResponse | undefined;
+
+    constructor(data?: IIResponseOfEditEmployeeHolidayReqResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? EditEmployeeHolidayReqResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfEditEmployeeHolidayReqResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfEditEmployeeHolidayReqResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfEditEmployeeHolidayReqResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: EditEmployeeHolidayReqResponse | undefined;
+}
+
+export class EditEmployeeHolidayReqResponse implements IEditEmployeeHolidayReqResponse {
+
+    constructor(data?: IEditEmployeeHolidayReqResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): EditEmployeeHolidayReqResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new EditEmployeeHolidayReqResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+}
+
+export interface IEditEmployeeHolidayReqResponse {
+}
+
+export class IResponseOfListOfGetEmployeeModReportResponse implements IIResponseOfListOfGetEmployeeModReportResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: GetEmployeeModReportResponse[] | undefined;
+
+    constructor(data?: IIResponseOfListOfGetEmployeeModReportResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            if (Array.isArray(_data["Data"])) {
+                this.data = [] as any;
+                for (let item of _data["Data"])
+                    this.data!.push(GetEmployeeModReportResponse.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): IResponseOfListOfGetEmployeeModReportResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfListOfGetEmployeeModReportResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        if (Array.isArray(this.data)) {
+            data["Data"] = [];
+            for (let item of this.data)
+                data["Data"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IIResponseOfListOfGetEmployeeModReportResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: GetEmployeeModReportResponse[] | undefined;
+}
+
+export class GetEmployeeModReportResponse implements IGetEmployeeModReportResponse {
+    workingLog?: GetEmployeeModReportItems[] | undefined;
+    employeeFullname?: string | undefined;
+    personalNumber?: string | undefined;
+    position?: string | undefined;
+    sumFirstHalf?: number | undefined;
+    sumSecondHalf?: number | undefined;
+    sumHouresInMonth?: number | undefined;
+    sumDaysInMonth?: number | undefined;
+    sumNightHoures?: number | undefined;
+    sumHolidaysWithoutCompensate?: number | undefined;
+    sumGovermentHolidays?: number | undefined;
+    workedHouresInGovermentHolidays?: number | undefined;
+    sumHolidayes?: number | undefined;
+    overTime?: number | undefined;
+    nightHoures?: number | undefined;
+
+    constructor(data?: IGetEmployeeModReportResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["WorkingLog"])) {
+                this.workingLog = [] as any;
+                for (let item of _data["WorkingLog"])
+                    this.workingLog!.push(GetEmployeeModReportItems.fromJS(item));
+            }
+            this.employeeFullname = _data["EmployeeFullname"];
+            this.personalNumber = _data["PersonalNumber"];
+            this.position = _data["Position"];
+            this.sumFirstHalf = _data["SumFirstHalf"];
+            this.sumSecondHalf = _data["SumSecondHalf"];
+            this.sumHouresInMonth = _data["SumHouresInMonth"];
+            this.sumDaysInMonth = _data["SumDaysInMonth"];
+            this.sumNightHoures = _data["SumNightHoures"];
+            this.sumHolidaysWithoutCompensate = _data["SumHolidaysWithoutCompensate"];
+            this.sumGovermentHolidays = _data["SumGovermentHolidays"];
+            this.workedHouresInGovermentHolidays = _data["WorkedHouresInGovermentHolidays"];
+            this.sumHolidayes = _data["SumHolidayes"];
+            this.overTime = _data["OverTime"];
+            this.nightHoures = _data["NightHoures"];
+        }
+    }
+
+    static fromJS(data: any): GetEmployeeModReportResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetEmployeeModReportResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.workingLog)) {
+            data["WorkingLog"] = [];
+            for (let item of this.workingLog)
+                data["WorkingLog"].push(item.toJSON());
+        }
+        data["EmployeeFullname"] = this.employeeFullname;
+        data["PersonalNumber"] = this.personalNumber;
+        data["Position"] = this.position;
+        data["SumFirstHalf"] = this.sumFirstHalf;
+        data["SumSecondHalf"] = this.sumSecondHalf;
+        data["SumHouresInMonth"] = this.sumHouresInMonth;
+        data["SumDaysInMonth"] = this.sumDaysInMonth;
+        data["SumNightHoures"] = this.sumNightHoures;
+        data["SumHolidaysWithoutCompensate"] = this.sumHolidaysWithoutCompensate;
+        data["SumGovermentHolidays"] = this.sumGovermentHolidays;
+        data["WorkedHouresInGovermentHolidays"] = this.workedHouresInGovermentHolidays;
+        data["SumHolidayes"] = this.sumHolidayes;
+        data["OverTime"] = this.overTime;
+        data["NightHoures"] = this.nightHoures;
+        return data; 
+    }
+}
+
+export interface IGetEmployeeModReportResponse {
+    workingLog?: GetEmployeeModReportItems[] | undefined;
+    employeeFullname?: string | undefined;
+    personalNumber?: string | undefined;
+    position?: string | undefined;
+    sumFirstHalf?: number | undefined;
+    sumSecondHalf?: number | undefined;
+    sumHouresInMonth?: number | undefined;
+    sumDaysInMonth?: number | undefined;
+    sumNightHoures?: number | undefined;
+    sumHolidaysWithoutCompensate?: number | undefined;
+    sumGovermentHolidays?: number | undefined;
+    workedHouresInGovermentHolidays?: number | undefined;
+    sumHolidayes?: number | undefined;
+    overTime?: number | undefined;
+    nightHoures?: number | undefined;
+}
+
+export class GetEmployeeModReportItems implements IGetEmployeeModReportItems {
+    date?: Date | undefined;
+    workedTime?: number | undefined;
+    workedTimeHoures?: string | undefined;
+
+    constructor(data?: IGetEmployeeModReportItems) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["Date"] ? new Date(_data["Date"].toString()) : <any>undefined;
+            this.workedTime = _data["WorkedTime"];
+            this.workedTimeHoures = _data["WorkedTimeHoures"];
+        }
+    }
+
+    static fromJS(data: any): GetEmployeeModReportItems {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetEmployeeModReportItems();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Date"] = this.date ? this.date.toISOString() : <any>undefined;
+        data["WorkedTime"] = this.workedTime;
+        data["WorkedTimeHoures"] = this.workedTimeHoures;
+        return data; 
+    }
+}
+
+export interface IGetEmployeeModReportItems {
+    date?: Date | undefined;
+    workedTime?: number | undefined;
+    workedTimeHoures?: string | undefined;
+}
+
+export class IResponseOfGetEmployeeFullReportResponse implements IIResponseOfGetEmployeeFullReportResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: GetEmployeeFullReportResponse | undefined;
+
+    constructor(data?: IIResponseOfGetEmployeeFullReportResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? GetEmployeeFullReportResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfGetEmployeeFullReportResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfGetEmployeeFullReportResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfGetEmployeeFullReportResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: GetEmployeeFullReportResponse | undefined;
+}
+
+export class GetEmployeeFullReportResponse implements IGetEmployeeFullReportResponse {
+    getEmployeeFullReportItems?: GetEmployeeFullReportItem[] | undefined;
+
+    constructor(data?: IGetEmployeeFullReportResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["GetEmployeeFullReportItems"])) {
+                this.getEmployeeFullReportItems = [] as any;
+                for (let item of _data["GetEmployeeFullReportItems"])
+                    this.getEmployeeFullReportItems!.push(GetEmployeeFullReportItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetEmployeeFullReportResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetEmployeeFullReportResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.getEmployeeFullReportItems)) {
+            data["GetEmployeeFullReportItems"] = [];
+            for (let item of this.getEmployeeFullReportItems)
+                data["GetEmployeeFullReportItems"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IGetEmployeeFullReportResponse {
+    getEmployeeFullReportItems?: GetEmployeeFullReportItem[] | undefined;
+}
+
+export class GetEmployeeFullReportItem implements IGetEmployeeFullReportItem {
+    employeeID?: number | undefined;
+    fullName?: string | undefined;
+    department?: string | undefined;
+    serviceCenter?: string | undefined;
+    sumLateMinutes?: number | undefined;
+    sumLateCheckInCount?: number | undefined;
+    sumEarlyMinutes?: number | undefined;
+    sumEarlyCheckOut?: number | undefined;
+    sumLateCheckOut?: number | undefined;
+    sumWorkedHoures?: number | undefined;
+    sumEarlyCheckOutCount?: number | undefined;
+    sumEarlyCheckInCount?: number | undefined;
+    sumWorkedInSchedule?: number | undefined;
+    sumWorkedOutOfSchedule?: number | undefined;
+    sumMissedDays?: number | undefined;
+    salaryAmount?: number | undefined;
+    fineAmount?: number | undefined;
+    salaryAfterFine?: number | undefined;
+    indRegID?: number | undefined;
+    employeeWorkingLogs?: EmployeeWorkingLogItems[] | undefined;
+
+    constructor(data?: IGetEmployeeFullReportItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.employeeID = _data["EmployeeID"];
+            this.fullName = _data["FullName"];
+            this.department = _data["Department"];
+            this.serviceCenter = _data["ServiceCenter"];
+            this.sumLateMinutes = _data["SumLateMinutes"];
+            this.sumLateCheckInCount = _data["SumLateCheckInCount"];
+            this.sumEarlyMinutes = _data["SumEarlyMinutes"];
+            this.sumEarlyCheckOut = _data["SumEarlyCheckOut"];
+            this.sumLateCheckOut = _data["SumLateCheckOut"];
+            this.sumWorkedHoures = _data["SumWorkedHoures"];
+            this.sumEarlyCheckOutCount = _data["SumEarlyCheckOutCount"];
+            this.sumEarlyCheckInCount = _data["SumEarlyCheckInCount"];
+            this.sumWorkedInSchedule = _data["SumWorkedInSchedule"];
+            this.sumWorkedOutOfSchedule = _data["SumWorkedOutOfSchedule"];
+            this.sumMissedDays = _data["SumMissedDays"];
+            this.salaryAmount = _data["SalaryAmount"];
+            this.fineAmount = _data["FineAmount"];
+            this.salaryAfterFine = _data["SalaryAfterFine"];
+            this.indRegID = _data["IndRegID"];
+            if (Array.isArray(_data["EmployeeWorkingLogs"])) {
+                this.employeeWorkingLogs = [] as any;
+                for (let item of _data["EmployeeWorkingLogs"])
+                    this.employeeWorkingLogs!.push(EmployeeWorkingLogItems.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetEmployeeFullReportItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetEmployeeFullReportItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["EmployeeID"] = this.employeeID;
+        data["FullName"] = this.fullName;
+        data["Department"] = this.department;
+        data["ServiceCenter"] = this.serviceCenter;
+        data["SumLateMinutes"] = this.sumLateMinutes;
+        data["SumLateCheckInCount"] = this.sumLateCheckInCount;
+        data["SumEarlyMinutes"] = this.sumEarlyMinutes;
+        data["SumEarlyCheckOut"] = this.sumEarlyCheckOut;
+        data["SumLateCheckOut"] = this.sumLateCheckOut;
+        data["SumWorkedHoures"] = this.sumWorkedHoures;
+        data["SumEarlyCheckOutCount"] = this.sumEarlyCheckOutCount;
+        data["SumEarlyCheckInCount"] = this.sumEarlyCheckInCount;
+        data["SumWorkedInSchedule"] = this.sumWorkedInSchedule;
+        data["SumWorkedOutOfSchedule"] = this.sumWorkedOutOfSchedule;
+        data["SumMissedDays"] = this.sumMissedDays;
+        data["SalaryAmount"] = this.salaryAmount;
+        data["FineAmount"] = this.fineAmount;
+        data["SalaryAfterFine"] = this.salaryAfterFine;
+        data["IndRegID"] = this.indRegID;
+        if (Array.isArray(this.employeeWorkingLogs)) {
+            data["EmployeeWorkingLogs"] = [];
+            for (let item of this.employeeWorkingLogs)
+                data["EmployeeWorkingLogs"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IGetEmployeeFullReportItem {
+    employeeID?: number | undefined;
+    fullName?: string | undefined;
+    department?: string | undefined;
+    serviceCenter?: string | undefined;
+    sumLateMinutes?: number | undefined;
+    sumLateCheckInCount?: number | undefined;
+    sumEarlyMinutes?: number | undefined;
+    sumEarlyCheckOut?: number | undefined;
+    sumLateCheckOut?: number | undefined;
+    sumWorkedHoures?: number | undefined;
+    sumEarlyCheckOutCount?: number | undefined;
+    sumEarlyCheckInCount?: number | undefined;
+    sumWorkedInSchedule?: number | undefined;
+    sumWorkedOutOfSchedule?: number | undefined;
+    sumMissedDays?: number | undefined;
+    salaryAmount?: number | undefined;
+    fineAmount?: number | undefined;
+    salaryAfterFine?: number | undefined;
+    indRegID?: number | undefined;
+    employeeWorkingLogs?: EmployeeWorkingLogItems[] | undefined;
+}
+
+export class EmployeeWorkingLogItems implements IEmployeeWorkingLogItems {
+    scheduleFromTime?: Date | undefined;
+    scheduleToTime?: Date | undefined;
+    isWorkingDay?: boolean | undefined;
+    checkInTime?: Date | undefined;
+    checkOutTime?: Date | undefined;
+    lateCheckInMinutes?: number | undefined;
+    earlyCheckInMinutes?: number | undefined;
+    earlyCheckOutMinutes?: number | undefined;
+    lateCheckOutMinutes?: number | undefined;
+    workStatus?: string | undefined;
+    workedMinutess?: number | undefined;
+    fineMinutes?: number | undefined;
+    workedInSchedule?: number | undefined;
+    workedOutSchedule?: number | undefined;
+    missedMinutes?: number | undefined;
+
+    constructor(data?: IEmployeeWorkingLogItems) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.scheduleFromTime = _data["ScheduleFromTime"] ? new Date(_data["ScheduleFromTime"].toString()) : <any>undefined;
+            this.scheduleToTime = _data["ScheduleToTime"] ? new Date(_data["ScheduleToTime"].toString()) : <any>undefined;
+            this.isWorkingDay = _data["IsWorkingDay"];
+            this.checkInTime = _data["CheckInTime"] ? new Date(_data["CheckInTime"].toString()) : <any>undefined;
+            this.checkOutTime = _data["CheckOutTime"] ? new Date(_data["CheckOutTime"].toString()) : <any>undefined;
+            this.lateCheckInMinutes = _data["LateCheckInMinutes"];
+            this.earlyCheckInMinutes = _data["EarlyCheckInMinutes"];
+            this.earlyCheckOutMinutes = _data["EarlyCheckOutMinutes"];
+            this.lateCheckOutMinutes = _data["LateCheckOutMinutes"];
+            this.workStatus = _data["WorkStatus"];
+            this.workedMinutess = _data["WorkedMinutess"];
+            this.fineMinutes = _data["FineMinutes"];
+            this.workedInSchedule = _data["WorkedInSchedule"];
+            this.workedOutSchedule = _data["WorkedOutSchedule"];
+            this.missedMinutes = _data["MissedMinutes"];
+        }
+    }
+
+    static fromJS(data: any): EmployeeWorkingLogItems {
+        data = typeof data === 'object' ? data : {};
+        let result = new EmployeeWorkingLogItems();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ScheduleFromTime"] = this.scheduleFromTime ? this.scheduleFromTime.toISOString() : <any>undefined;
+        data["ScheduleToTime"] = this.scheduleToTime ? this.scheduleToTime.toISOString() : <any>undefined;
+        data["IsWorkingDay"] = this.isWorkingDay;
+        data["CheckInTime"] = this.checkInTime ? this.checkInTime.toISOString() : <any>undefined;
+        data["CheckOutTime"] = this.checkOutTime ? this.checkOutTime.toISOString() : <any>undefined;
+        data["LateCheckInMinutes"] = this.lateCheckInMinutes;
+        data["EarlyCheckInMinutes"] = this.earlyCheckInMinutes;
+        data["EarlyCheckOutMinutes"] = this.earlyCheckOutMinutes;
+        data["LateCheckOutMinutes"] = this.lateCheckOutMinutes;
+        data["WorkStatus"] = this.workStatus;
+        data["WorkedMinutess"] = this.workedMinutess;
+        data["FineMinutes"] = this.fineMinutes;
+        data["WorkedInSchedule"] = this.workedInSchedule;
+        data["WorkedOutSchedule"] = this.workedOutSchedule;
+        data["MissedMinutes"] = this.missedMinutes;
+        return data; 
+    }
+}
+
+export interface IEmployeeWorkingLogItems {
+    scheduleFromTime?: Date | undefined;
+    scheduleToTime?: Date | undefined;
+    isWorkingDay?: boolean | undefined;
+    checkInTime?: Date | undefined;
+    checkOutTime?: Date | undefined;
+    lateCheckInMinutes?: number | undefined;
+    earlyCheckInMinutes?: number | undefined;
+    earlyCheckOutMinutes?: number | undefined;
+    lateCheckOutMinutes?: number | undefined;
+    workStatus?: string | undefined;
+    workedMinutess?: number | undefined;
+    fineMinutes?: number | undefined;
+    workedInSchedule?: number | undefined;
+    workedOutSchedule?: number | undefined;
+    missedMinutes?: number | undefined;
 }
 
 export class IResponseOfGetGenderListResponse implements IIResponseOfGetGenderListResponse {

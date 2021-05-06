@@ -74,7 +74,7 @@
                    <div class="col-md-6">
                     <div class="form-group">
                         <label for="exampleInputEmail1">ბარათის ნომერი</label>
-                        <input type="text" [(ngModel)]="AddEmployee.deviceCardID" id="deviceCardID" #deviceCardID="ngModel" class="form-control" required>
+                        <input type="text" [(ngModel)]="AddEmployee.deviceCardID" id="deviceCardID" #deviceCardID="ngModel" class="form-control" >
                         <div *ngIf="deviceCardID.invalid && (deviceCardID.dirty || deviceCardID.touched)" class="alert alert-danger">
                           <div *ngIf="firsName.errors.required">
                               ბარათის ნომრის შევსება სავალდებულოა
@@ -85,7 +85,7 @@
                    <div class="col-md-6">
                     <div class="form-group">
                         <label for="exampleInputEmail1">პირადი ნომერი</label>
-                        <input type="text" [(ngModel)]="AddEmployee.personalNumber" id="personalNumber" #personalNumber="ngModel" class="form-control" required>
+                        <input type="text" [(ngModel)]="AddEmployee.personalNumber" id="personalNumber" #personalNumber="ngModel" class="form-control" >
                         <div *ngIf="personalNumber.invalid && (personalNumber.dirty || personalNumber.touched)" class="alert alert-danger">
                           <div *ngIf="personalNumber.errors.required">
                               პირადი ნომრის შევსება სავალდებულოა
@@ -96,7 +96,7 @@
                    <div class="col-md-6">
                     <div class="form-group">
                         <label for="exampleInputEmail1">მისამართი</label>
-                        <input type="text" [(ngModel)]="AddEmployee.address" id="address" #address="ngModel" class="form-control" required>
+                        <input type="text" [(ngModel)]="AddEmployee.address" id="address" #address="ngModel" class="form-control" >
                         <div *ngIf="address.invalid && (address.dirty || address.touched)" class="alert alert-danger">
                           <div *ngIf="address.errors.required">
                               მისამართის შევსება სავალდებულოა
@@ -107,7 +107,7 @@
                    <div class="col-md-6">
                     <div class="form-group">
                         <label for="exampleInputEmail1">დავადების თარიღი</label>
-                        <input type="date" [(ngModel)]="AddEmployee.dateOfBirth" id="dateOfBirth" #dateOfBirth="ngModel" class="form-control" required>
+                        <input type="date" [(ngModel)]="AddEmployee.dateOfBirth" id="dateOfBirth" #dateOfBirth="ngModel" class="form-control" >
                         <div *ngIf="dateOfBirth.invalid && (dateOfBirth.dirty || dateOfBirth.touched)" class="alert alert-danger">
                           <div *ngIf="dateOfBirth.errors.required">
                               დაბადების თარიღის შევსება სავალდებულოა
@@ -118,7 +118,7 @@
                    <div class="col-md-6">
                     <div class="form-group">
                     <label for="exampleInputEmail1">ფილიალი</label>
-                    <select [(ngModel)]="AddEmployee.branchID" class="form-control" *ngIf="BranchList" required>
+                    <select [(ngModel)]="AddEmployee.branchID" class="form-control" *ngIf="BranchList" >
                       <option *ngFor="let branch of BranchList" value="{{branch.iD}}">{{branch.description}}</option>
                     </select>
                     </div>
@@ -163,7 +163,7 @@
                   <div class="col-md-6">
                     <div class="form-group">
                         <label for="exampleInputEmail1">ხელფასი</label>
-                        <input type="number" [(ngModel)]="AddEmployee.salary.amount" id="salary" #salary="ngModel" class="form-control" required>
+                        <input type="number" [(ngModel)]="AddEmployee.salary.amount" id="salary" #salary="ngModel" class="form-control" >
                         <div *ngIf="salary.invalid && (salary.dirty || salary.touched)" class="alert alert-danger">
                           <div *ngIf="salary.errors.required">
                               ხელფასის მითითება სავალდებულოა
@@ -186,7 +186,7 @@
                   <div class="col-md-6">
                     <div class="form-group">
                         <label for="exampleInputEmail1">ჯარიმა</label>
-                        <input type="number" [(ngModel)]="AddEmployee.fine.amount" id="fine" #fine="ngModel" class="form-control" required>
+                        <input type="number" [(ngModel)]="AddEmployee.fine.amount" id="fine" #fine="ngModel" class="form-control" >
                         <div *ngIf="fine.invalid && (fine.dirty || fine.touched)" class="alert alert-danger">
                           <div *ngIf="fine.errors.required">
                               ჯარიმის მითითება სავალდებულოა
@@ -208,7 +208,7 @@
                  <div class="col-md-6">
                    <div class="form-group">
                        <label for="exampleInputEmail1">პატიება</label>
-                       <input type="number" [(ngModel)]="AddEmployee.forgiveness.amount" id="forgiveness" #forgiveness="ngModel" class="form-control" required>
+                       <input type="number" [(ngModel)]="AddEmployee.forgiveness.amount" id="forgiveness" #forgiveness="ngModel" class="form-control" >
                        <div *ngIf="forgiveness.invalid && (forgiveness.dirty || forgiveness.touched)" class="alert alert-danger">
                         <div *ngIf="forgiveness.errors.required">
                             პატიების მითითება სავალდებულოა
@@ -229,7 +229,7 @@
                     
                     <div class="col-md-6">
                       <label for="exampleInputEmail1">დღეების რაოდენობა</label>
-                      <input type="number" [(ngModel)]="AddEmployee.employeeHolidays[i].allWritten" id="holidays" #holidays="ngModel" class="form-control" required>
+                      <input type="number" [(ngModel)]="AddEmployee.employeeHolidays[i].allWritten" id="holidays" #holidays="ngModel" class="form-control" >
                       <div *ngIf="holidays.invalid && (holidays.dirty || holidays.touched)" class="alert alert-danger">
                         <div *ngIf="holidays.errors.required">
                             შვებულების დღეების მითითება სავალდებულოა
@@ -257,7 +257,7 @@
                   <input type="hidden" ng-model="AddEmployee.schedule.scheduleTypeID" ng-value="1" ng-init="AddEmployee.schedule.scheduleTypeID=1">
                   <div class="col-md-6">
                     <label for="exampleInputEmail1">დაწყების დრო</label>
-                  <input type="time" [(ngModel)]="AddEmployee.schedule.startTime" id="startTime" #startTime="ngModel" class="form-control" required>
+                  <input type="time" [(ngModel)]="AddEmployee.schedule.startTime" id="startTime" #startTime="ngModel" class="form-control" >
                   <div *ngIf="startTime.invalid && (startTime.dirty || startTime.touched)" class="alert alert-danger">
                     <div *ngIf="startTime.errors.required">
                         დაწყების დროის მითითება სავალდებულოა
@@ -267,7 +267,7 @@
                   
                   <div class="col-md-6">
                     <label for="exampleInputEmail1">დასრულების დრო</label>
-                  <input type="time"  [(ngModel)]="AddEmployee.schedule.endTime" id="endTime" #endTime="ngModel" class="form-control" required>
+                  <input type="time"  [(ngModel)]="AddEmployee.schedule.endTime" id="endTime" #endTime="ngModel" class="form-control" >
                   <div *ngIf="endTime.invalid && (endTime.dirty || endTime.touched)" class="alert alert-danger">
                     <div *ngIf="endTime.errors.required">
                         დასრულების დროის მითითება სავალდებულოა
@@ -276,7 +276,7 @@
                   </div>
                   <div class="col-md-6">
                     <label for="exampleInputEmail1">მინიმალური მოსვლის დრო</label>
-                  <input type="time"  [(ngModel)]="AddEmployee.schedule.minCheckInTime" id="minCheckInTime" #minCheckInTime="ngModel" class="form-control" required>
+                  <input type="time"  [(ngModel)]="AddEmployee.schedule.minCheckInTime" id="minCheckInTime" #minCheckInTime="ngModel" class="form-control" >
                   <div *ngIf="minCheckInTime.invalid && (minCheckInTime.dirty || minCheckInTime.touched)" class="alert alert-danger">
                     <div *ngIf="minCheckInTime.errors.required">
                       მინიმალური მოსვლის დროის მითითება სავალდებულოა
@@ -285,7 +285,7 @@
                   </div>
                   <div class="col-md-6">
                     <label for="exampleInputEmail1">მაქსიმალური გასვლის დრო</label>
-                  <input type="time"  [(ngModel)]="AddEmployee.schedule.maxCheckOutTime" id="maxCheckOutTime" #maxCheckOutTime="ngModel" class="form-control" required>
+                  <input type="time"  [(ngModel)]="AddEmployee.schedule.maxCheckOutTime" id="maxCheckOutTime" #maxCheckOutTime="ngModel" class="form-control" >
                   <div *ngIf="maxCheckOutTime.invalid && (maxCheckOutTime.dirty || maxCheckOutTime.touched)" class="alert alert-danger">
                     <div *ngIf="maxCheckOutTime.errors.required">
                       მაქსიმალური გასვლის დროის მითითება სავალდებულოა
@@ -315,7 +315,7 @@
                 <div class="row">
                   <div class="col-md-6">
                     <label for="exampleInputEmail1">დღეში სამუშაო საათები</label>
-                    <input type="number" [(ngModel)]="AddEmployee.schedule.daylyHouresAmount" id="dayHours" #dayHours="ngModel" class="form-control" required>
+                    <input type="number" [(ngModel)]="AddEmployee.schedule.daylyHouresAmount" id="dayHours" #dayHours="ngModel" class="form-control" >
                     <div *ngIf="dayHours.invalid && (dayHours.dirty || dayHours.touched)" class="alert alert-danger">
                       <div *ngIf="dayHours.errors.required">
                           დღიური სამუშაო საათების მითითება სავალდებულოა
@@ -325,7 +325,7 @@
                   
                   <div class="col-md-6">
                       <label for="exampleInputEmail1">კვირაში სამუშაო საათები</label>
-                      <input type="number" [(ngModel)]="AddEmployee.schedule.weekHouresAmount" id="weekHours" #weekHours="ngModel" class="form-control" required>
+                      <input type="number" [(ngModel)]="AddEmployee.schedule.weekHouresAmount" id="weekHours" #weekHours="ngModel" class="form-control" >
                       <div *ngIf="weekHours.invalid && (weekHours.dirty || weekHours.touched)" class="alert alert-danger">
                         <div *ngIf="weekHours.errors.required">
                             კვირის სამუშაო საათების მითითება სავალდებულოა
@@ -334,7 +334,7 @@
                   </div>
                   <div class="col-md-6">
                     <label for="exampleInputEmail1">დღეში შესვენების დრო საათებში</label>
-                    <input type="text" [(ngModel)]="AddEmployee.schedule.breakAmount" id="breakAmount" #breakAmount="ngModel" class="form-control"  required>
+                    <input type="text" [(ngModel)]="AddEmployee.schedule.breakAmount" id="breakAmount" #breakAmount="ngModel" class="form-control"  >
                     <div *ngIf="breakAmount.invalid && (breakAmount.dirty || breakAmount.touched)" class="alert alert-danger">
                       <div *ngIf="breakAmount.errors.required">
                           დღეში შესვენების დროის მითითება სავალდებულოა

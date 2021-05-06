@@ -49,6 +49,14 @@ import { environment } from 'src/environments/environment';
 import { EditDeviceComponent } from './Components/Main/devices/edit-device/edit-device.component';
 import { KeygenInsertComponent } from './Components/Auth/keygen-insert/keygen-insert.component';
 import { EmployeeListFromDeviceComponent } from './Components/Main/employee/employee-list-from-device/employee-list-from-device.component';
+import { ExcelService } from './Services/ExcelService';
+import { ReportsComponent } from './Components/Main/reports/reports/reports.component';
+import { ModReportComponent } from './Components/Main/reports/mod-report/mod-report.component';
+import { FullReportComponent } from './Components/Main/reports/full-report/full-report.component';
+import { AddGovermentHolidayComponent } from './Components/Parameters/GovermentHolidays/add-goverment-holiday/add-goverment-holiday.component';
+import { GovermentHolidaysMainComponent } from './Components/Parameters/GovermentHolidays/goverment-holidays-main/goverment-holidays-main.component';
+import { GovermentHolidaysListComponent } from './Components/Parameters/GovermentHolidays/goverment-holidays-list/goverment-holidays-list.component';
+import { EditGovermentHolidayComponent } from './Components/Parameters/GovermentHolidays/edit-goverment-holiday/edit-goverment-holiday.component';
 export function CrateTranslateLoader(http:HttpClient){
   return new TranslateHttpLoader(http);
 } 
@@ -110,6 +118,13 @@ export class TranslateHandler implements MissingTranslationHandler {
     EditDeviceComponent,
     KeygenInsertComponent,
     EmployeeListFromDeviceComponent,
+    ReportsComponent,
+    ModReportComponent,
+    FullReportComponent,
+    AddGovermentHolidayComponent,
+    GovermentHolidaysMainComponent,
+    GovermentHolidaysListComponent,
+    EditGovermentHolidayComponent,
 
   ],
   imports: [
@@ -133,6 +148,7 @@ export class TranslateHandler implements MissingTranslationHandler {
     Api.EmployeeService,
     Api.ParametersService,
     Api.RemoteDeviceService,
+    ExcelService,
     AuthGuard,
     CookieService,
     {provide:HTTP_INTERCEPTORS,useClass:TokenInterceptorService,multi:true},

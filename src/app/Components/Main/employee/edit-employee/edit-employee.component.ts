@@ -116,8 +116,9 @@ export class EditEmployeeComponent implements OnInit {
     console.log(this.standartSchedule);
   }
   addEmployeeSubmit(){
-
+    if(this.AddEmployee.dateOfBirth){
     this.AddEmployee.dateOfBirth=new Date(this.AddEmployee.dateOfBirth);
+  }
     this.AddEmployee.branchID=this.AddEmployee.branchID;
     this.AddEmployee.salaryID=this.AddEmployee.salaryID;
     console.log(this.standartSchedule)

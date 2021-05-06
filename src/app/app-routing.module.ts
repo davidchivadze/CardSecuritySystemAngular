@@ -14,6 +14,9 @@ import { EditEmployeeComponent } from './Components/Main/employee/edit-employee/
 import { EmployeeListFromDeviceComponent } from './Components/Main/employee/employee-list-from-device/employee-list-from-device.component';
 import { EmployeeListComponent } from './Components/Main/employee/employee-list/employee-list.component';
 import { EmployeeComponent } from './Components/Main/employee/employee.component';
+import { FullReportComponent } from './Components/Main/reports/full-report/full-report.component';
+import { ModReportComponent } from './Components/Main/reports/mod-report/mod-report.component';
+import { ReportsComponent } from './Components/Main/reports/reports/reports.component';
 import { AddBranchComponent } from './Components/Parameters/Branch/add-branch/add-branch.component';
 import { BranchListComponent } from './Components/Parameters/Branch/branch-list/branch-list.component';
 import { BranchMainComponent } from './Components/Parameters/Branch/branch-main/branch-main.component';
@@ -30,6 +33,10 @@ import { AddEmployeePositionComponent } from './Components/Parameters/EmployeePo
 import { EditEmployeePositionComponent } from './Components/Parameters/EmployeePositions/edit-employee-position/edit-employee-position.component';
 import { EmployeePositionsListComponent } from './Components/Parameters/EmployeePositions/employee-positions-list/employee-positions-list.component';
 import { EmployeePositonMainComponent } from './Components/Parameters/EmployeePositions/employee-positon-main/employee-positon-main.component';
+import { AddGovermentHolidayComponent } from './Components/Parameters/GovermentHolidays/add-goverment-holiday/add-goverment-holiday.component';
+import { EditGovermentHolidayComponent } from './Components/Parameters/GovermentHolidays/edit-goverment-holiday/edit-goverment-holiday.component';
+import { GovermentHolidaysListComponent } from './Components/Parameters/GovermentHolidays/goverment-holidays-list/goverment-holidays-list.component';
+import { GovermentHolidaysMainComponent } from './Components/Parameters/GovermentHolidays/goverment-holidays-main/goverment-holidays-main.component';
 import { AuthLayoutComponent } from './Components/Shared/auth-layout/auth-layout.component';
 import { LoginLayoutComponent } from './Components/Shared/login-layout/login-layout.component';
 import { AuthGuard } from './Guard/Guard/auth.guard';
@@ -65,6 +72,13 @@ const routes: Routes = [
     {path:"EditDepartment/:departmentID",component:EditDepartmentComponent}
   ],
  },
+ {path:"GovermentHolidays",component:GovermentHolidaysMainComponent,children:[
+  {path:"",component:GovermentHolidaysListComponent},
+  {path:"GovermentHolidaysList",component:GovermentHolidaysListComponent},
+  {path:"AddGovermentHoliday",component:AddGovermentHolidayComponent},
+  {path:"EditGovermentHoliday/:editGovermentHolidayID",component:EditGovermentHolidayComponent}
+],
+},
   {path:"EmployeePositions",component:EmployeePositonMainComponent,children:[
     {path:"",component:EmployeePositionsListComponent},
     {path:"EmployeePositionsList",component:EmployeePositionsListComponent},
@@ -81,6 +95,11 @@ const routes: Routes = [
     {path:"EmployeeListDevice",component:DeviceEmployeeDataComponent},
     {path:"EmployeeList",component:EmployeeListComponent},
     {path:"EditEmployee/:editEmployeeID",component:EditEmployeeComponent}
+  ]},
+  {path:"Reports",component:ReportsComponent,children:[
+    {path:"",component:ModReportComponent},
+    {path:"ModReport",component:ModReportComponent},
+    {path:"FullReport",component:FullReportComponent}
   ]},
   ],  canActivate:[AuthGuard]
 },

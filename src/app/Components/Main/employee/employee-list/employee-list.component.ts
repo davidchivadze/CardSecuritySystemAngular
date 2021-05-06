@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ExcelService } from 'src/app/Services/ExcelService';
 import { Api } from 'src/app/Services/SwaggerClient';
 
 @Component({
@@ -11,7 +12,7 @@ export class EmployeeListComponent implements OnInit {
   EmployeeList:Api.GetEmployeeListItem[]
   RecordLength:number
   DeleteIDs:number[]
-  constructor(private EmployeeService:Api.EmployeeService,private DeviceService:Api.RemoteDeviceService) { }
+  constructor(private EmployeeService:Api.EmployeeService,private DeviceService:Api.RemoteDeviceService,private ExceServ:ExcelService) { }
 
   ngOnInit(): void {
     this.DeleteIDs=new Array<number>();
@@ -24,6 +25,12 @@ export class EmployeeListComponent implements OnInit {
          console.log(res.ok);
        }
     })
+  }
+  CreateExce(){
+    this.EmployeeService.getEmployeeModReport(3,2021,0).subscribe(res=>{
+      this.ExceServ.exportAsExcelFile("სატესტო ექსელი","",[],[],[],"Report","Main",res.data);
+    })
+    
   }
   SyncUserToDevice(employeeID:number){
       this.DeviceService.insertUserToDevice(employeeID).subscribe(res=>{
