@@ -10,7 +10,14 @@ import { Api } from 'src/app/Services/SwaggerClient';
 export class ModReportComponent implements OnInit {
   month:number
   year:number
-  constructor(public EmployeeService:Api.EmployeeService,public ExceServ:ExcelService) { }
+  branchID:number
+  BranchList:Api.GetBranchListItem[]
+  constructor(public EmployeeService:Api.EmployeeService,public ExceServ:ExcelService,public ParameterService:Api.ParametersService) { 
+this.ParameterService.getBranchList().subscribe(res=>{
+  this.BranchList=res.data.branchList
+})
+
+  }
 
   ngOnInit(): void {
   }
@@ -19,7 +26,7 @@ export class ModReportComponent implements OnInit {
   }
 
   CreateExce(year:number,month:number){
-    this.EmployeeService.getEmployeeModReport(month,year,0).subscribe(res=>{
+    this.EmployeeService.getEmployeeModReport(month,year,0,this.branchID).subscribe(res=>{
       this.ExceServ.exportAsExcelFile("სატესტო ექსელი","",[],[],[],"Report","Main",res.data);
     })
   }

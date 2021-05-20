@@ -11,12 +11,12 @@
     <div class="sidebar">
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-        <div class="image">
+        <!-- <div class="image">
           <img src="../assets/Images/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
-        </div>
-        <div class="info">
+        </div> -->
+        <!-- <div class="info">
           <a href="#" class="d-block" >{{'HOME.title'|translate}}</a>
-        </div>
+        </div> -->
       </div>
 
       <!-- Sidebar Menu -->
@@ -25,7 +25,7 @@
           <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
           <li class="nav-item">
-            <a href="pages/widgets.html" class="nav-link">
+            <a routerLink="Employee" routerLinkActive="active" class="nav-link">
               <i class="nav-icon fas fa-home"></i>
               <p i18n="Navigation|Navigation Main@@Navigation">
                 {{'HOME.main'|translate}}
@@ -102,6 +102,20 @@
                 <a routerLink="EmployeePositions" routerLinkActive="active"  class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>თანამდებობები</p>
+                </a>
+              </li>
+              
+              <li class="nav-item">
+                <a routerLink="ScheduleGenerators" routerLinkActive="active"  class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>გრაფიკები</p>
+                </a>
+              </li>
+              
+              <li class="nav-item">
+                <a routerLink="SalaryGenerators" routerLinkActive="active"  class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>ხელფასები</p>
                 </a>
               </li>
               <li class="nav-item">

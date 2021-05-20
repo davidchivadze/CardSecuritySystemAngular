@@ -8,6 +8,12 @@ import { Api } from 'src/app/Services/SwaggerClient';
 })
 export class EmployeeComponent implements OnInit {
   IsRunning:boolean
+  IsRunningUser:boolean
+  IsRunningFull:boolean
+  Data:any[]=[];
+  Column:any[]=[];
+  footerData:any[][]=[];
+  totalCount:number=0;
   constructor(private DeviceService:Api.RemoteDeviceService) { }
   
   ngOnInit(): void {
@@ -15,16 +21,36 @@ export class EmployeeComponent implements OnInit {
       console.log(res);
       if(res.ok){
         this.IsRunning=res.data
+        this.IsRunningFull=res.data
       }else{
         this.IsRunning=false;
+        this.IsRunningFull=false;
       }
     });
   }
   SyncDeviceData(){
-    this.DeviceService.syncUserLog().subscribe(res=>{
+    this.DeviceService.syncUserLog(false,true).subscribe(res=>{
       this.IsRunning=false;
     });
     this.IsRunning=true;
+  }
+  SyncDeviceUserData(){
+    this.DeviceService.syncUserLog(true,false).subscribe(res=>{
+      this.IsRunningUser=false;
+    });
+    this.IsRunningUser=true;
+  }
+  SyncDeviceFullData(){
+    this.DeviceService.syncUserLog(true,true).subscribe(res=>{
+      this.IsRunningFull=false;
+    });
+    this.IsRunningFull=true;
+  }
+  SetExcelReportData(){
+
+  }
+  CreateExcelReport(){
+
   }
 
 }

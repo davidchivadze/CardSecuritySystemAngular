@@ -148,10 +148,28 @@
                       </div>
                    </div>
                </div>
+               <div class="col-md-12" *ngIf="!AddEmployee.agreement">
+                <div class="form-group">
+                <label for="uploadFiles" class="uploadFileLabelLarge" (click)="file1.click()"><i class="fas fa-cloud-upload-alt"></i>დოკუმენტის მიბმა</label>
+                <input type="file" (change)="onFilesChosenDoc($event)" class="uploadFile" #file1>
+              </div>
+              </div>
+              <div class="col-md-12" *ngIf="AddEmployee.agreement">
+                <span class="close"><i class="fas fa-times-circle" (click)="removeChosenDoc(i)"></i></span>
+                <iframe [src]='getDocURL()' class=" col-md-12" ></iframe>
+              </div>
+           
               </div>
               <div class="tab-pane fade" id="custom-tabs-two-profile" role="tabpanel" aria-labelledby="custom-tabs-two-profile-tab">
                 <div class="row">
-
+                  <div class="col-md-12">
+                    <div class="form-group">
+                   <label for="exampleInputEmail1">ხელფასი</label>
+                   <select [(ngModel)]="SalaryID" class="form-control" *ngIf="SalaryGenerators" (change)="changeSalary()">
+                     <option *ngFor="let generator of SalaryGenerators" value="{{generator.iD}}">{{generator.name}}</option>
+                   </select>
+                 </div>
+                  </div>
                   <div class="col-md-6">
                    <div class="form-group">
                        <label for="exampleInputEmail1">ხელფასის დათვლის წესი</label>
@@ -248,8 +266,16 @@
               <div class="tab-pane fade" id="custom-tabs-two-salary-graphic" role="tabpanel" aria-labelledby="custom-tabs-two-messages-tab">
                 <div class="row">
                   <div class="col-md-12">
-                    <label for="checkbox">სტანდარტული გრაფიკი</label>
-                    <input type="checkbox"  [checked]="standartSchedule" style="margin-left: 2%;" (change)="changeScheduleType()"/>
+                    <!-- <label for="checkbox">სტანდარტული გრაფიკი</label>
+                    <input type="checkbox"  [checked]="standartSchedule" style="margin-left: 2%;" (change)="changeScheduleType()"/> -->
+                    <div class="col-md-6">
+                      <div class="form-group">
+                     <label for="exampleInputEmail1">გრაფიკი</label>
+                     <select [(ngModel)]="ScheduleID" class="form-control" *ngIf="ScheduleGenerators" (change)="changeSchedule()">
+                       <option *ngFor="let generator of ScheduleGenerators" value="{{generator.iD}}">{{generator.name}}</option>
+                     </select>
+                   </div>
+                    </div>
                   </div>
                 </div>
                 <div *ngIf="standartSchedule; else individualSchedule">
@@ -292,13 +318,31 @@
                     </div>
                   </div>
                   </div>
+                  <div class="col-md-6">
+                    <label for="exampleInputEmail1">შესვენებაზე გასვლის დრო</label>
+                  <input type="time"  [(ngModel)]="AddEmployee.schedule.breakStartTime" id="breakStartTime" #breakStartTime="ngModel" class="form-control" >
+                  <div *ngIf="breakStartTime.invalid && (breakStartTime.dirty || breakStartTime.touched)" class="alert alert-danger">
+                    <div *ngIf="breakStartTime.errors.required">
+                      შესვენებაზე გასვლის დროის მითითება სავალდებულოა
+                    </div>
+                  </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="exampleInputEmail1">შესვენებიდან დაბრუნების დრო</label>
+                  <input type="time"  [(ngModel)]="AddEmployee.schedule.breakEndTime" id="breakEndTime" #breakEndTime="ngModel" class="form-control" >
+                  <div *ngIf="breakEndTime.invalid && (breakEndTime.dirty || breakEndTime.touched)" class="alert alert-danger">
+                    <div *ngIf="breakEndTime.errors.required">
+                      შესვენებიდან დაბრუნების დროის მითითება სავალდებულოა
+                    </div>
+                  </div>
+                  </div>
                 </div>
                 <div class="row">
                   <div class="col-md-6">
                     <label for="exampleInputEmail1">მხოლოდ სამუშოა დღეებში</label>
                   <select class="form-control" [(ngModel)]="AddEmployee.schedule.onWorkingDaysOnly" >
-                  <option value="1">კი</option>
-                  <option value="0">არა</option>  
+                  <option value="true">კი</option>
+                  <option value="false">არა</option>  
                   </select>
                   </div>
                   
@@ -306,8 +350,8 @@
                   
                       <label for="exampleInputEmail1">მხოლოდ სამუშოა საათებში</label>
                     <select class="form-control" [(ngModel)]="AddEmployee.schedule.onWorkingHouresOnly" >
-                    <option value="1">კი</option>
-                    <option value="0">არა</option>  
+                    <option value="true">კი</option>
+                    <option value="false">არა</option>  
                     </select>
                   
                   </div>

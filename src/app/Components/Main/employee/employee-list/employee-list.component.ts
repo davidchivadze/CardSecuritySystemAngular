@@ -26,12 +26,12 @@ export class EmployeeListComponent implements OnInit {
        }
     })
   }
-  CreateExce(){
-    this.EmployeeService.getEmployeeModReport(3,2021,0).subscribe(res=>{
-      this.ExceServ.exportAsExcelFile("სატესტო ექსელი","",[],[],[],"Report","Main",res.data);
-    })
+  // CreateExce(){
+  //   this.EmployeeService.getEmployeeModReport(3,2021,0).subscribe(res=>{
+  //     this.ExceServ.exportAsExcelFile("სატესტო ექსელი","",[],[],[],"Report","Main",res.data);
+  //   })
     
-  }
+  // }
   SyncUserToDevice(employeeID:number){
       this.DeviceService.insertUserToDevice(employeeID).subscribe(res=>{
         if(res.ok){

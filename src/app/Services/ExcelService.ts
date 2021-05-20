@@ -205,6 +205,177 @@ const EXCEL_EXTENSION='.xlsx';
                 fs.saveAs(blob,excelFileName+EXCEL_EXTENSION);
             })
         }
+        public exportAsExcelFullWeek(
+            reportHeading:string,
+            reportSubHeading:string,
+            headersArray:any[],
+            json:any[],
+            footerData:any,
+            excelFileName:string,
+            sheetName:string,
+            EmployeeData:Api.GetEmployeeFullReportItem[] 
+        ){
+            // console.log(EmployeeData)
+            const header="სამუშაო დროის აღრიცხვის ფორმა";
+            const data=json;
+            const workBook=new Workbook();
+            workBook.creator="Angular";
+            workBook.lastModifiedBy="Angular";
+            workBook.created=new Date();
+            workBook.modified=new Date();
+            const worksheet=workBook.addWorksheet("ReportWorkSheet");
+            let columnNumber=1;
+            for(var i=0;i<EmployeeData.length;i++){
+                worksheet.spliceRows(columnNumber,0,["თანამშრომელი","დეპარტამენტი","სერვის ცენტრი","განყოფილება","სულ დაგვიანება",
+                "სულ ადრე გასვლა","სულ ადრე მოსვლა","სულ გვიან გასვლა","სულ ნამუშევარი საათები","ხელფასი",
+                "გვიან მოსვლების რაოდენობა","ჯარიმა","სულ	ადრე გასვლების რაოდენობა","სულ იმუშავა გრაფიკში","სულ იმუშავა გრაფიკს გარეთ","დღის გაცდენა"]);
+                worksheet.getRow(columnNumber).fill={pattern:"lightGrid",bgColor:{argb:"5987D6"},fgColor:{argb:"5987D6"},type:"pattern"};
+                worksheet.getRow(columnNumber).border={bottom:{style:'thin',color:{argb:'000000'}},
+                  top:{style:'thin',color:{argb:'000000'}},
+                  left:{style:'thin',color:{argb:'000000'}},
+                  right:{style:'thin',color:{argb:'000000'}}};
+                columnNumber=columnNumber+1;
+                worksheet.spliceRows(columnNumber,0,[
+                    EmployeeData[i].fullName,
+                    EmployeeData[i].department,
+                    EmployeeData[i].serviceCenter,
+                    EmployeeData[i].department,
+                    this.convertMinsToHrsMins(EmployeeData[i].sumLateMinutes),
+                    this.convertMinsToHrsMins(EmployeeData[i].sumEarlyCheckOut),
+                    this.convertMinsToHrsMins(EmployeeData[i].sumEarlyMinutes),
+                    this.convertMinsToHrsMins(EmployeeData[i].sumLateCheckOut),
+                    this.convertMinsToHrsMins(EmployeeData[i].sumWorkedHoures),
+                    EmployeeData[i].salaryAfterFine,
+                    EmployeeData[i].sumLateCheckInCount,
+                    EmployeeData[i].fineAmount,
+                    EmployeeData[i].sumEarlyCheckOutCount,
+                    this.convertMinsToHrsMins(EmployeeData[i].sumWorkedInSchedule),
+                    this.convertMinsToHrsMins(EmployeeData[i].sumWorkedOutOfSchedule),
+                    EmployeeData[i].sumMissedDays
+                ]);
+                //worksheet.getRow(columnNumber).outlineLevel=EmployeeData.length;
+                // set column outline level
+// worksheet.properties.outlineLevelCol = 1;
+
+// // set row outline level
+// worksheet.properties.outlineLevelRow = 1;
+// worksheet.properties.outlineLevelCol = 1;
+
+// worksheet.getColumn(3).outlineLevel = 1;
+
+
+columnNumber=columnNumber+1;
+columnNumber=columnNumber+1;
+columnNumber=columnNumber+1;
+
+worksheet.getRow(columnNumber).outlineLevel=1;
+worksheet.properties.outlineLevelRow=1;
+worksheet.spliceRows(columnNumber,5,[
+    "კვირის საწყისი თარიღი",
+    "კვირის დასრულების თარიღი",
+    "კვირაში ნამუშევარი საათები",
+    "კვირაში ზეგანაკვეთური ნამუშევარი საათები",
+    "კვირაში გაცდენილი საათები"
+])
+worksheet.getRow(columnNumber).fill={pattern:"lightGrid",bgColor:{argb:"5987D6"},fgColor:{argb:"5987D6"},type:"pattern"};
+worksheet.getRow(columnNumber).border={bottom:{style:'thin',color:{argb:'000000'}},
+  top:{style:'thin',color:{argb:'000000'}},
+  left:{style:'thin',color:{argb:'000000'}},
+  right:{style:'thin',color:{argb:'000000'}}};
+columnNumber=columnNumber+1;
+console.log( EmployeeData[i].employeeWorkingLogWeekHoures);
+for(var b=0;b<EmployeeData[i].employeeWorkingLogWeekHoures.length;b++){
+    worksheet.getRow(columnNumber).outlineLevel=1;
+    worksheet.spliceRows(columnNumber,5,[
+        EmployeeData[i].employeeWorkingLogWeekHoures[b].fromDate?.toLocaleString(),
+        EmployeeData[i].employeeWorkingLogWeekHoures[b].toDate?.toLocaleString(),
+        this.convertMinsToHrsMins(EmployeeData[i].employeeWorkingLogWeekHoures[b].workedMinutesSum),
+        this.convertMinsToHrsMins(EmployeeData[i].employeeWorkingLogWeekHoures[b].workedMinutesOvertime),
+        this.convertMinsToHrsMins(EmployeeData[i].employeeWorkingLogWeekHoures[b].missedMinutes)
+    ]);
+    columnNumber=columnNumber+1;
+}
+
+                columnNumber=columnNumber+1;
+                columnNumber=columnNumber+1;
+                columnNumber=columnNumber+1;
+                worksheet.getRow(columnNumber).outlineLevel=1;
+                worksheet.properties.outlineLevelRow=1;
+                worksheet.spliceRows(columnNumber,5,[
+                    "სამუშაოს დასაწყისი","სამუშაოს დასასრული","მოსვლის დრო","ავტორიზაციის დრო",	
+                    "წასვლის დრო","დაგვიანება",
+                    "ადრე მოსვლა","ადრე გასვლა","გვიან გასვლა","ნამუშევარი საათები","სტატუსი","ჯარიმის წუთები",
+                    "იმუშავა გრაფიკში","იმუშავა გრაფიკს გარეთ","გაცდენილი საათები"
+
+                ]);
+                worksheet.getRow(columnNumber).fill={pattern:"lightGrid",bgColor:{argb:"5987D6"},fgColor:{argb:"5987D6"},type:"pattern"};
+                worksheet.getRow(columnNumber).border={bottom:{style:'thin',color:{argb:'000000'}},
+                  top:{style:'thin',color:{argb:'000000'}},
+                  left:{style:'thin',color:{argb:'000000'}},
+                  right:{style:'thin',color:{argb:'000000'}}};
+                columnNumber=columnNumber+1;
+                console.log(EmployeeData[i].employeeWorkingLogs);
+                for(var b=0;b<EmployeeData[i].employeeWorkingLogs.length;b++){
+                    worksheet.getRow(columnNumber).outlineLevel=1;
+                    worksheet.spliceRows(columnNumber,5,[
+                        EmployeeData[i].employeeWorkingLogs[b].scheduleFromTime?.toLocaleString(),
+                        EmployeeData[i].employeeWorkingLogs[b].scheduleToTime?.toLocaleString(),
+                        EmployeeData[i].employeeWorkingLogs[b].checkInTime?.toLocaleString(),
+                        EmployeeData[i].employeeWorkingLogs[b].checkInTime?.toLocaleString(),
+                        EmployeeData[i].employeeWorkingLogs[b].checkOutTime?.toLocaleString(),
+                        this.convertMinsToHrsMins(EmployeeData[i].employeeWorkingLogs[b].lateCheckInMinutes),
+                        this.convertMinsToHrsMins(EmployeeData[i].employeeWorkingLogs[b].earlyCheckInMinutes),
+                        this.convertMinsToHrsMins(EmployeeData[i].employeeWorkingLogs[b].earlyCheckOutMinutes),
+                        this.convertMinsToHrsMins(EmployeeData[i].employeeWorkingLogs[b].lateCheckOutMinutes),
+                        this.convertMinsToHrsMins(EmployeeData[i].employeeWorkingLogs[b].workedMinutess),
+                        EmployeeData[i].employeeWorkingLogs[b].workStatus,
+                        EmployeeData[i].employeeWorkingLogs[b].fineMinutes,
+                        
+                        this.convertMinsToHrsMins(EmployeeData[i].employeeWorkingLogs[b].workedInSchedule),
+                        this.convertMinsToHrsMins(EmployeeData[i].employeeWorkingLogs[b].workedOutSchedule),
+                        this.convertMinsToHrsMins(EmployeeData[i].employeeWorkingLogs[b].missedMinutes)
+                    ]);
+               
+                    if( worksheet.getRow(columnNumber).getCell('H').value!='00:00'&& worksheet.getRow(columnNumber).getCell('H').value!=''){
+                        worksheet.getRow(columnNumber).getCell('H').fill={pattern:"lightGrid",bgColor:{argb:"800000"},fgColor:{argb:"800000"},type:"pattern"};
+                    }
+                    if( worksheet.getRow(columnNumber).getCell('O').value!='00:00'&& worksheet.getRow(columnNumber).getCell('O').value!=''){
+                        worksheet.getRow(columnNumber).getCell('O').fill={pattern:"lightGrid",bgColor:{argb:"800000"},fgColor:{argb:"800000"},type:"pattern"};
+                    }
+                    if( worksheet.getRow(columnNumber).getCell('G').value!='00:00'&& worksheet.getRow(columnNumber).getCell('G').value!=''){
+                        worksheet.getRow(columnNumber).getCell('G').fill={pattern:"lightGrid",bgColor:{argb:"008000"},fgColor:{argb:"008000"},type:"pattern"};
+                    }
+                    if( worksheet.getRow(columnNumber).getCell('I').value!='00:00'&& worksheet.getRow(columnNumber).getCell('I').value!=''){
+                        worksheet.getRow(columnNumber).getCell('I').fill={pattern:"lightGrid",bgColor:{argb:"008000"},fgColor:{argb:"008000"},type:"pattern"};
+                    }
+                    if( worksheet.getRow(columnNumber).getCell('N').value!='00:00'&& worksheet.getRow(columnNumber).getCell('N').value!=''){
+                        worksheet.getRow(columnNumber).getCell('N').fill={pattern:"lightGrid",bgColor:{argb:"008000"},fgColor:{argb:"008000"},type:"pattern"};
+                    }
+                    if( worksheet.getRow(columnNumber).getCell('K').value=='გააცდინა'){
+                        worksheet.getRow(columnNumber).fill={pattern:"lightGrid",bgColor:{argb:"FF4500"},fgColor:{argb:"FF4500"},type:"pattern"};
+                    }
+                    columnNumber=columnNumber+1;
+                }
+                columnNumber=columnNumber+2;
+            }
+            worksheet.columns.forEach(function (column, i) {
+                // var maxLength =6;
+                // // column["eachCell"]({ includeEmpty: true }, function (cell) {
+                // //     var columnLength = cell.value ? cell.value.toString().length : 10;
+                // //     if (columnLength > maxLength ) {
+                // //         maxLength = columnLength;
+                // //     }
+                // // });
+                // column.width = maxLength < 10 ? 10 : maxLength;
+                column.width=12;
+                column.alignment={vertical: 'middle', horizontal: 'center', wrapText: true}
+            });
+  
+            workBook.xlsx.writeBuffer().then((data:ArrayBuffer)=>{
+                const blob=new Blob([data],{type:EXCEL_TYPE});
+                fs.saveAs(blob,excelFileName+EXCEL_EXTENSION);
+            })
+        }
       public exportAsExcelFile1(
           reportHeading:string,
           reportSubHeading:string,
@@ -334,6 +505,8 @@ const EXCEL_EXTENSION='.xlsx';
         let m = mins % 60;
         let hour;
         let minute;
+        if(h<0){ h=0}
+        if(m<0){m=0}
         hour = h < 10 ? '0' + h : h;
         minute = m < 10 ? '0' + m : m;
         return `${hour}:${minute}`;

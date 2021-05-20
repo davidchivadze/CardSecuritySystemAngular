@@ -18,7 +18,7 @@
             <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s)">მომხმარებლის ნომერი მოწყობილობაში</th>
             <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s)">მოწყობილობის ნომერი</th>
             <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s)">იდენტიფიკაციის ტიპი</th>
-            
+            <th></th>
         </tr>
         </thead>
         <tbody *ngIf="DeviceEmployeeUsers">
@@ -30,6 +30,9 @@
             <td>{{deviceUserLog.userIDInDevice}}</td>
             <td>{{deviceUserLog.machineNumber}}</td>
             <td>{{deviceUserLog.verifyMode}}</td>           
+            <td><a [routerLink]="['/Device/EditDeviceLog',deviceUserLog.iD]" class="btn btn-info">
+              <i class="fas fa-edit"></i>
+            </a><button class="btn btn-danger" (click)="DeleteDevice(deviceUserLog.iD)"><i class="fas fa-trash" ></i></button></td>
           </tr>       
        </tbody>
         <tfoot>
@@ -40,6 +43,7 @@
           <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s)">მომხმარებლის ნომერი მოწყობილობაში</th>
           <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s)">მოწყობილობის ნომერი</th>
           <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s)">იდენტიფიკაციის ტიპი</th></tr>
+          <th></th>
         </tfoot>
       </table></div></div><div class="row"><div class="col-sm-12 col-md-5"><div class="dataTables_info" id="example1_info" role="status" aria-live="polite">ჩანაწერების რაოდენობა:</div></div><div class="col-sm-12 col-md-7"><div class="dataTables_paginate paging_simple_numbers" id="example1_paginate"><ul class="pagination"><li class="paginate_button page-item previous disabled" id="example1_previous"><a href="#" aria-controls="example1" data-dt-idx="0" tabindex="0" class="page-link">წინა</a></li><li class="paginate_button page-item active"><a href="#" aria-controls="example1" data-dt-idx="1" tabindex="0" class="page-link">1</a></li><li class="paginate_button page-item next disabled" id="example1_next"><a href="#" aria-controls="example1" data-dt-idx="2" tabindex="0" class="page-link">შემდეგი</a></li></ul></div></div></div></div>
     </div>

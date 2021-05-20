@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Sanitizer } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { timeInterval } from 'rxjs/operators';
 import { Api } from 'src/app/Services/SwaggerClient';
@@ -19,13 +20,16 @@ export class AddEmployeeComponent implements OnInit {
   SalaryTypeList:Api.GetSalaryTypeListItem[]
   AddEmployee:Api.AddEmployeeRequestModel
   HolidayTypes:Api.GetHolidayTypeListItem[]
+  ScheduleGenerators:Api.GetScheduleGeneratorItems[]
+  SalaryGenerators:Api.SalaryGeneratorModel[]
   HolidaysArray:number[]
   standartSchedule:boolean
   ErrorMessageResponse:String
   TimeLeft: number = 5;
   ShowSuccess:boolean=false;
   interval;
-
+  ScheduleID:number=0;
+  SalaryID:number=0;
 startTimer() {
     this.interval = setInterval(() => {
       if(this.TimeLeft > 0) {
@@ -38,7 +42,7 @@ startTimer() {
     },1000)
   }
 
-  constructor(public ParameterService:Api.ParametersService,public EmployeService:Api.EmployeeService,private router:Router,private route:ActivatedRoute) { }
+  constructor(public ParameterService:Api.ParametersService,public EmployeService:Api.EmployeeService,private router:Router,private route:ActivatedRoute,private sanitizer:DomSanitizer) { }
 
   ngOnInit(): void {
     const routeParams = this.route.snapshot.paramMap;
@@ -63,6 +67,12 @@ startTimer() {
        }else{
          console.log(res);
        }
+    })
+    this.ParameterService.getScheduleGenerators().subscribe(res=>{
+      this.ScheduleGenerators=res.data.scheduleGeneratorItems
+    })
+    this.ParameterService.getSalaryGenerators().subscribe(res=>{
+      this.SalaryGenerators=res.data;
     })
     this.ParameterService.getHolidayTypeList().subscribe(res=>{
       if(res.ok){
@@ -114,6 +124,29 @@ startTimer() {
       }
     })
  })
+  }
+  changeSchedule(){
+    let activeSchedule=this.ScheduleGenerators.find(x=>x.iD==this.ScheduleID);
+    console.log(activeSchedule)
+    this.AddEmployee.schedule.maxCheckOutTime=activeSchedule.maxCheckOutTime;
+    this.AddEmployee.schedule.minCheckInTime=activeSchedule.minCheckInTime;
+    this.AddEmployee.schedule.daylyHouresAmount=activeSchedule.daylyHouresAmount;
+    this.AddEmployee.schedule.weekHouresAmount=activeSchedule.weekHouresAmount;
+    this.AddEmployee.schedule.onWorkingDaysOnly=activeSchedule.onWorkingDaysOnly;
+    this.AddEmployee.schedule.onWorkingHouresOnly=activeSchedule.onWorkingHouresOnly;
+    this.AddEmployee.schedule.startTime=activeSchedule.startTime;
+    this.AddEmployee.schedule.endTime=activeSchedule.endTime;
+    this.AddEmployee.schedule.breakStartTime=activeSchedule.breakStartTime;
+    this.AddEmployee.schedule.breakEndTime=activeSchedule.breakEndTime;
+  }
+  changeSalary(){
+    let activeSalary=this.SalaryGenerators.find(x=>x.iD==this.SalaryID);
+    this.AddEmployee.salary.salaryTypeID=activeSalary.salaryTypeID;
+    this.AddEmployee.salary.amount=activeSalary.amount;
+    this.AddEmployee.forgiveness.forgivenessTypeID=activeSalary.forgivenessTypeID;
+    this.AddEmployee.forgiveness.amount=activeSalary.forgivenessAmount;
+    this.AddEmployee.fine.amount=activeSalary.fineAmount;
+    this.AddEmployee.fine.fineTypeID=activeSalary.fineTypeID;
   }
   addHolidayType(){
     let newEmplyeeHoliday=new Api.EmployeeHolidays();
@@ -169,4 +202,32 @@ startTimer() {
   
       this.AddEmployee.avatarImage=undefined;
     }
+    onFilesChosenDoc(event){
+  
+  
+      if (event.target.files && event.target.files[0]) {
+        var filesAmount = event.target.files.length;
+        for (let i = 0; i < filesAmount; i++) {
+                var reader = new FileReader();
+  
+                reader.onload = (event:any) => {
+                
+                   this.AddEmployee.agreement=event.target.result; 
+                  
+                }
+  
+                reader.readAsDataURL(event.target.files[i]);
+        }
+    }
+  
+    }
+    removeChosenDoc(index){
+  
+      this.AddEmployee.agreement=undefined;
+    }
+    getDocURL() {
+      console.log(this.sanitizer.bypassSecurityTrustUrl(this.AddEmployee.agreement));
+      return this.sanitizer.bypassSecurityTrustResourceUrl(this.AddEmployee.agreement);
+    }
+    
 }

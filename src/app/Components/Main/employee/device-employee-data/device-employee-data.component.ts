@@ -20,5 +20,13 @@ export class DeviceEmployeeDataComponent implements OnInit {
       }
     })
   }
+  DeleteDevice(logID:number){
+    this.DeviceService.deleteDeviceLog(logID).subscribe(res=>{
+      if(res.ok&&res.data){
+     
+        this.DeviceEmployeeUsers.splice(this.DeviceEmployeeUsers.findIndex(e=>e.iD==logID),1);
+      }
+    })
+  }
 
 }

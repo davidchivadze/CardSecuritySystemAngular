@@ -62,6 +62,20 @@ label,input,select{
     font-size: 1rem;
  
 }
+.uploadFileLabelLarge{
+    width: 100%;
+    height:150px;
+    margin-left: auto;
+    margin-right: auto;
+    border:3px dashed #dddddd;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 50px;
+    font-size: 1rem;
+    text-align: center;
+ 
+}
 .uploadFile{
 display: none;
 }

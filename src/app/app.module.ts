@@ -57,6 +57,17 @@ import { AddGovermentHolidayComponent } from './Components/Parameters/GovermentH
 import { GovermentHolidaysMainComponent } from './Components/Parameters/GovermentHolidays/goverment-holidays-main/goverment-holidays-main.component';
 import { GovermentHolidaysListComponent } from './Components/Parameters/GovermentHolidays/goverment-holidays-list/goverment-holidays-list.component';
 import { EditGovermentHolidayComponent } from './Components/Parameters/GovermentHolidays/edit-goverment-holiday/edit-goverment-holiday.component';
+import { ScheduleGeneratorsComponent } from './Components/Parameters/ScheduleGenerators/schedule-generators/schedule-generators.component';
+import { AddScheduleGeneratorComponent } from './Components/Parameters/ScheduleGenerators/add-schedule-generator/add-schedule-generator.component';
+import { ScheduleGeneratorsListComponent } from './Components/Parameters/ScheduleGenerators/schedule-generators-list/schedule-generators-list.component';
+import { EditScheduleGeneratorComponent } from './Components/Parameters/ScheduleGenerators/edit-schedule-generator/edit-schedule-generator.component';
+import { SalaryGeneratorsComponent } from './Components/Parameters/SalaryGenerator/salary-generators/salary-generators.component';
+import { SalaryGeneratorsLstComponent } from './Components/Parameters/SalaryGenerator/salary-generators-lst/salary-generators-lst.component';
+import { AddSalaryGeneratorsComponent } from './Components/Parameters/SalaryGenerator/add-salary-generators/add-salary-generators.component';
+import { EditSalaryGeneratorsComponent } from './Components/Parameters/SalaryGenerator/edit-salary-generators/edit-salary-generators.component';
+import { AddDeviceLogComponent } from './Components/Main/devices/add-device-log/add-device-log.component';
+import { FullReportWeekResultsComponent } from './Components/Main/reports/full-report-week-results/full-report-week-results.component';
+import { EditDeviceLogComponent } from './Components/Main/devices/edit-device-log/edit-device-log.component';
 export function CrateTranslateLoader(http:HttpClient){
   return new TranslateHttpLoader(http);
 } 
@@ -125,6 +136,17 @@ export class TranslateHandler implements MissingTranslationHandler {
     GovermentHolidaysMainComponent,
     GovermentHolidaysListComponent,
     EditGovermentHolidayComponent,
+    ScheduleGeneratorsComponent,
+    AddScheduleGeneratorComponent,
+    ScheduleGeneratorsListComponent,
+    EditScheduleGeneratorComponent,
+    SalaryGeneratorsComponent,
+    SalaryGeneratorsLstComponent,
+    AddSalaryGeneratorsComponent,
+    EditSalaryGeneratorsComponent,
+    AddDeviceLogComponent,
+    FullReportWeekResultsComponent,
+    EditDeviceLogComponent,
 
   ],
   imports: [

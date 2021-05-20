@@ -62,13 +62,31 @@
                       </div>
                     </div>
                     </div>
+                    <div class="col-md-6">
+                      <label for="exampleInputEmail1">შესვენებაზე გასვლის დრო</label>
+                    <input type="time"  [(ngModel)]="AddSchedule.breakStartTime" id="breakStartTime" #breakStartTime="ngModel" class="form-control" >
+                    <div *ngIf="breakStartTime.invalid && (breakStartTime.dirty || breakStartTime.touched)" class="alert alert-danger">
+                      <div *ngIf="breakStartTime.errors.required">
+                        შესვენებაზე გასვლის დროის მითითება სავალდებულოა
+                      </div>
+                    </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="exampleInputEmail1">შესვენებიდან მოსვლის დრო</label>
+                    <input type="time"  [(ngModel)]="AddSchedule.breakEndTime" id="breakEndTime" #breakEndTime="ngModel" class="form-control" >
+                    <div *ngIf="breakEndTime.invalid && (breakEndTime.dirty || breakEndTime.touched)" class="alert alert-danger">
+                      <div *ngIf="breakEndTime.errors.required">
+                        შესვენებიდან მოსვლის დროის მითითება სავალდებულოა
+                      </div>
+                    </div>
+                    </div>
                   </div>
                   <div class="row">
                     <div class="col-md-6">
                       <label for="exampleInputEmail1">მხოლოდ სამუშოა დღეებში</label>
                     <select class="form-control" [(ngModel)]="AddSchedule.onWorkingDaysOnly" >
-                    <option value="1">კი</option>
-                    <option value="0">არა</option>  
+                    <option value="true">კი</option>
+                    <option value="false">არა</option>  
                     </select>
                     </div>
                     
@@ -76,8 +94,8 @@
                     
                         <label for="exampleInputEmail1">მხოლოდ სამუშოა საათებში</label>
                       <select class="form-control" [(ngModel)]="AddSchedule.onWorkingHouresOnly" >
-                      <option value="1">კი</option>
-                      <option value="0">არა</option>  
+                      <option value="true">კი</option>
+                      <option value="false">არა</option>  
                       </select>
                     
                     </div>

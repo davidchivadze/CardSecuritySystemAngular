@@ -270,11 +270,15 @@ export interface IEmployeeService {
     /**
      * @return OK
      */
-    getEmployeeModReport(month: number, year: number, employeeID: number): Observable<IResponseOfListOfGetEmployeeModReportResponse>;
+    getEmployeeModReport(month: number, year: number, employeeID: number, branchID: number): Observable<IResponseOfListOfGetEmployeeModReportResponse>;
     /**
      * @return OK
      */
-    getEmployeeFullReport(month: number, year: number, employeeID: number): Observable<IResponseOfGetEmployeeFullReportResponse>;
+    getEmployeeFullReport(month: number, year: number, employeeID: number, branchID: number): Observable<IResponseOfGetEmployeeFullReportResponse>;
+    /**
+     * @return OK
+     */
+    getEmployeeFullReportWeekHoures(fromDate: Date, toDate: Date, employeeID: number, branchID: number): Observable<IResponseOfGetEmployeeFullReportResponse>;
     /**
      * @return OK
      */
@@ -1059,7 +1063,7 @@ export class EmployeeService implements IEmployeeService {
     /**
      * @return OK
      */
-    getEmployeeModReport(month: number, year: number, employeeID: number): Observable<IResponseOfListOfGetEmployeeModReportResponse> {
+    getEmployeeModReport(month: number, year: number, employeeID: number, branchID: number): Observable<IResponseOfListOfGetEmployeeModReportResponse> {
         let url_ = this.baseUrl + "/api/Employee/GetEmployeeModReport?";
         if (month === undefined || month === null)
             throw new Error("The parameter 'month' must be defined and cannot be null.");
@@ -1073,6 +1077,10 @@ export class EmployeeService implements IEmployeeService {
             throw new Error("The parameter 'employeeID' must be defined and cannot be null.");
         else
             url_ += "EmployeeID=" + encodeURIComponent("" + employeeID) + "&";
+        if (branchID === undefined || branchID === null)
+            throw new Error("The parameter 'branchID' must be defined and cannot be null.");
+        else
+            url_ += "branchID=" + encodeURIComponent("" + branchID) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1122,7 +1130,7 @@ export class EmployeeService implements IEmployeeService {
     /**
      * @return OK
      */
-    getEmployeeFullReport(month: number, year: number, employeeID: number): Observable<IResponseOfGetEmployeeFullReportResponse> {
+    getEmployeeFullReport(month: number, year: number, employeeID: number, branchID: number): Observable<IResponseOfGetEmployeeFullReportResponse> {
         let url_ = this.baseUrl + "/api/Employee/GetEmployeeFullReport?";
         if (month === undefined || month === null)
             throw new Error("The parameter 'month' must be defined and cannot be null.");
@@ -1136,6 +1144,10 @@ export class EmployeeService implements IEmployeeService {
             throw new Error("The parameter 'employeeID' must be defined and cannot be null.");
         else
             url_ += "EmployeeID=" + encodeURIComponent("" + employeeID) + "&";
+        if (branchID === undefined || branchID === null)
+            throw new Error("The parameter 'branchID' must be defined and cannot be null.");
+        else
+            url_ += "BranchID=" + encodeURIComponent("" + branchID) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1161,6 +1173,73 @@ export class EmployeeService implements IEmployeeService {
     }
 
     protected processGetEmployeeFullReport(response: HttpResponseBase): Observable<IResponseOfGetEmployeeFullReportResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfGetEmployeeFullReportResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfGetEmployeeFullReportResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    getEmployeeFullReportWeekHoures(fromDate: Date, toDate: Date, employeeID: number, branchID: number): Observable<IResponseOfGetEmployeeFullReportResponse> {
+        let url_ = this.baseUrl + "/api/Employee/GetEmployeeFullReportWeekHoures?";
+        if (fromDate === undefined || fromDate === null)
+            throw new Error("The parameter 'fromDate' must be defined and cannot be null.");
+        else
+            url_ += "FromDate=" + encodeURIComponent(fromDate ? "" + fromDate.toJSON() : "") + "&";
+        if (toDate === undefined || toDate === null)
+            throw new Error("The parameter 'toDate' must be defined and cannot be null.");
+        else
+            url_ += "ToDate=" + encodeURIComponent(toDate ? "" + toDate.toJSON() : "") + "&";
+        if (employeeID === undefined || employeeID === null)
+            throw new Error("The parameter 'employeeID' must be defined and cannot be null.");
+        else
+            url_ += "EmployeeID=" + encodeURIComponent("" + employeeID) + "&";
+        if (branchID === undefined || branchID === null)
+            throw new Error("The parameter 'branchID' must be defined and cannot be null.");
+        else
+            url_ += "BranchID=" + encodeURIComponent("" + branchID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetEmployeeFullReportWeekHoures(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetEmployeeFullReportWeekHoures(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfGetEmployeeFullReportResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfGetEmployeeFullReportResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetEmployeeFullReportWeekHoures(response: HttpResponseBase): Observable<IResponseOfGetEmployeeFullReportResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1278,7 +1357,31 @@ export interface IParametersService {
     /**
      * @return OK
      */
+    getScheduleGenerators(): Observable<IResponseOfGetScheduleGeneratorResponse>;
+    /**
+     * @return OK
+     */
+    editScheduleGenerator(model: GetScheduleGeneratorItems): Observable<IResponseOfBoolean>;
+    /**
+     * @return OK
+     */
+    addScheduleGenerator(model: AddScheduleGenerator): Observable<IResponseOfBoolean>;
+    /**
+     * @return OK
+     */
     deleteEmployeePosition(employeePositionID: number): Observable<IResponseOfBoolean>;
+    /**
+     * @return OK
+     */
+    getSalaryGenerators(): Observable<IResponseOfListOfSalaryGeneratorModel>;
+    /**
+     * @return OK
+     */
+    editSalaryGenerators(model: SalaryGeneratorModel): Observable<IResponseOfBoolean>;
+    /**
+     * @return OK
+     */
+    addSalaryGenerator(model: SalaryGeneratorModel): Observable<IResponseOfBoolean>;
     /**
      * @return OK
      */
@@ -1863,6 +1966,167 @@ export class ParametersService implements IParametersService {
     /**
      * @return OK
      */
+    getScheduleGenerators(): Observable<IResponseOfGetScheduleGeneratorResponse> {
+        let url_ = this.baseUrl + "/api/Parameters/GetScheduleGenerators";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetScheduleGenerators(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetScheduleGenerators(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfGetScheduleGeneratorResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfGetScheduleGeneratorResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetScheduleGenerators(response: HttpResponseBase): Observable<IResponseOfGetScheduleGeneratorResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfGetScheduleGeneratorResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfGetScheduleGeneratorResponse>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    editScheduleGenerator(model: GetScheduleGeneratorItems): Observable<IResponseOfBoolean> {
+        let url_ = this.baseUrl + "/api/Parameters/EditScheduleGenerator";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEditScheduleGenerator(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEditScheduleGenerator(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfBoolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfBoolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processEditScheduleGenerator(response: HttpResponseBase): Observable<IResponseOfBoolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfBoolean.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfBoolean>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    addScheduleGenerator(model: AddScheduleGenerator): Observable<IResponseOfBoolean> {
+        let url_ = this.baseUrl + "/api/Parameters/AddScheduleGenerator";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddScheduleGenerator(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddScheduleGenerator(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfBoolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfBoolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processAddScheduleGenerator(response: HttpResponseBase): Observable<IResponseOfBoolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfBoolean.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfBoolean>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
     deleteEmployeePosition(employeePositionID: number): Observable<IResponseOfBoolean> {
         let url_ = this.baseUrl + "/api/Parameters/DeleteEmployeePosition?";
         if (employeePositionID === undefined || employeePositionID === null)
@@ -1894,6 +2158,167 @@ export class ParametersService implements IParametersService {
     }
 
     protected processDeleteEmployeePosition(response: HttpResponseBase): Observable<IResponseOfBoolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfBoolean.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfBoolean>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    getSalaryGenerators(): Observable<IResponseOfListOfSalaryGeneratorModel> {
+        let url_ = this.baseUrl + "/api/Parameters/GetSalaryGenerators";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetSalaryGenerators(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetSalaryGenerators(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfListOfSalaryGeneratorModel>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfListOfSalaryGeneratorModel>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetSalaryGenerators(response: HttpResponseBase): Observable<IResponseOfListOfSalaryGeneratorModel> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfListOfSalaryGeneratorModel.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfListOfSalaryGeneratorModel>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    editSalaryGenerators(model: SalaryGeneratorModel): Observable<IResponseOfBoolean> {
+        let url_ = this.baseUrl + "/api/Parameters/EditSalaryGenerators";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEditSalaryGenerators(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEditSalaryGenerators(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfBoolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfBoolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processEditSalaryGenerators(response: HttpResponseBase): Observable<IResponseOfBoolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfBoolean.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfBoolean>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    addSalaryGenerator(model: SalaryGeneratorModel): Observable<IResponseOfBoolean> {
+        let url_ = this.baseUrl + "/api/Parameters/AddSalaryGenerator";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddSalaryGenerator(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddSalaryGenerator(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfBoolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfBoolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processAddSalaryGenerator(response: HttpResponseBase): Observable<IResponseOfBoolean> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3067,7 +3492,23 @@ export interface IRemoteDeviceService {
     /**
      * @return No Content
      */
-    syncUserLog(): Observable<void>;
+    syncUserLog(updateUserList: boolean, syncUserLog: boolean): Observable<void>;
+    /**
+     * @return OK
+     */
+    addDeviceLog(model: DeviceUserLog): Observable<IResponseOfBoolean>;
+    /**
+     * @return OK
+     */
+    deleteDeviceLog(logID: number): Observable<IResponseOfBoolean>;
+    /**
+     * @return OK
+     */
+    getDeviceUserLogForEdit(iD: number): Observable<IResponseOfGetDeviceUserLogItemForEdit>;
+    /**
+     * @return OK
+     */
+    editDeviceUserLog(model: GetDeviceUserLogItemForEdit): Observable<IResponseOfBoolean>;
     /**
      * @return OK
      */
@@ -3429,8 +3870,16 @@ export class RemoteDeviceService implements IRemoteDeviceService {
     /**
      * @return No Content
      */
-    syncUserLog(): Observable<void> {
-        let url_ = this.baseUrl + "/api/RemoteDevice/SyncUserLog";
+    syncUserLog(updateUserList: boolean, syncUserLog: boolean): Observable<void> {
+        let url_ = this.baseUrl + "/api/RemoteDevice/SyncUserLog?";
+        if (updateUserList === undefined || updateUserList === null)
+            throw new Error("The parameter 'updateUserList' must be defined and cannot be null.");
+        else
+            url_ += "updateUserList=" + encodeURIComponent("" + updateUserList) + "&";
+        if (syncUserLog === undefined || syncUserLog === null)
+            throw new Error("The parameter 'syncUserLog' must be defined and cannot be null.");
+        else
+            url_ += "syncUserLog=" + encodeURIComponent("" + syncUserLog) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -3471,6 +3920,225 @@ export class RemoteDeviceService implements IRemoteDeviceService {
             }));
         }
         return _observableOf<void>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    addDeviceLog(model: DeviceUserLog): Observable<IResponseOfBoolean> {
+        let url_ = this.baseUrl + "/api/RemoteDevice/AddDeviceLog";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddDeviceLog(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddDeviceLog(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfBoolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfBoolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processAddDeviceLog(response: HttpResponseBase): Observable<IResponseOfBoolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfBoolean.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfBoolean>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    deleteDeviceLog(logID: number): Observable<IResponseOfBoolean> {
+        let url_ = this.baseUrl + "/api/RemoteDevice/DeleteDeviceLog?";
+        if (logID === undefined || logID === null)
+            throw new Error("The parameter 'logID' must be defined and cannot be null.");
+        else
+            url_ += "logID=" + encodeURIComponent("" + logID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteDeviceLog(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteDeviceLog(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfBoolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfBoolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processDeleteDeviceLog(response: HttpResponseBase): Observable<IResponseOfBoolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfBoolean.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfBoolean>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    getDeviceUserLogForEdit(iD: number): Observable<IResponseOfGetDeviceUserLogItemForEdit> {
+        let url_ = this.baseUrl + "/api/RemoteDevice/GetDeviceUserLogForEdit/{ID}";
+        if (iD === undefined || iD === null)
+            throw new Error("The parameter 'iD' must be defined.");
+        url_ = url_.replace("{ID}", encodeURIComponent("" + iD));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetDeviceUserLogForEdit(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDeviceUserLogForEdit(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfGetDeviceUserLogItemForEdit>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfGetDeviceUserLogItemForEdit>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetDeviceUserLogForEdit(response: HttpResponseBase): Observable<IResponseOfGetDeviceUserLogItemForEdit> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfGetDeviceUserLogItemForEdit.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfGetDeviceUserLogItemForEdit>(<any>null);
+    }
+
+    /**
+     * @return OK
+     */
+    editDeviceUserLog(model: GetDeviceUserLogItemForEdit): Observable<IResponseOfBoolean> {
+        let url_ = this.baseUrl + "/api/RemoteDevice/EditDeviceUserLog";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEditDeviceUserLog(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEditDeviceUserLog(<any>response_);
+                } catch (e) {
+                    return <Observable<IResponseOfBoolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IResponseOfBoolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processEditDeviceUserLog(response: HttpResponseBase): Observable<IResponseOfBoolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = IResponseOfBoolean.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IResponseOfBoolean>(<any>null);
     }
 
     /**
@@ -3979,6 +4647,8 @@ export interface IIResponseOfBoolean {
 
 export class AddEmployeeRequestModel implements IAddEmployeeRequestModel {
     avatarImage?: string | undefined;
+    avatarFormat?: string | undefined;
+    agreement?: string | undefined;
     userIdInDevice?: number | undefined;
     firsName?: string | undefined;
     firsName_ka?: string | undefined;
@@ -4019,6 +4689,8 @@ export class AddEmployeeRequestModel implements IAddEmployeeRequestModel {
     init(_data?: any) {
         if (_data) {
             this.avatarImage = _data["AvatarImage"];
+            this.avatarFormat = _data["AvatarFormat"];
+            this.agreement = _data["Agreement"];
             this.userIdInDevice = _data["UserIdInDevice"];
             this.firsName = _data["FirsName"];
             this.firsName_ka = _data["FirsName_ka"];
@@ -4067,6 +4739,8 @@ export class AddEmployeeRequestModel implements IAddEmployeeRequestModel {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["AvatarImage"] = this.avatarImage;
+        data["AvatarFormat"] = this.avatarFormat;
+        data["Agreement"] = this.agreement;
         data["UserIdInDevice"] = this.userIdInDevice;
         data["FirsName"] = this.firsName;
         data["FirsName_ka"] = this.firsName_ka;
@@ -4108,6 +4782,8 @@ export class AddEmployeeRequestModel implements IAddEmployeeRequestModel {
 
 export interface IAddEmployeeRequestModel {
     avatarImage?: string | undefined;
+    avatarFormat?: string | undefined;
+    agreement?: string | undefined;
     userIdInDevice?: number | undefined;
     firsName?: string | undefined;
     firsName_ka?: string | undefined;
@@ -4286,6 +4962,8 @@ export class ScheduleData implements IScheduleData {
     scheduleTypeID?: number | undefined;
     startTime?: string | undefined;
     endTime?: string | undefined;
+    breakEndTime?: string | undefined;
+    breakStartTime?: string | undefined;
     minCheckInTime?: string | undefined;
     maxCheckOutTime?: string | undefined;
     breakAmount?: number | undefined;
@@ -4312,6 +4990,8 @@ export class ScheduleData implements IScheduleData {
             this.scheduleTypeID = _data["ScheduleTypeID"];
             this.startTime = _data["StartTime"];
             this.endTime = _data["EndTime"];
+            this.breakEndTime = _data["BreakEndTime"];
+            this.breakStartTime = _data["BreakStartTime"];
             this.minCheckInTime = _data["MinCheckInTime"];
             this.maxCheckOutTime = _data["MaxCheckOutTime"];
             this.breakAmount = _data["BreakAmount"];
@@ -4338,6 +5018,8 @@ export class ScheduleData implements IScheduleData {
         data["ScheduleTypeID"] = this.scheduleTypeID;
         data["StartTime"] = this.startTime;
         data["EndTime"] = this.endTime;
+        data["BreakEndTime"] = this.breakEndTime;
+        data["BreakStartTime"] = this.breakStartTime;
         data["MinCheckInTime"] = this.minCheckInTime;
         data["MaxCheckOutTime"] = this.maxCheckOutTime;
         data["BreakAmount"] = this.breakAmount;
@@ -4357,6 +5039,8 @@ export interface IScheduleData {
     scheduleTypeID?: number | undefined;
     startTime?: string | undefined;
     endTime?: string | undefined;
+    breakEndTime?: string | undefined;
+    breakStartTime?: string | undefined;
     minCheckInTime?: string | undefined;
     maxCheckOutTime?: string | undefined;
     breakAmount?: number | undefined;
@@ -4522,6 +5206,8 @@ export interface IAddEmployeeResposeModel {
 export class GetEmployeeForEdit implements IGetEmployeeForEdit {
     iD?: number | undefined;
     avatarImage?: string | undefined;
+    avatarFormat?: string | undefined;
+    agreement?: string | undefined;
     employeeDetailsID?: number | undefined;
     firsName?: string | undefined;
     firsName_ka?: string | undefined;
@@ -4564,6 +5250,8 @@ export class GetEmployeeForEdit implements IGetEmployeeForEdit {
         if (_data) {
             this.iD = _data["ID"];
             this.avatarImage = _data["AvatarImage"];
+            this.avatarFormat = _data["AvatarFormat"];
+            this.agreement = _data["Agreement"];
             this.employeeDetailsID = _data["EmployeeDetailsID"];
             this.firsName = _data["FirsName"];
             this.firsName_ka = _data["FirsName_ka"];
@@ -4614,6 +5302,8 @@ export class GetEmployeeForEdit implements IGetEmployeeForEdit {
         data = typeof data === 'object' ? data : {};
         data["ID"] = this.iD;
         data["AvatarImage"] = this.avatarImage;
+        data["AvatarFormat"] = this.avatarFormat;
+        data["Agreement"] = this.agreement;
         data["EmployeeDetailsID"] = this.employeeDetailsID;
         data["FirsName"] = this.firsName;
         data["FirsName_ka"] = this.firsName_ka;
@@ -4657,6 +5347,8 @@ export class GetEmployeeForEdit implements IGetEmployeeForEdit {
 export interface IGetEmployeeForEdit {
     iD?: number | undefined;
     avatarImage?: string | undefined;
+    avatarFormat?: string | undefined;
+    agreement?: string | undefined;
     employeeDetailsID?: number | undefined;
     firsName?: string | undefined;
     firsName_ka?: string | undefined;
@@ -6390,6 +7082,7 @@ export class GetEmployeeFullReportItem implements IGetEmployeeFullReportItem {
     salaryAfterFine?: number | undefined;
     indRegID?: number | undefined;
     employeeWorkingLogs?: EmployeeWorkingLogItems[] | undefined;
+    employeeWorkingLogWeekHoures?: EmployeeWorkingLogWeekHouresItems[] | undefined;
 
     constructor(data?: IGetEmployeeFullReportItem) {
         if (data) {
@@ -6425,6 +7118,11 @@ export class GetEmployeeFullReportItem implements IGetEmployeeFullReportItem {
                 this.employeeWorkingLogs = [] as any;
                 for (let item of _data["EmployeeWorkingLogs"])
                     this.employeeWorkingLogs!.push(EmployeeWorkingLogItems.fromJS(item));
+            }
+            if (Array.isArray(_data["EmployeeWorkingLogWeekHoures"])) {
+                this.employeeWorkingLogWeekHoures = [] as any;
+                for (let item of _data["EmployeeWorkingLogWeekHoures"])
+                    this.employeeWorkingLogWeekHoures!.push(EmployeeWorkingLogWeekHouresItems.fromJS(item));
             }
         }
     }
@@ -6462,6 +7160,11 @@ export class GetEmployeeFullReportItem implements IGetEmployeeFullReportItem {
             for (let item of this.employeeWorkingLogs)
                 data["EmployeeWorkingLogs"].push(item.toJSON());
         }
+        if (Array.isArray(this.employeeWorkingLogWeekHoures)) {
+            data["EmployeeWorkingLogWeekHoures"] = [];
+            for (let item of this.employeeWorkingLogWeekHoures)
+                data["EmployeeWorkingLogWeekHoures"].push(item.toJSON());
+        }
         return data; 
     }
 }
@@ -6487,6 +7190,7 @@ export interface IGetEmployeeFullReportItem {
     salaryAfterFine?: number | undefined;
     indRegID?: number | undefined;
     employeeWorkingLogs?: EmployeeWorkingLogItems[] | undefined;
+    employeeWorkingLogWeekHoures?: EmployeeWorkingLogWeekHouresItems[] | undefined;
 }
 
 export class EmployeeWorkingLogItems implements IEmployeeWorkingLogItems {
@@ -6578,6 +7282,58 @@ export interface IEmployeeWorkingLogItems {
     fineMinutes?: number | undefined;
     workedInSchedule?: number | undefined;
     workedOutSchedule?: number | undefined;
+    missedMinutes?: number | undefined;
+}
+
+export class EmployeeWorkingLogWeekHouresItems implements IEmployeeWorkingLogWeekHouresItems {
+    fromDate?: Date | undefined;
+    toDate?: Date | undefined;
+    workedMinutesSum?: number | undefined;
+    workedMinutesOvertime?: number | undefined;
+    missedMinutes?: number | undefined;
+
+    constructor(data?: IEmployeeWorkingLogWeekHouresItems) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fromDate = _data["FromDate"] ? new Date(_data["FromDate"].toString()) : <any>undefined;
+            this.toDate = _data["ToDate"] ? new Date(_data["ToDate"].toString()) : <any>undefined;
+            this.workedMinutesSum = _data["WorkedMinutesSum"];
+            this.workedMinutesOvertime = _data["WorkedMinutesOvertime"];
+            this.missedMinutes = _data["MissedMinutes"];
+        }
+    }
+
+    static fromJS(data: any): EmployeeWorkingLogWeekHouresItems {
+        data = typeof data === 'object' ? data : {};
+        let result = new EmployeeWorkingLogWeekHouresItems();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["FromDate"] = this.fromDate ? this.fromDate.toISOString() : <any>undefined;
+        data["ToDate"] = this.toDate ? this.toDate.toISOString() : <any>undefined;
+        data["WorkedMinutesSum"] = this.workedMinutesSum;
+        data["WorkedMinutesOvertime"] = this.workedMinutesOvertime;
+        data["MissedMinutes"] = this.missedMinutes;
+        return data; 
+    }
+}
+
+export interface IEmployeeWorkingLogWeekHouresItems {
+    fromDate?: Date | undefined;
+    toDate?: Date | undefined;
+    workedMinutesSum?: number | undefined;
+    workedMinutesOvertime?: number | undefined;
     missedMinutes?: number | undefined;
 }
 
@@ -7323,6 +8079,426 @@ export interface IIResponseOfGetBranchListItem {
     ok: boolean;
     errors?: string[] | undefined;
     data?: GetBranchListItem | undefined;
+}
+
+export class IResponseOfGetScheduleGeneratorResponse implements IIResponseOfGetScheduleGeneratorResponse {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: GetScheduleGeneratorResponse | undefined;
+
+    constructor(data?: IIResponseOfGetScheduleGeneratorResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? GetScheduleGeneratorResponse.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfGetScheduleGeneratorResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfGetScheduleGeneratorResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfGetScheduleGeneratorResponse {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: GetScheduleGeneratorResponse | undefined;
+}
+
+export class GetScheduleGeneratorResponse implements IGetScheduleGeneratorResponse {
+    scheduleGeneratorItems?: GetScheduleGeneratorItems[] | undefined;
+
+    constructor(data?: IGetScheduleGeneratorResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["ScheduleGeneratorItems"])) {
+                this.scheduleGeneratorItems = [] as any;
+                for (let item of _data["ScheduleGeneratorItems"])
+                    this.scheduleGeneratorItems!.push(GetScheduleGeneratorItems.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetScheduleGeneratorResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetScheduleGeneratorResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.scheduleGeneratorItems)) {
+            data["ScheduleGeneratorItems"] = [];
+            for (let item of this.scheduleGeneratorItems)
+                data["ScheduleGeneratorItems"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IGetScheduleGeneratorResponse {
+    scheduleGeneratorItems?: GetScheduleGeneratorItems[] | undefined;
+}
+
+export class GetScheduleGeneratorItems implements IGetScheduleGeneratorItems {
+    iD?: number | undefined;
+    name?: string | undefined;
+    scheduleTypeID?: number | undefined;
+    scheduleTypeName?: string | undefined;
+    startTime?: string | undefined;
+    endTime?: string | undefined;
+    breakStartTime?: string | undefined;
+    breakEndTime?: string | undefined;
+    minCheckInTime?: string | undefined;
+    maxCheckOutTime?: string | undefined;
+    breakAmount?: number | undefined;
+    weekHouresAmount?: number | undefined;
+    daylyHouresAmount?: number | undefined;
+    onWorkingDaysOnly?: boolean | undefined;
+    onWorkingHouresOnly?: boolean | undefined;
+
+    constructor(data?: IGetScheduleGeneratorItems) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.name = _data["Name"];
+            this.scheduleTypeID = _data["ScheduleTypeID"];
+            this.scheduleTypeName = _data["ScheduleTypeName"];
+            this.startTime = _data["StartTime"];
+            this.endTime = _data["EndTime"];
+            this.breakStartTime = _data["BreakStartTime"];
+            this.breakEndTime = _data["BreakEndTime"];
+            this.minCheckInTime = _data["MinCheckInTime"];
+            this.maxCheckOutTime = _data["MaxCheckOutTime"];
+            this.breakAmount = _data["BreakAmount"];
+            this.weekHouresAmount = _data["WeekHouresAmount"];
+            this.daylyHouresAmount = _data["DaylyHouresAmount"];
+            this.onWorkingDaysOnly = _data["OnWorkingDaysOnly"];
+            this.onWorkingHouresOnly = _data["OnWorkingHouresOnly"];
+        }
+    }
+
+    static fromJS(data: any): GetScheduleGeneratorItems {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetScheduleGeneratorItems();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["Name"] = this.name;
+        data["ScheduleTypeID"] = this.scheduleTypeID;
+        data["ScheduleTypeName"] = this.scheduleTypeName;
+        data["StartTime"] = this.startTime;
+        data["EndTime"] = this.endTime;
+        data["BreakStartTime"] = this.breakStartTime;
+        data["BreakEndTime"] = this.breakEndTime;
+        data["MinCheckInTime"] = this.minCheckInTime;
+        data["MaxCheckOutTime"] = this.maxCheckOutTime;
+        data["BreakAmount"] = this.breakAmount;
+        data["WeekHouresAmount"] = this.weekHouresAmount;
+        data["DaylyHouresAmount"] = this.daylyHouresAmount;
+        data["OnWorkingDaysOnly"] = this.onWorkingDaysOnly;
+        data["OnWorkingHouresOnly"] = this.onWorkingHouresOnly;
+        return data; 
+    }
+}
+
+export interface IGetScheduleGeneratorItems {
+    iD?: number | undefined;
+    name?: string | undefined;
+    scheduleTypeID?: number | undefined;
+    scheduleTypeName?: string | undefined;
+    startTime?: string | undefined;
+    endTime?: string | undefined;
+    breakStartTime?: string | undefined;
+    breakEndTime?: string | undefined;
+    minCheckInTime?: string | undefined;
+    maxCheckOutTime?: string | undefined;
+    breakAmount?: number | undefined;
+    weekHouresAmount?: number | undefined;
+    daylyHouresAmount?: number | undefined;
+    onWorkingDaysOnly?: boolean | undefined;
+    onWorkingHouresOnly?: boolean | undefined;
+}
+
+export class AddScheduleGenerator implements IAddScheduleGenerator {
+    name?: string | undefined;
+    scheduleTypeID?: number | undefined;
+    scheduleTypeName?: string | undefined;
+    startTime?: string | undefined;
+    endTime?: string | undefined;
+    breakStartTime?: string | undefined;
+    breakEndTime?: string | undefined;
+    minCheckInTime?: string | undefined;
+    maxCheckOutTime?: string | undefined;
+    breakAmount?: number | undefined;
+    weekHouresAmount?: number | undefined;
+    daylyHouresAmount?: number | undefined;
+    onWorkingDaysOnly?: boolean | undefined;
+    onWorkingHouresOnly?: boolean | undefined;
+
+    constructor(data?: IAddScheduleGenerator) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["Name"];
+            this.scheduleTypeID = _data["ScheduleTypeID"];
+            this.scheduleTypeName = _data["ScheduleTypeName"];
+            this.startTime = _data["StartTime"];
+            this.endTime = _data["EndTime"];
+            this.breakStartTime = _data["BreakStartTime"];
+            this.breakEndTime = _data["BreakEndTime"];
+            this.minCheckInTime = _data["MinCheckInTime"];
+            this.maxCheckOutTime = _data["MaxCheckOutTime"];
+            this.breakAmount = _data["BreakAmount"];
+            this.weekHouresAmount = _data["WeekHouresAmount"];
+            this.daylyHouresAmount = _data["DaylyHouresAmount"];
+            this.onWorkingDaysOnly = _data["OnWorkingDaysOnly"];
+            this.onWorkingHouresOnly = _data["OnWorkingHouresOnly"];
+        }
+    }
+
+    static fromJS(data: any): AddScheduleGenerator {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddScheduleGenerator();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Name"] = this.name;
+        data["ScheduleTypeID"] = this.scheduleTypeID;
+        data["ScheduleTypeName"] = this.scheduleTypeName;
+        data["StartTime"] = this.startTime;
+        data["EndTime"] = this.endTime;
+        data["BreakStartTime"] = this.breakStartTime;
+        data["BreakEndTime"] = this.breakEndTime;
+        data["MinCheckInTime"] = this.minCheckInTime;
+        data["MaxCheckOutTime"] = this.maxCheckOutTime;
+        data["BreakAmount"] = this.breakAmount;
+        data["WeekHouresAmount"] = this.weekHouresAmount;
+        data["DaylyHouresAmount"] = this.daylyHouresAmount;
+        data["OnWorkingDaysOnly"] = this.onWorkingDaysOnly;
+        data["OnWorkingHouresOnly"] = this.onWorkingHouresOnly;
+        return data; 
+    }
+}
+
+export interface IAddScheduleGenerator {
+    name?: string | undefined;
+    scheduleTypeID?: number | undefined;
+    scheduleTypeName?: string | undefined;
+    startTime?: string | undefined;
+    endTime?: string | undefined;
+    breakStartTime?: string | undefined;
+    breakEndTime?: string | undefined;
+    minCheckInTime?: string | undefined;
+    maxCheckOutTime?: string | undefined;
+    breakAmount?: number | undefined;
+    weekHouresAmount?: number | undefined;
+    daylyHouresAmount?: number | undefined;
+    onWorkingDaysOnly?: boolean | undefined;
+    onWorkingHouresOnly?: boolean | undefined;
+}
+
+export class IResponseOfListOfSalaryGeneratorModel implements IIResponseOfListOfSalaryGeneratorModel {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: SalaryGeneratorModel[] | undefined;
+
+    constructor(data?: IIResponseOfListOfSalaryGeneratorModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            if (Array.isArray(_data["Data"])) {
+                this.data = [] as any;
+                for (let item of _data["Data"])
+                    this.data!.push(SalaryGeneratorModel.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): IResponseOfListOfSalaryGeneratorModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfListOfSalaryGeneratorModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        if (Array.isArray(this.data)) {
+            data["Data"] = [];
+            for (let item of this.data)
+                data["Data"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IIResponseOfListOfSalaryGeneratorModel {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: SalaryGeneratorModel[] | undefined;
+}
+
+export class SalaryGeneratorModel implements ISalaryGeneratorModel {
+    iD?: number | undefined;
+    amount?: number | undefined;
+    name?: string | undefined;
+    currencyID?: number | undefined;
+    salaryTypeID?: number | undefined;
+    salaryType?: string | undefined;
+    isHourly?: boolean | undefined;
+    fineTypeID?: number | undefined;
+    fineType?: string | undefined;
+    fineAmount?: number | undefined;
+    forgivenessTypeID?: number | undefined;
+    forgivenessType?: string | undefined;
+    forgivenessAmount?: number | undefined;
+
+    constructor(data?: ISalaryGeneratorModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.amount = _data["Amount"];
+            this.name = _data["Name"];
+            this.currencyID = _data["CurrencyID"];
+            this.salaryTypeID = _data["SalaryTypeID"];
+            this.salaryType = _data["SalaryType"];
+            this.isHourly = _data["IsHourly"];
+            this.fineTypeID = _data["FineTypeID"];
+            this.fineType = _data["FineType"];
+            this.fineAmount = _data["FineAmount"];
+            this.forgivenessTypeID = _data["ForgivenessTypeID"];
+            this.forgivenessType = _data["ForgivenessType"];
+            this.forgivenessAmount = _data["ForgivenessAmount"];
+        }
+    }
+
+    static fromJS(data: any): SalaryGeneratorModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new SalaryGeneratorModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["Amount"] = this.amount;
+        data["Name"] = this.name;
+        data["CurrencyID"] = this.currencyID;
+        data["SalaryTypeID"] = this.salaryTypeID;
+        data["SalaryType"] = this.salaryType;
+        data["IsHourly"] = this.isHourly;
+        data["FineTypeID"] = this.fineTypeID;
+        data["FineType"] = this.fineType;
+        data["FineAmount"] = this.fineAmount;
+        data["ForgivenessTypeID"] = this.forgivenessTypeID;
+        data["ForgivenessType"] = this.forgivenessType;
+        data["ForgivenessAmount"] = this.forgivenessAmount;
+        return data; 
+    }
+}
+
+export interface ISalaryGeneratorModel {
+    iD?: number | undefined;
+    amount?: number | undefined;
+    name?: string | undefined;
+    currencyID?: number | undefined;
+    salaryTypeID?: number | undefined;
+    salaryType?: string | undefined;
+    isHourly?: boolean | undefined;
+    fineTypeID?: number | undefined;
+    fineType?: string | undefined;
+    fineAmount?: number | undefined;
+    forgivenessTypeID?: number | undefined;
+    forgivenessType?: string | undefined;
+    forgivenessAmount?: number | undefined;
 }
 
 export class AddBranchRequest implements IAddBranchRequest {
@@ -10302,10 +11478,12 @@ export interface IGetDeviceUserLogResponse {
 }
 
 export class GetDeviceUserLogItem implements IGetDeviceUserLogItem {
+    iD?: number | undefined;
     firsName?: string | undefined;
+    deviceID?: number | undefined;
     lastName?: string | undefined;
     personalNumber?: string | undefined;
-    recordTime?: Date | undefined;
+    recordTime?: string | undefined;
     userIDInDevice?: number | undefined;
     machineNumber?: number | undefined;
     verifyMode?: number | undefined;
@@ -10322,10 +11500,12 @@ export class GetDeviceUserLogItem implements IGetDeviceUserLogItem {
 
     init(_data?: any) {
         if (_data) {
+            this.iD = _data["ID"];
             this.firsName = _data["FirsName"];
+            this.deviceID = _data["DeviceID"];
             this.lastName = _data["LastName"];
             this.personalNumber = _data["PersonalNumber"];
-            this.recordTime = _data["RecordTime"] ? new Date(_data["RecordTime"].toString()) : <any>undefined;
+            this.recordTime = _data["RecordTime"];
             this.userIDInDevice = _data["UserIDInDevice"];
             this.machineNumber = _data["MachineNumber"];
             this.verifyMode = _data["VerifyMode"];
@@ -10342,10 +11522,12 @@ export class GetDeviceUserLogItem implements IGetDeviceUserLogItem {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
         data["FirsName"] = this.firsName;
+        data["DeviceID"] = this.deviceID;
         data["LastName"] = this.lastName;
         data["PersonalNumber"] = this.personalNumber;
-        data["RecordTime"] = this.recordTime ? this.recordTime.toISOString() : <any>undefined;
+        data["RecordTime"] = this.recordTime;
         data["UserIDInDevice"] = this.userIDInDevice;
         data["MachineNumber"] = this.machineNumber;
         data["VerifyMode"] = this.verifyMode;
@@ -10355,10 +11537,12 @@ export class GetDeviceUserLogItem implements IGetDeviceUserLogItem {
 }
 
 export interface IGetDeviceUserLogItem {
+    iD?: number | undefined;
     firsName?: string | undefined;
+    deviceID?: number | undefined;
     lastName?: string | undefined;
     personalNumber?: string | undefined;
-    recordTime?: Date | undefined;
+    recordTime?: string | undefined;
     userIDInDevice?: number | undefined;
     machineNumber?: number | undefined;
     verifyMode?: number | undefined;
@@ -10519,6 +11703,194 @@ export interface IGetDeviceListItem {
     locationInBranch?: string | undefined;
     state?: number | undefined;
     name?: string | undefined;
+}
+
+export class DeviceUserLog implements IDeviceUserLog {
+    iD?: number | undefined;
+    machineNumber?: number | undefined;
+    indRegID?: number | undefined;
+    dwVerifyMode?: number | undefined;
+    dwInOutMode?: number | undefined;
+    dateTimeRecord?: Date | undefined;
+    isActive?: boolean | undefined;
+    deviceID?: number | undefined;
+    manualyAdd?: boolean | undefined;
+
+    constructor(data?: IDeviceUserLog) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.machineNumber = _data["MachineNumber"];
+            this.indRegID = _data["IndRegID"];
+            this.dwVerifyMode = _data["dwVerifyMode"];
+            this.dwInOutMode = _data["dwInOutMode"];
+            this.dateTimeRecord = _data["DateTimeRecord"] ? new Date(_data["DateTimeRecord"].toString()) : <any>undefined;
+            this.isActive = _data["IsActive"];
+            this.deviceID = _data["DeviceID"];
+            this.manualyAdd = _data["ManualyAdd"];
+        }
+    }
+
+    static fromJS(data: any): DeviceUserLog {
+        data = typeof data === 'object' ? data : {};
+        let result = new DeviceUserLog();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["MachineNumber"] = this.machineNumber;
+        data["IndRegID"] = this.indRegID;
+        data["dwVerifyMode"] = this.dwVerifyMode;
+        data["dwInOutMode"] = this.dwInOutMode;
+        data["DateTimeRecord"] = this.dateTimeRecord ? this.dateTimeRecord.toISOString() : <any>undefined;
+        data["IsActive"] = this.isActive;
+        data["DeviceID"] = this.deviceID;
+        data["ManualyAdd"] = this.manualyAdd;
+        return data; 
+    }
+}
+
+export interface IDeviceUserLog {
+    iD?: number | undefined;
+    machineNumber?: number | undefined;
+    indRegID?: number | undefined;
+    dwVerifyMode?: number | undefined;
+    dwInOutMode?: number | undefined;
+    dateTimeRecord?: Date | undefined;
+    isActive?: boolean | undefined;
+    deviceID?: number | undefined;
+    manualyAdd?: boolean | undefined;
+}
+
+export class IResponseOfGetDeviceUserLogItemForEdit implements IIResponseOfGetDeviceUserLogItemForEdit {
+    ok!: boolean;
+    errors?: string[] | undefined;
+    data?: GetDeviceUserLogItemForEdit | undefined;
+
+    constructor(data?: IIResponseOfGetDeviceUserLogItemForEdit) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ok = _data["Ok"];
+            if (Array.isArray(_data["Errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["Errors"])
+                    this.errors!.push(item);
+            }
+            this.data = _data["Data"] ? GetDeviceUserLogItemForEdit.fromJS(_data["Data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IResponseOfGetDeviceUserLogItemForEdit {
+        data = typeof data === 'object' ? data : {};
+        let result = new IResponseOfGetDeviceUserLogItemForEdit();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Ok"] = this.ok;
+        if (Array.isArray(this.errors)) {
+            data["Errors"] = [];
+            for (let item of this.errors)
+                data["Errors"].push(item);
+        }
+        data["Data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IIResponseOfGetDeviceUserLogItemForEdit {
+    ok: boolean;
+    errors?: string[] | undefined;
+    data?: GetDeviceUserLogItemForEdit | undefined;
+}
+
+export class GetDeviceUserLogItemForEdit implements IGetDeviceUserLogItemForEdit {
+    iD?: number | undefined;
+    machineNumber?: number | undefined;
+    indRegID?: number | undefined;
+    dwVerifyMode?: number | undefined;
+    dwInOutMode?: number | undefined;
+    dateTimeRecord?: Date | undefined;
+    isActive?: boolean | undefined;
+    deviceID?: number | undefined;
+    manualyAdd?: boolean | undefined;
+
+    constructor(data?: IGetDeviceUserLogItemForEdit) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.iD = _data["ID"];
+            this.machineNumber = _data["MachineNumber"];
+            this.indRegID = _data["IndRegID"];
+            this.dwVerifyMode = _data["dwVerifyMode"];
+            this.dwInOutMode = _data["dwInOutMode"];
+            this.dateTimeRecord = _data["DateTimeRecord"] ? new Date(_data["DateTimeRecord"].toString()) : <any>undefined;
+            this.isActive = _data["IsActive"];
+            this.deviceID = _data["DeviceID"];
+            this.manualyAdd = _data["ManualyAdd"];
+        }
+    }
+
+    static fromJS(data: any): GetDeviceUserLogItemForEdit {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetDeviceUserLogItemForEdit();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ID"] = this.iD;
+        data["MachineNumber"] = this.machineNumber;
+        data["IndRegID"] = this.indRegID;
+        data["dwVerifyMode"] = this.dwVerifyMode;
+        data["dwInOutMode"] = this.dwInOutMode;
+        data["DateTimeRecord"] = this.dateTimeRecord ? this.dateTimeRecord.toISOString() : <any>undefined;
+        data["IsActive"] = this.isActive;
+        data["DeviceID"] = this.deviceID;
+        data["ManualyAdd"] = this.manualyAdd;
+        return data; 
+    }
+}
+
+export interface IGetDeviceUserLogItemForEdit {
+    iD?: number | undefined;
+    machineNumber?: number | undefined;
+    indRegID?: number | undefined;
+    dwVerifyMode?: number | undefined;
+    dwInOutMode?: number | undefined;
+    dateTimeRecord?: Date | undefined;
+    isActive?: boolean | undefined;
+    deviceID?: number | undefined;
+    manualyAdd?: boolean | undefined;
 }
 
 export class DeviceUserListRequest implements IDeviceUserListRequest {

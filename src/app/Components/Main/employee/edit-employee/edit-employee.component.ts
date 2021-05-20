@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Api } from 'src/app/Services/SwaggerClient';
 
@@ -22,7 +23,7 @@ export class EditEmployeeComponent implements OnInit {
   HolidaysArray:number[]
   standartSchedule:boolean
   ErrorMessageResponse:String
-  constructor(public ParameterService:Api.ParametersService,public EmployeService:Api.EmployeeService,private router:Router,private route:ActivatedRoute) { }
+  constructor(public ParameterService:Api.ParametersService,public EmployeService:Api.EmployeeService,private router:Router,private route:ActivatedRoute,private sanitizer:DomSanitizer) { }
 
   ngOnInit(): void {
     const routeParams = this.route.snapshot.paramMap;
@@ -44,11 +45,11 @@ export class EditEmployeeComponent implements OnInit {
          console.log(res);
        }
     })
-    this.EmployeService.getEmployeeList().subscribe(res=>{
-      if(res.ok){
-       // this.AddEmployee=res.data.getEmployeeList.find(element=>element.iD==productIdFromRoute)
-      }
-    })
+    // this.EmployeService.getEmployeeList().subscribe(res=>{
+    //   if(res.ok){
+    //    // this.AddEmployee=res.data.getEmployeeList.find(element=>element.iD==productIdFromRoute)
+    //   }
+    // })
     this.ParameterService.getHolidayTypeList().subscribe(res=>{
       if(res.ok){
         this.HolidayTypes=res.data.holidayTypes
@@ -101,6 +102,26 @@ export class EditEmployeeComponent implements OnInit {
     this.EmployeService.getEmployeeForEdit(productIdFromRoute).subscribe(res=>{
       if(res.ok){
         this.AddEmployee=res.data
+        if(!this.AddEmployee.salary){
+          this.AddEmployee.salary=new Api.SalaryData();
+        }
+        if(! this.AddEmployee.forgiveness){
+        this.AddEmployee.forgiveness=new Api.Forgiveness();
+      }
+      if(!this.AddEmployee.fine){
+        this.AddEmployee.fine=new Api.Fine();
+      }
+      if(!this.AddEmployee.salary){
+        this.AddEmployee.salary=new Api.SalaryData();
+      }
+      if(!this.AddEmployee.schedule){
+        this.AddEmployee.schedule=new Api.ScheduleData();
+      }if(!this.AddEmployee.employeeHolidays){
+        this.AddEmployee.employeeHolidays=new Array<Api.EmployeeHolidays>();
+        var firsArrayObj=new Api.EmployeeHolidays();
+        firsArrayObj.holidayTypeID=0;
+        this.AddEmployee.employeeHolidays.push(firsArrayObj);
+      }
       }else{
         console.log(res.errors);
       }
@@ -114,6 +135,31 @@ export class EditEmployeeComponent implements OnInit {
   changeScheduleType(){
     this.standartSchedule=!this.standartSchedule;
     console.log(this.standartSchedule);
+  }
+  onFilesChosen(event){
+  
+ 
+    if (event.target.files && event.target.files[0]) {
+      console.log(event);
+      var filesAmount = event.target.files.length;
+      for (let i = 0; i < filesAmount; i++) {
+              var reader = new FileReader();
+
+              reader.onload = (event:any) => {
+              
+                 this.AddEmployee.avatarImage=event.target.result; 
+                
+              }
+
+              reader.readAsDataURL(event.target.files[i]);
+    
+      }
+  }
+
+  }
+  removeChosen(index){
+
+    this.AddEmployee.avatarImage=undefined;
   }
   addEmployeeSubmit(){
     if(this.AddEmployee.dateOfBirth){
@@ -135,5 +181,32 @@ export class EditEmployeeComponent implements OnInit {
         this.ErrorMessageResponse=res.errors[0]
       }
     })
+  }
+  onFilesChosenDoc(event){
+  
+  
+    if (event.target.files && event.target.files[0]) {
+      var filesAmount = event.target.files.length;
+      for (let i = 0; i < filesAmount; i++) {
+              var reader = new FileReader();
+
+              reader.onload = (event:any) => {
+              
+                 this.AddEmployee.agreement=event.target.result; 
+                
+              }
+
+              reader.readAsDataURL(event.target.files[i]);
+      }
+  }
+
+  }
+  removeChosenDoc(index){
+
+    this.AddEmployee.agreement=undefined;
+  }
+  getDocURL() {
+    console.log(this.sanitizer.bypassSecurityTrustUrl(this.AddEmployee.agreement));
+    return this.sanitizer.bypassSecurityTrustResourceUrl(this.AddEmployee.agreement);
   }
 }

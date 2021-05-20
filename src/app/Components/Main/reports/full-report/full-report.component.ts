@@ -11,16 +11,21 @@ export class FullReportComponent implements OnInit {
 
   month:number
   year:number
-  constructor(public EmployeeService:Api.EmployeeService,public ExceServ:ExcelService) { }
+  branchID:number
+  BranchList:Api.GetBranchListItem[]
+  constructor(public EmployeeService:Api.EmployeeService,public ExceServ:ExcelService,public ParameterService:Api.ParametersService) { }
 
   ngOnInit(): void {
+    this.ParameterService.getBranchList().subscribe(res=>{
+      this.BranchList=res.data.branchList
+    })
   }
   Generate(){
    this.CreateExce(this.year,this.month);
   }
 
   CreateExce(year:number,month:number){
-    this.EmployeeService.getEmployeeFullReport(month,year,0).subscribe(res=>{
+    this.EmployeeService.getEmployeeFullReport(month,year,0,this.branchID).subscribe(res=>{
       this.ExceServ.exportAsExcelFull("სატესტო ექსელი","",[],[],[],"Report","Main",res.data.getEmployeeFullReportItems);
     })
   }
